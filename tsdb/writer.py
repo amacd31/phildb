@@ -27,37 +27,26 @@ class TSWriter:
         metaData.attrs.referenceTime = date.fromordinal(1).isoformat()
 
         data_group = self.hdf5.createGroup('/', 'data', 'data group')
-        self.hdf5.createGroup(data_group, 'timeseries', 'time series data')
-
-        self.hdf5.flush()
-
-    def write(self, date, value):
-
-        root = self.hdf5.getNode('/data/timeseries')
+        #self.hdf5.createGroup(data_group, 'timeseries', 'time series data')
 
         try:
-            self.hdf5.createGroup(root,
-                     'Y' + str(date.year)
-                )
-        except tables.exceptions.NodeError, e:
-            pass
-
-        year_group = self.hdf5.getNode('/data/timeseries/Y' + str(date.year))
-
-        try:
-            new_table = self.hdf5.createTable(year_group,
-                     'M' + str(date.month),
+            new_table = self.hdf5.createTable(data_group,
+                     'timeseries',
                      TabDesc
                 )
         except tables.exceptions.NodeError, e:
             pass
 
-        month_table = self.hdf5.getNode('/data/timeseries/Y' + str(date.year) + '/M' + str(date.month))
+        self.hdf5.flush()
+
+    def write(self, date, value):
+
+        ts_table = self.hdf5.getNode('/data/timeseries')
 
         query = '(time == %d)' % (calendar.timegm(date.utctimetuple()))
-        result = month_table.get_where_list(query)
+        result = ts_table.get_where_list(query)
         if len(result) == 0:
-            indexRow = month_table.row
+            indexRow = ts_table.row
             indexRow["time"] = calendar.timegm(date.utctimetuple())
             indexRow["isotime"] = date.isoformat()
             indexRow["value"] = value
