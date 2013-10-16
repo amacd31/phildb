@@ -14,7 +14,7 @@ class TSWriter:
     """
 
     def __init__(self, filename, mode):
-        self.hdf5 = tables.openFile(filename, mode)
+        self.hdf5 = tables.openFile(filename, mode, complib='blosc')
 
     def create_skeleton(self):
         """Create the skeleton of the data self.hdf5.
@@ -49,8 +49,6 @@ class TSWriter:
                      'M' + str(date.month),
                      TabDesc
                 )
-            new_table.cols.time.create_index()
-            new_table.cols.isotime.create_index()
         except tables.exceptions.NodeError, e:
             pass
 
