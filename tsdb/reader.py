@@ -1,47 +1,26 @@
-import calendar
-import os
-import numpy as np
-import tables
+from struct import unpack, calcsize
 import pandas as pd
-from datetime import datetime, date
+import os
 
-class TabDesc(tables.IsDescription):
-    time = tables.Int32Col(dflt=0, pos=0)
-    isotime = tables.StringCol(26)
-    value = tables.Float64Col(dflt=np.nan, pos=1)
+import config
 
-class TSReader:
-    """
-    """
+def read_all(station_id):
+    filename = os.path.join(config.tsdb_path, station_id + '_daily_ts.csv.tsdb')
 
-    def __init__(self, filename, mode):
-        self.hdf5 = tables.openFile(filename, mode)
+    field_names = ['date', 'value', 'metaID']
+    entry_format = 'ldi' # long, double, int; See field names above.
+    entry_size = calcsize(entry_format)
 
-    def read(self, start_date, end_date):
+    records = []
+    with open(filename, mode='rb') as f:
+        entry_count = os.fstat(f.fileno()).st_size / entry_size
+        for i in range(entry_count):
+            record = f.read(entry_size)
+            records.append(unpack(entry_format, record))
 
-        start_year = start_date.year
-        end_year = end_date.year
+    df = pd.DataFrame(records, columns = field_names)
+    df['date'] = pd.to_datetime(df['date'], unit='s')
+    df = df.set_index('date')
 
-        ts_table = self.hdf5.getNode('/data/timeseries')
+    return df
 
-        query = '(time >= %d) & (time <= %d)' % (calendar.timegm(start_date.utctimetuple()), calendar.timegm(end_date.utctimetuple()))
-
-        df = pd.DataFrame(ts_table.read_where(query))
-        df.index = pd.to_datetime(df['isotime'])
-        ts = df['value']
-
-        return ts
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.__del__()
-
-    def __del__(self):
-        if self.hdf5 is not None:
-            self.hdf5.close()
-            self.hdf5 = None
-
-    def __str__(self):
-        return str(self.hdf5)
