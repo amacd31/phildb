@@ -2,10 +2,8 @@ from struct import unpack, calcsize
 import pandas as pd
 import os
 
-import config
-
-def read_all(station_id):
-    filename = os.path.join(config.tsdb_path, station_id + '_daily_ts.csv.tsdb')
+def read_all(tsdb_path, station_id):
+    filename = os.path.join(tsdb_path, station_id + '.tsdb')
 
     field_names = ['date', 'value', 'metaID']
     entry_format = 'ldi' # long, double, int; See field names above.
