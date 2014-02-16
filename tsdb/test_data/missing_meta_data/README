@@ -1,0 +1,3 @@
+Note that the sqlite file tsdb.sqlite does not appear in this directory.
+
+This empty directory is used to test the start up check for missing metadata db.
