@@ -2,3 +2,4 @@
 *.png
 .coverage
 cover
+*.swp
