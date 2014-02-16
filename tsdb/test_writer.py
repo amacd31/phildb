@@ -9,7 +9,8 @@ from . import writer
 
 class WriterTest(unittest.TestCase):
     def setUp(self):
-        self.tsdb_path =  tempfile.mkdtemp()
+        self.tsdb_path = tempfile.mkdtemp()
+        self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.tsdb')
 
     def tearDown(self):
         try:
@@ -19,8 +20,8 @@ class WriterTest(unittest.TestCase):
                 raise
 
     def test_bulk_write(self):
-        writer.bulk_write(self.tsdb_path, 'ABCD', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
-        with open(os.path.join(self.tsdb_path, 'ABCD.tsdb')) as file:
+        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
+        with open(self.tsdb_file) as file:
             datafile = file.read()
 
         self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', md5.md5(datafile).hexdigest())
