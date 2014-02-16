@@ -1,11 +1,23 @@
 import os
+import shutil
+import sqlite3
+import tempfile
 import unittest
 
 from .database import TSDB
+from .create import create
 
 class DatabaseTest(unittest.TestCase):
     def setUp(self):
         self.test_data_dir = os.path.join(os.path.dirname(__file__), 'test_data')
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        try:
+            shutil.rmtree(self.temp_dir)
+        except OSError as e:
+            if e.errno != 2: # Code 2: No such file or directory.
+                raise
 
     def test_tsdb_exists(self):
         print os.path.join(self.test_data_dir, 'this_tsdb_does_not_exist')
@@ -34,4 +46,17 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
         self.assertEqual(db._TSDB__data_dir(), os.path.join(db_name, 'data'))
+
+    def test_add_ts_entry(self):
+        create(self.temp_dir)
+        db = TSDB(self.temp_dir)
+        db.add_timeseries('410730')
+
+        conn = sqlite3.connect(db._TSDB__meta_data_db())
+        c = conn.cursor()
+        c.execute("SELECT * FROM timeseries;")
+        pk, primary_id, ts_id = c.fetchone();
+
+        self.assertEqual(primary_id, '410730')
+        self.assertEqual(ts_id, 'be29d3018ddb34acbe2174ee6522fd00')
 

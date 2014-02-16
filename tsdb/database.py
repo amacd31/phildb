@@ -1,3 +1,4 @@
+import md5
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +8,7 @@ Session = sessionmaker()
 from . import constants
 from . import reader
 from . import writer
-from .dbstructures import SchemaVersion
+from .dbstructures import SchemaVersion, Timeseries
 
 class TSDB(object):
     def __init__(self, tsdb_path):
@@ -40,4 +41,11 @@ class TSDB(object):
             raise e
 
         return version
+
+    def add_timeseries(self, identifier):
+        the_id = identifier.strip()
+        session = Session()
+        ts = Timeseries(primary_id = identifier, timeseries_id = md5.md5(identifier).hexdigest())
+        session.add(ts)
+        session.commit()
 
