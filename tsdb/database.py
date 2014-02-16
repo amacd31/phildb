@@ -49,3 +49,22 @@ class TSDB(object):
         session.add(ts)
         session.commit()
 
+    def __get_record_by_id(self, identifier):
+        session = Session()
+        query = session.query(Timeseries).filter(Timeseries.primary_id == identifier)
+        try:
+            record = query.one()
+        except MultipleResultsFound, e:
+            raise e
+
+        return record
+
+    def __get_tsdb_file_by_id(self, identifier):
+        record = self.__get_record_by_id(identifier)
+        return os.path.join(self.__data_dir(), record.timeseries_id +'.tsdb')
+
+    def bulk_write(self, identifier, ts):
+        writer.bulk_write(self.__get_tsdb_file_by_id(identifier), ts)
+
+    def read_all(self, identifier):
+        return reader.read_all(self.__get_tsdb_file_by_id(identifier))
