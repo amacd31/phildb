@@ -28,7 +28,7 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        self.assertEqual(db.version(), 1)
+        self.assertEqual(db.version(), "0.0.1")
 
     def test_tsdb_data_dir(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
