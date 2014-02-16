@@ -18,7 +18,7 @@ def create(tsdb_path):
     else:
         raise ValueError('TSDB already exists at: {0}'.format(tsdb_path))
 
-    engine = create_engine('sqlite:///{0}{1}{2}'.format(tsdb_path, os.path.sep, constants.METADATA_DB), echo=True)
+    engine = create_engine('sqlite:///{0}{1}{2}'.format(tsdb_path, os.path.sep, constants.METADATA_DB))
     dbstructures.Base.metadata.create_all(engine)
 
     Session.configure(bind=engine)

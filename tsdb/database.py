@@ -20,7 +20,7 @@ class TSDB(object):
         if not os.path.exists(self.__meta_data_db()):
             raise IOError("TSDB doesn't contain meta-database ({0})".format(self.__meta_data_db()))
 
-        self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()), echo=True)
+        self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()))
         Session.configure(bind=self.__engine)
 
         assert self.version() == "0.0.1";
