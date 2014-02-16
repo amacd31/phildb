@@ -2,9 +2,7 @@ from struct import unpack, calcsize
 import pandas as pd
 import os
 
-def read_all(tsdb_path, station_id):
-    filename = os.path.join(tsdb_path, station_id + '.tsdb')
-
+def read_all(filename):
     field_names = ['date', 'value', 'metaID']
     entry_format = 'ldi' # long, double, int; See field names above.
     entry_size = calcsize(entry_format)
