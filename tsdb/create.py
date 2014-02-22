@@ -26,7 +26,6 @@ def create(tsdb_path):
 
     version = dbstructures.SchemaVersion(version='0.0.1')
     session.add(version)
-    print version
     session.commit()
 
 if __name__ == "__main__":

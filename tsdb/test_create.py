@@ -32,7 +32,6 @@ class CreateDatabaseTest(unittest.TestCase):
 
     def test_protect_existing(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
-        print db_name
         with self.assertRaises(ValueError) as context:
             create(db_name)
 

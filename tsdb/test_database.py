@@ -20,7 +20,6 @@ class DatabaseTest(unittest.TestCase):
                 raise
 
     def test_tsdb_exists(self):
-        print os.path.join(self.test_data_dir, 'this_tsdb_does_not_exist')
         db_name = os.path.join(self.test_data_dir, 'this_tsdb_does_not_exist')
         with self.assertRaises(IOError) as context:
             db = TSDB(db_name)
