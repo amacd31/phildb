@@ -60,3 +60,19 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(primary_id, '410730')
         self.assertEqual(ts_id, 'be29d3018ddb34acbe2174ee6522fd00')
 
+    def test_read_all(self):
+        db_name = os.path.join(self.test_data_dir, 'test_tsdb')
+        db = TSDB(db_name)
+
+        results = db.read_all('410730')
+
+        self.assertEqual(results.index[0].year, 2014)
+        self.assertEqual(results.index[0].month, 1)
+        self.assertEqual(results.index[0].day, 1)
+        self.assertEqual(results.index[1].day, 2)
+        self.assertEqual(results.index[2].day, 3)
+
+        self.assertEqual(results.value[0], 1)
+        self.assertEqual(results.value[1], 2)
+        self.assertEqual(results.value[2], 3)
+
