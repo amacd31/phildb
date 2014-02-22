@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import shutil
 import sqlite3
@@ -12,9 +13,21 @@ class DatabaseTest(unittest.TestCase):
         self.test_data_dir = os.path.join(os.path.dirname(__file__), 'test_data')
         self.temp_dir = tempfile.mkdtemp()
 
+        self.test_tsdb = os.path.join(tempfile.mkdtemp(), 'tsdb')
+        shutil.copytree(os.path.join(os.path.dirname(__file__),
+            'test_data',
+            'test_tsdb'),
+            self.test_tsdb)
+
     def tearDown(self):
         try:
             shutil.rmtree(self.temp_dir)
+        except OSError as e:
+            if e.errno != 2: # Code 2: No such file or directory.
+                raise
+
+        try:
+            shutil.rmtree(self.test_tsdb)
         except OSError as e:
             if e.errno != 2: # Code 2: No such file or directory.
                 raise
@@ -74,4 +87,22 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.value[0], 1)
         self.assertEqual(results.value[1], 2)
         self.assertEqual(results.value[2], 3)
+
+    def test_bulk_write(self):
+        db = TSDB(self.test_tsdb)
+
+        db.add_timeseries('410731')
+        db.bulk_write('410731', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
+
+        results = db.read_all('410731')
+
+        self.assertEqual(results.index[0].year, 2014)
+        self.assertEqual(results.index[0].month, 1)
+        self.assertEqual(results.index[0].day, 1)
+        self.assertEqual(results.index[1].day, 2)
+        self.assertEqual(results.index[2].day, 3)
+
+        self.assertEqual(results.value[0], 1.0)
+        self.assertEqual(results.value[1], 2.0)
+        self.assertEqual(results.value[2], 3.0)
 
