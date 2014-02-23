@@ -1,3 +1,4 @@
+from datetime import datetime
 import md5
 import os
 from sqlalchemy import create_engine
@@ -59,12 +60,19 @@ class TSDB(object):
 
         return record
 
-    def __get_tsdb_file_by_id(self, identifier):
+    def __get_tsdb_file_by_id(self, identifier, ftype='tsdb'):
         record = self.__get_record_by_id(identifier)
-        return os.path.join(self.__data_dir(), record.timeseries_id +'.tsdb')
+        return os.path.join(self.__data_dir(), record.timeseries_id + '.' + ftype)
 
     def bulk_write(self, identifier, ts):
         writer.bulk_write(self.__get_tsdb_file_by_id(identifier), ts)
+
+    def write(self, identifier, ts):
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier), ts)
+
+        log_file = self.__get_tsdb_file_by_id(identifier, 'hdf5')
+
+        writer.write_log(log_file, modified, datetime.utcnow())
 
     def read_all(self, identifier):
         return reader.read_all(self.__get_tsdb_file_by_id(identifier))

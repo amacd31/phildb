@@ -3,6 +3,8 @@ from datetime import datetime as dt
 import os
 from struct import pack, unpack, calcsize
 
+from .log_handler import LogHandler
+
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
 entry_size = calcsize(entry_format)
@@ -87,3 +89,12 @@ def write(tsdb_file, ts):
         raise NotImplementedError
 
     return modified_entries
+
+def write_log(log_file, modified, replacement_datetime):
+
+    if not os.path.exists(log_file):
+        with LogHandler(log_file, 'w') as writer:
+            writer.create_skeleton()
+
+    with LogHandler(log_file, 'a') as writer:
+        writer.write(modified, calendar.timegm(replacement_datetime.utctimetuple()))

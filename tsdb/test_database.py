@@ -106,3 +106,21 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.value[1], 2.0)
         self.assertEqual(results.value[2], 3.0)
 
+    def test_update_and_append(self):
+        db = TSDB(self.test_tsdb)
+        db.write('410730', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]])
+
+        data = db.read_all('410730')
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertEqual(2.5, data.values[1][0])
+        self.assertEqual(3.0, data.values[2][0])
+        self.assertEqual(4.0, data.values[3][0])
+        self.assertEqual(5.0, data.values[4][0])
+        self.assertEqual(6.0, data.values[5][0])
+        self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
+        self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
+        self.assertEqual(datetime(2014,1,4), data.index[3].to_pydatetime())
+        self.assertEqual(datetime(2014,1,5), data.index[4].to_pydatetime())
+        self.assertEqual(datetime(2014,1,6), data.index[5].to_pydatetime())
+
