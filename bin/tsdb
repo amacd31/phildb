@@ -1,0 +1,7 @@
+#!/bin/bash
+
+TSDB_PATH=$(cd `dirname "${BASH_SOURCE[0]}"`/.. && pwd)
+
+export PYTHONPATH=$TSDB_PATH:$PYTHONPATH
+
+ipython -i $TSDB_PATH/bin/setup.py $@

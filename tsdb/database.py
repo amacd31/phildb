@@ -76,3 +76,6 @@ class TSDB(object):
 
     def read_all(self, identifier):
         return reader.read_all(self.__get_tsdb_file_by_id(identifier))
+
+    def __str__(self):
+        return self.tsdb_path
