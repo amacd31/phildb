@@ -1,6 +1,9 @@
 from struct import unpack, calcsize
+import numpy as np
 import pandas as pd
 import os
+
+from .constants import METADATA_MISSING_VALUE
 
 def read_all(filename):
     field_names = ['date', 'value', 'metaID']
@@ -17,6 +20,8 @@ def read_all(filename):
     df = pd.DataFrame(records, columns = field_names)
     df['date'] = pd.to_datetime(df['date'], unit='s')
     df = df.set_index('date')
+
+    df.value[df.metaID == METADATA_MISSING_VALUE] = np.nan
 
     return df
 

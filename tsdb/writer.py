@@ -1,8 +1,10 @@
 import calendar
 from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta
 import os
 from struct import pack, unpack, calcsize
 
+from .constants import MISSING_VALUE, METADATA_MISSING_VALUE
 from .log_handler import LogHandler
 
 field_names = ['date', 'value', 'metaID']
@@ -82,6 +84,20 @@ def write(tsdb_file, ts):
     # We are appending data
     elif start_date > last_record_date and (start_date - last_record_date).days == 1:
         with open(tsdb_file, 'ab') as writer:
+            for date, value in zip(ts[0], ts[1]):
+                data = pack('ldi', calendar.timegm(date.utctimetuple()), value, 0)
+                writer.write(data)
+    elif start_date > last_record_date and (start_date - last_record_date).days > 1:
+        with open(tsdb_file, 'a+b') as writer:
+            print tsdb_file
+            delta_days = (start_date - last_record_date).days
+            for day in xrange(1, delta_days):
+                the_date = last_record_date + relativedelta(days=day)
+                data = pack('ldi',
+                            calendar.timegm(the_date.utctimetuple()),
+                                            MISSING_VALUE,
+                                            METADATA_MISSING_VALUE)
+                writer.write(data)
             for date, value in zip(ts[0], ts[1]):
                 data = pack('ldi', calendar.timegm(date.utctimetuple()), value, 0)
                 writer.write(data)
