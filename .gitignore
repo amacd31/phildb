@@ -1,5 +1,7 @@
 *.pyc
 *.png
 .coverage
+coverage.xml
 cover
+nosetests.xml
 *.swp
