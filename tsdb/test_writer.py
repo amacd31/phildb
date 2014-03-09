@@ -108,3 +108,14 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(datetime(2014,1,5), data.index[4].to_pydatetime())
         self.assertEqual(datetime(2014,1,6), data.index[5].to_pydatetime())
 
+    def test_update_multiple_with_gap(self):
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [np.nan, 3.5]])
+
+        self.assertEqual(2, len(modified))
+        self.assertEqual((1388620800, 2.0, 0), modified[0])
+        self.assertEqual((1388707200, 3.0, 0), modified[1])
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertTrue(np.isnan(data.values[1][0]))
+        self.assertEqual(3.5, data.values[2][0])

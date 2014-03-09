@@ -1,6 +1,7 @@
 import calendar
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
+import numpy as np
 import os
 from struct import pack, unpack, calcsize
 
@@ -11,13 +12,26 @@ field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
 entry_size = calcsize(entry_format)
 
+def __pack(record_date, value, default_flag=0):
+
+    if np.isnan(value):
+        data = pack('ldi',
+                    record_date,
+                    MISSING_VALUE,
+                    METADATA_MISSING_VALUE)
+    else:
+        data = pack('ldi', record_date, value, default_flag)
+
+    return data
+
 def bulk_write(tsdb_file, x):
     """
         Good for initial bulk load. Expects continuous time series.
     """
     with open(tsdb_file, 'wb') as writer:
         for date, value in zip(x[0], x[1]):
-            data = pack('ldi', calendar.timegm(date.utctimetuple()), value, 0)
+            datestamp = calendar.timegm(date.utctimetuple())
+            data = __pack(datestamp, value)
             writer.write(data)
 
 def write(tsdb_file, ts):
@@ -74,10 +88,10 @@ def write(tsdb_file, ts):
                     writer.seek(entry_size * (rec_count +1) + (entry_size * offset), os.SEEK_SET)
                 elif overlapping and records[rec_count][1] != value:
                     modified_entries.append(records[rec_count])
-                    data = pack('ldi', datestamp, value, 0)
+                    data = __pack(datestamp, value)
                     writer.write(data)
                 else:
-                    data = pack('ldi', datestamp, value, 0)
+                    data = __pack(datestamp, value)
                     writer.write(data)
                 rec_count += 1
 
@@ -85,7 +99,8 @@ def write(tsdb_file, ts):
     elif start_date > last_record_date and (start_date - last_record_date).days == 1:
         with open(tsdb_file, 'ab') as writer:
             for date, value in zip(ts[0], ts[1]):
-                data = pack('ldi', calendar.timegm(date.utctimetuple()), value, 0)
+                datestamp = calendar.timegm(date.utctimetuple())
+                data = __pack(datestamp, value)
                 writer.write(data)
     elif start_date > last_record_date and (start_date - last_record_date).days > 1:
         with open(tsdb_file, 'a+b') as writer:
@@ -99,7 +114,8 @@ def write(tsdb_file, ts):
                                             METADATA_MISSING_VALUE)
                 writer.write(data)
             for date, value in zip(ts[0], ts[1]):
-                data = pack('ldi', calendar.timegm(date.utctimetuple()), value, 0)
+                datestamp = calendar.timegm(date.utctimetuple())
+                data = __pack(datestamp, value)
                 writer.write(data)
     else: # Not yet supported
         raise NotImplementedError
