@@ -104,7 +104,6 @@ def write(tsdb_file, ts):
                 writer.write(data)
     elif start_date > last_record_date and (start_date - last_record_date).days > 1:
         with open(tsdb_file, 'a+b') as writer:
-            print tsdb_file
             delta_days = (start_date - last_record_date).days
             for day in xrange(1, delta_days):
                 the_date = last_record_date + relativedelta(days=day)
