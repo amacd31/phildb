@@ -1,7 +1,11 @@
 [run]
 branch = True
+include = tsdb/**
 
 [report]
+include = tsdb/**
+omit =  **/test*
+
 exclude_lines =
     raise NotImplementedError
 
