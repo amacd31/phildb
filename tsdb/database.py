@@ -6,6 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import MultipleResultsFound
 Session = sessionmaker()
 
+import logging
+logger = logging.getLogger('TSDB_database')
+
 from . import constants
 from . import reader
 from . import writer
@@ -14,6 +17,8 @@ from .dbstructures import SchemaVersion, Timeseries, Measurand
 class TSDB(object):
     def __init__(self, tsdb_path):
         self.tsdb_path = tsdb_path
+
+        logger.debug(self.__meta_data_db())
 
         if not os.path.exists(self.tsdb_path):
             raise IOError("TSDB doesn't exist ({0})".format(self.tsdb_path))
@@ -68,22 +73,37 @@ class TSDB(object):
 
         return record
 
-    def __get_tsdb_file_by_id(self, identifier, ftype='tsdb'):
+    def __get_measurand(self, measurand):
+        session = Session()
+        query = session.query(Measurand).filter(Measurand.short_id == measurand)
+        try:
+            record = query.one()
+        except MultipleResultsFound, e:
+            raise e
+
+        return record
+
+
+    def __get_tsdb_file_by_id(self, identifier, measurand, ftype='tsdb'):
         record = self.__get_record_by_id(identifier)
-        return os.path.join(self.__data_dir(), record.timeseries_id + '.' + ftype)
+        measurand = self.__get_measurand(measurand)
+        return os.path.join(self.__data_dir(), record.timeseries_id +
+                '_' + measurand.long_id +
+                '.' + ftype
+                )
 
-    def bulk_write(self, identifier, ts):
-        writer.bulk_write(self.__get_tsdb_file_by_id(identifier), ts)
+    def bulk_write(self, identifier, measurand, ts):
+        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand), ts)
 
-    def write(self, identifier, ts):
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier), ts)
+    def write(self, identifier, measurand, ts):
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand), ts)
 
-        log_file = self.__get_tsdb_file_by_id(identifier, 'hdf5')
+        log_file = self.__get_tsdb_file_by_id(identifier, measurand, 'hdf5')
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
-    def read_all(self, identifier):
-        return reader.read_all(self.__get_tsdb_file_by_id(identifier))
+    def read_all(self, identifier, measurand):
+        return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand))
 
     def __str__(self):
         return self.tsdb_path

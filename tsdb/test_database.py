@@ -19,6 +19,9 @@ class DatabaseTest(unittest.TestCase):
             'test_tsdb'),
             self.test_tsdb)
 
+        db_name = os.path.join(self.test_data_dir, self.test_tsdb)
+        db = TSDB(self.test_tsdb)
+
     def tearDown(self):
         try:
             shutil.rmtree(self.temp_dir)
@@ -75,22 +78,22 @@ class DatabaseTest(unittest.TestCase):
     def test_add_measurand_entry(self):
         create(self.temp_dir)
         db = TSDB(self.temp_dir)
-        db.add_measurand('Q', 'STREAMFLOW', 'Streamflow')
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
 
         conn = sqlite3.connect(db._TSDB__meta_data_db())
         c = conn.cursor()
         c.execute("SELECT * FROM measurand;")
         pk, measurand_short_id, measurand_long_id, measurand_description = c.fetchone();
 
-        self.assertEqual(measurand_short_id, 'Q')
-        self.assertEqual(measurand_long_id, 'STREAMFLOW')
-        self.assertEqual(measurand_description, 'Streamflow')
+        self.assertEqual(measurand_short_id, 'P')
+        self.assertEqual(measurand_long_id, 'PRECIPITATION')
+        self.assertEqual(measurand_description, 'Precipitation')
 
     def test_read_all(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        results = db.read_all('410730')
+        results = db.read_all('410730', 'Q')
 
         self.assertEqual(results.index[0].year, 2014)
         self.assertEqual(results.index[0].month, 1)
@@ -106,9 +109,9 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
 
         db.add_timeseries('410731')
-        db.bulk_write('410731', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
+        db.bulk_write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
 
-        results = db.read_all('410731')
+        results = db.read_all('410731', 'Q')
 
         self.assertEqual(results.index[0].year, 2014)
         self.assertEqual(results.index[0].month, 1)
@@ -122,9 +125,9 @@ class DatabaseTest(unittest.TestCase):
 
     def test_update_and_append(self):
         db = TSDB(self.test_tsdb)
-        db.write('410730', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]])
+        db.write('410730', 'Q', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]])
 
-        data = db.read_all('410730')
+        data = db.read_all('410730', 'Q')
         self.assertEqual(1.0, data.values[0][0])
         self.assertEqual(2.5, data.values[1][0])
         self.assertEqual(3.0, data.values[2][0])
