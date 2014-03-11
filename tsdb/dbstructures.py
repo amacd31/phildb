@@ -14,6 +14,18 @@ class Timeseries(Base):
         return "<Timeseries(primary_id='{0}', timeseries_id='{1}')>".format(
                 self.primary_id, self.timeseries_id)
 
+class Measurand(Base):
+    __tablename__ = 'measurand'
+
+    id = Column(Integer, primary_key=True)
+    short_id = Column(String, unique=True)
+    long_id = Column(String, unique=True)
+    description = Column(String, unique=True)
+
+    def __repr__(self):
+        return "<Timeseries(primary_id='{0}', timeseries_id='{1}')>".format(
+                self.primary_id, self.timeseries_id)
+
 class SchemaVersion(Base):
     __tablename__ = 'schema_version'
 

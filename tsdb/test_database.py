@@ -52,7 +52,7 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        self.assertEqual(db.version(), "0.0.1")
+        self.assertEqual(db.version(), "0.0.2")
 
     def test_tsdb_data_dir(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
@@ -71,6 +71,20 @@ class DatabaseTest(unittest.TestCase):
 
         self.assertEqual(primary_id, '410730')
         self.assertEqual(ts_id, 'be29d3018ddb34acbe2174ee6522fd00')
+
+    def test_add_measurand_entry(self):
+        create(self.temp_dir)
+        db = TSDB(self.temp_dir)
+        db.add_measurand('Q', 'STREAMFLOW', 'Streamflow')
+
+        conn = sqlite3.connect(db._TSDB__meta_data_db())
+        c = conn.cursor()
+        c.execute("SELECT * FROM measurand;")
+        pk, measurand_short_id, measurand_long_id, measurand_description = c.fetchone();
+
+        self.assertEqual(measurand_short_id, 'Q')
+        self.assertEqual(measurand_long_id, 'STREAMFLOW')
+        self.assertEqual(measurand_description, 'Streamflow')
 
     def test_read_all(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')

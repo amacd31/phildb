@@ -9,7 +9,7 @@ Session = sessionmaker()
 from . import constants
 from . import reader
 from . import writer
-from .dbstructures import SchemaVersion, Timeseries
+from .dbstructures import SchemaVersion, Timeseries, Measurand
 
 class TSDB(object):
     def __init__(self, tsdb_path):
@@ -24,7 +24,7 @@ class TSDB(object):
         self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()))
         Session.configure(bind=self.__engine)
 
-        assert self.version() == "0.0.1";
+        assert self.version() == "0.0.2";
 
     def __meta_data_db(self):
         return os.path.join(self.tsdb_path, constants.METADATA_DB)
@@ -48,6 +48,14 @@ class TSDB(object):
         session = Session()
         ts = Timeseries(primary_id = identifier, timeseries_id = md5.md5(identifier).hexdigest())
         session.add(ts)
+        session.commit()
+
+    def add_measurand(self, measurand_short_id, measurand_long_id, description):
+        short_id = measurand_short_id.strip().upper()
+        long_id = measurand_long_id.strip().upper()
+        session = Session()
+        measurand = Measurand(short_id = short_id, long_id = long_id,  description = description)
+        session.add(measurand)
         session.commit()
 
     def __get_record_by_id(self, identifier):

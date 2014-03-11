@@ -24,7 +24,7 @@ def create(tsdb_path):
     Session.configure(bind=engine)
     session = Session()
 
-    version = dbstructures.SchemaVersion(version='0.0.1')
+    version = dbstructures.SchemaVersion(version='0.0.2')
     session.add(version)
     session.commit()
 
