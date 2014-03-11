@@ -3,7 +3,7 @@ import md5
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import MultipleResultsFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 Session = sessionmaker()
 
 import logging
@@ -68,6 +68,8 @@ class TSDB(object):
         query = session.query(Timeseries).filter(Timeseries.primary_id == identifier)
         try:
             record = query.one()
+        except NoResultFound, e:
+            raise ValueError('Could not find metadata record for: {0}'.format(identifier))
         except MultipleResultsFound, e:
             raise e
 
@@ -78,6 +80,8 @@ class TSDB(object):
         query = session.query(Measurand).filter(Measurand.short_id == measurand)
         try:
             record = query.one()
+        except NoResultFound, e:
+            raise ValueError('Could not find measurand ({0}) in the database.'.format(measurand))
         except MultipleResultsFound, e:
             raise e
 
