@@ -119,3 +119,14 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1.0, data.values[0][0])
         self.assertTrue(np.isnan(data.values[1][0]))
         self.assertEqual(3.5, data.values[2][0])
+
+    def test_update_unordered(self):
+        self.assertRaises(ValueError,
+                writer.write,
+                self.tsdb_existing_file,
+                [[datetime(2014,1,1),
+                    datetime(2014,1,3),
+                    datetime(2014,1,2),
+                    datetime(2014,1,4)],
+                    [np.nan, 3.5]]
+                )

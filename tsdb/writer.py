@@ -46,6 +46,13 @@ def write(tsdb_file, ts):
 
     assert (end_date - start_date).days + 1 == len(ts[0])
 
+    cur_date = ts[0][0]
+    for the_date in ts[0][1:]:
+        if cur_date >= the_date:
+            raise ValueError('Unordered dates were supplied. {0} >= {1}'. \
+                    format(cur_date, the_date))
+        cur_date = the_date
+
     with open(tsdb_file, 'rb') as reader:
         first_record = unpack(entry_format, reader.read(entry_size))
         reader.seek(entry_size * -1, os.SEEK_END)
