@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, date
 import sys
 
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
