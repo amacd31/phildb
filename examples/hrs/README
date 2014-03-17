@@ -1,0 +1,19 @@
+All commands in this example are relative to this directory.
+
+Download Hydrologic Reference Station data from http://www.bom.gov.au/water/hrs:
+ cd hrs_data
+ sh ./download.sh
+ cd ../
+
+Add TSDB to PATH and PYTHONPATH:
+ export PATH=../../bin:$PATH
+ export PYTHONPATH=../../:$PYTHONPATH
+
+Create a new TSDB:
+ tsdb-create hrs_db
+
+Load HRS data into hrs_db with example script:
+ python load_hrs_data.py hrs_db hrs_data/*.csv
+
+Open the newly created TSDB:
+ tsdb hrs_db
