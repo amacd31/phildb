@@ -1,6 +1,8 @@
 from datetime import datetime
 import md5
 import os
+import types
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -36,6 +38,26 @@ class TSDB(object):
 
     def __data_dir(self):
         return os.path.join(self.tsdb_path, 'data')
+
+    def help(self):
+        """
+            List methods of the TSDB class with the first line of their docstring.
+        """
+        for method in sorted(dir(self)):
+            if method.startswith("_"):
+                continue
+            if not isinstance(getattr(self, method), types.MethodType):
+                continue
+
+            docstring = getattr(self, method).__doc__
+            if docstring is None:
+                short_string = ''
+            else:
+                docstring = docstring.split('\n')
+                short_string = docstring[0].strip()
+                if short_string == '':
+                    short_string = docstring[1].strip()
+            print("{0}: {1}".format(method, short_string))
 
     def version(self):
         session = Session()

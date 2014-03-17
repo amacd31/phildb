@@ -13,4 +13,6 @@ else:
     db = TSDB(sys.argv[1])
     print("Running timeseries database: {0}".format(db))
     print("Access the 'db' object to operate on the database.")
+    print("")
+    print("Run db.help() for a list of available commands.")
 
