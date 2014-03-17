@@ -148,3 +148,8 @@ class DatabaseTest(unittest.TestCase):
     def test_write_non_existant_measurand(self):
         db = TSDB(self.test_tsdb)
         self.assertRaises(ValueError, db.write, '410730', 'DOESNOTEXIST', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]])
+
+    def test_list(self):
+        db = TSDB(self.test_tsdb)
+        ts_list = db.list()
+        self.assertEqual(['410730'], ts_list)

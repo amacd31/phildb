@@ -109,5 +109,13 @@ class TSDB(object):
     def read_all(self, identifier, measurand):
         return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand))
 
+    def list(self):
+        """
+            Returns list of primary ID for all timeseries records.
+        """
+        session = Session()
+        records = session.query(Timeseries).all()
+        return [ record.primary_id for record in records ]
+
     def __str__(self):
         return self.tsdb_path
