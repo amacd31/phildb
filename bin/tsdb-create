@@ -1,2 +1,3 @@
 #!/bin/bash
-python tsdb/create.py $@
+TSDB_PATH=$(cd `dirname "${BASH_SOURCE[0]}"`/.. && pwd)
+python $TSDB_PATH/tsdb/create.py $@
