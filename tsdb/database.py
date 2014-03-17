@@ -29,7 +29,7 @@ class TSDB(object):
         self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()))
         Session.configure(bind=self.__engine)
 
-        assert self.version() == "0.0.2";
+        assert self.version() == constants.DB_VERSION;
 
     def __meta_data_db(self):
         return os.path.join(self.tsdb_path, constants.METADATA_DB)
