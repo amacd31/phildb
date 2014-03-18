@@ -23,8 +23,8 @@ class Measurand(Base):
     description = Column(String, unique=True)
 
     def __repr__(self):
-        return "<Timeseries(primary_id='{0}', timeseries_id='{1}')>".format(
-                self.primary_id, self.timeseries_id)
+        return "<Measurand(short_id='{0}', long_id='{1}', description={2})>".format(
+                self.short_id, self.long_id, self.description)
 
 class SchemaVersion(Base):
     __tablename__ = 'schema_version'
