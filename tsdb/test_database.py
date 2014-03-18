@@ -180,3 +180,13 @@ class DatabaseTest(unittest.TestCase):
         record = query.one()
         self.assertEqual(record.timeseries.primary_id, '410731')
         self.assertEqual(record.measurand.short_id, 'Q')
+
+    def test_read_metadata(self):
+        db = TSDB(self.test_tsdb)
+        db.add_timeseries('410731')
+        db.add_timeseries_instance('410731', 'Q', 'Foo')
+        metadata = db.read_metadata('410730', 'Q')
+        self.assertEqual('', metadata)
+
+        metadata = db.read_metadata('410731', 'Q')
+        self.assertEqual('Foo', metadata)

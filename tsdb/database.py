@@ -182,5 +182,23 @@ class TSDB(object):
         records = session.query(Timeseries).all()
         return [ record.primary_id for record in records ]
 
+    def read_metadata(self, ts_id, measurand_id):
+        """
+            Returns the metadata that was associated with an initial TimeseriesInstance.
+        """
+        timeseries = self.__get_record_by_id(ts_id)
+        measurand = self.__get_measurand(measurand_id)
+        session = Session()
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, timeseries=timeseries)
+
+        try:
+            record = query.one()
+        except NoResultFound, e:
+            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}).'. \
+                    format(identifier, measurand_id))
+
+        return record.initial_metadata
+
     def __str__(self):
         return self.tsdb_path
