@@ -5,3 +5,4 @@ coverage.xml
 cover
 nosetests.xml
 *.swp
+hrs_data/
