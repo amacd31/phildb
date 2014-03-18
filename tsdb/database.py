@@ -14,7 +14,7 @@ logger = logging.getLogger('TSDB_database')
 from . import constants
 from . import reader
 from . import writer
-from .dbstructures import SchemaVersion, Timeseries, Measurand
+from .dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
 
 class TSDB(object):
     def __init__(self, tsdb_path):
@@ -85,8 +85,37 @@ class TSDB(object):
         session.add(measurand)
         session.commit()
 
-    def __get_record_by_id(self, identifier):
+    def add_timeseries_instance(self, identifier, measurand_id, initial_metadata):
         session = Session()
+
+        timeseries = self.__get_record_by_id(identifier, session)
+        measurand = self.__get_measurand(measurand_id, session)
+
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, timeseries=timeseries)
+        try:
+            record = query.one()
+            session.rollback()
+            raise ValueError('TimeseriesInstance for ({0}, {1}) already exists.'. \
+                    format(identifier, measurand_id))
+        except NoResultFound, e:
+            # No result is good, we can now create a ts instance.
+            pass
+        except MultipleResultsFound, e:
+            raise e
+
+        with session.no_autoflush:
+            tsi = TimeseriesInstance(initial_metadata = initial_metadata)
+            tsi.measurand = measurand
+            timeseries.ts_instances.append(tsi)
+
+            session.add(tsi)
+            session.commit()
+
+    def __get_record_by_id(self, identifier, session = None):
+        if session is None:
+            session = Session()
+
         query = session.query(Timeseries).filter(Timeseries.primary_id == identifier)
         try:
             record = query.one()
@@ -97,8 +126,10 @@ class TSDB(object):
 
         return record
 
-    def __get_measurand(self, measurand):
-        session = Session()
+    def __get_measurand(self, measurand, session = None):
+        if session is None:
+            session = Session()
+
         query = session.query(Measurand).filter(Measurand.short_id == measurand)
         try:
             record = query.one()
@@ -110,11 +141,23 @@ class TSDB(object):
         return record
 
 
-    def __get_tsdb_file_by_id(self, identifier, measurand, ftype='tsdb'):
-        record = self.__get_record_by_id(identifier)
-        measurand = self.__get_measurand(measurand)
-        return os.path.join(self.__data_dir(), record.timeseries_id +
-                '_' + measurand.long_id +
+    def __get_tsdb_file_by_id(self, identifier, measurand_id, ftype='tsdb'):
+        timeseries = self.__get_record_by_id(identifier)
+        measurand = self.__get_measurand(measurand_id)
+        session = Session()
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, timeseries=timeseries)
+
+        try:
+            record = query.one()
+        except NoResultFound, e:
+            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}).'. \
+                    format(identifier, measurand_id))
+        except MultipleResultsFound, e:
+            raise e
+
+        return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
+                '_' + record.measurand.long_id +
                 '.' + ftype
                 )
 

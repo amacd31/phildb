@@ -2,6 +2,8 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+from sqlalchemy.schema import ForeignKey
 
 class Timeseries(Base):
     __tablename__ = 'timeseries'
@@ -9,6 +11,7 @@ class Timeseries(Base):
     id = Column(Integer, primary_key=True)
     primary_id = Column(String, unique=True)
     timeseries_id = Column(Integer, unique=True)
+    ts_instances = relationship("TimeseriesInstance")
 
     def __repr__(self):
         return "<Timeseries(primary_id='{0}', timeseries_id='{1}')>".format(
@@ -35,3 +38,13 @@ class SchemaVersion(Base):
     def __repr__(self):
         return "<SchemaVersion(version='{0}')>".format(self.version)
 
+class TimeseriesInstance(Base):
+    __tablename__ = 'timeseries_instance'
+    ts_id = Column(Integer, ForeignKey('timeseries.id'), primary_key=True)
+    measurand_id = Column(Integer, ForeignKey('measurand.id'), primary_key=True)
+    initial_metadata = Column(String(255))
+    measurand = relationship("Measurand", backref="timeseries")
+    timeseries = relationship("Timeseries", backref="measurands")
+
+    def __repr__(self):
+        return "<TimeseriesInstance(timeseries='{0}, measurand='{0}')>".format(self.timeseries, self.measurand)

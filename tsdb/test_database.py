@@ -5,7 +5,11 @@ import sqlite3
 import tempfile
 import unittest
 
+from sqlalchemy.orm import sessionmaker
+Session = sessionmaker()
+
 from .database import TSDB
+from .dbstructures import TimeseriesInstance
 from .create import create
 
 class DatabaseTest(unittest.TestCase):
@@ -55,7 +59,7 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        self.assertEqual(db.version(), "0.0.2")
+        self.assertEqual(db.version(), "0.0.3")
 
     def test_tsdb_data_dir(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
@@ -109,6 +113,7 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
 
         db.add_timeseries('410731')
+        db.add_timeseries_instance('410731', 'Q', 'Foo')
         db.bulk_write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
 
         results = db.read_all('410731', 'Q')
@@ -153,3 +158,25 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         ts_list = db.list()
         self.assertEqual(['410730'], ts_list)
+
+    def test_duplicate_add_ts_instance(self):
+        db = TSDB(self.test_tsdb)
+        self.assertRaises(ValueError, db.add_timeseries_instance, '410730', 'Q', '')
+
+    def test_add_ts_instance(self):
+        db = TSDB(self.test_tsdb)
+        db.add_timeseries('410731')
+        db.add_timeseries_instance('410731', 'Q', 'Foo')
+
+        Session.configure(bind=db._TSDB__engine)
+        session = Session()
+
+        timeseries = db._TSDB__get_record_by_id('410731', session)
+        measurand = db._TSDB__get_measurand('Q', session)
+
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, timeseries=timeseries)
+
+        record = query.one()
+        self.assertEqual(record.timeseries.primary_id, '410731')
+        self.assertEqual(record.measurand.short_id, 'Q')
