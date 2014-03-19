@@ -5,7 +5,7 @@ import types
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.orm.exc import NoResultFound
 Session = sessionmaker()
 
 import logging
@@ -63,10 +63,7 @@ class TSDB(object):
         session = Session()
         query = session.query(SchemaVersion.version)
 
-        try:
-            version = query.scalar()
-        except MultipleResultsFound, e:
-            raise e
+        version = query.scalar()
 
         return version
 
@@ -101,8 +98,6 @@ class TSDB(object):
         except NoResultFound, e:
             # No result is good, we can now create a ts instance.
             pass
-        except MultipleResultsFound, e:
-            raise e
 
         with session.no_autoflush:
             tsi = TimeseriesInstance(initial_metadata = initial_metadata)
@@ -121,8 +116,6 @@ class TSDB(object):
             record = query.one()
         except NoResultFound, e:
             raise ValueError('Could not find metadata record for: {0}'.format(identifier))
-        except MultipleResultsFound, e:
-            raise e
 
         return record
 
@@ -135,8 +128,6 @@ class TSDB(object):
             record = query.one()
         except NoResultFound, e:
             raise ValueError('Could not find measurand ({0}) in the database.'.format(measurand))
-        except MultipleResultsFound, e:
-            raise e
 
         return record
 
@@ -153,8 +144,6 @@ class TSDB(object):
         except NoResultFound, e:
             raise ValueError('Could not find TimeseriesInstance for ({0}, {1}).'. \
                     format(identifier, measurand_id))
-        except MultipleResultsFound, e:
-            raise e
 
         return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
                 '_' + record.measurand.long_id +
