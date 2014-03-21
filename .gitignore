@@ -1,5 +1,8 @@
 *.pyc
 *.png
+*.csv
+*.zip
+*.txt
 .coverage
 coverage.xml
 cover
