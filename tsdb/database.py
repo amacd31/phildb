@@ -133,17 +133,7 @@ class TSDB(object):
 
 
     def __get_tsdb_file_by_id(self, identifier, measurand_id, ftype='tsdb'):
-        timeseries = self.__get_record_by_id(identifier)
-        measurand = self.__get_measurand(measurand_id)
-        session = Session()
-        query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries)
-
-        try:
-            record = query.one()
-        except NoResultFound, e:
-            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}).'. \
-                    format(identifier, measurand_id))
+        record = self.__get_ts_instance(identifier, measurand_id)
 
         return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
                 '_' + record.measurand.long_id +
@@ -175,6 +165,9 @@ class TSDB(object):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
         """
+        return self.__get_ts_instance(ts_id, measurand_id).initial_metadata
+
+    def __get_ts_instance(self, ts_id, measurand_id):
         timeseries = self.__get_record_by_id(ts_id)
         measurand = self.__get_measurand(measurand_id)
         session = Session()
@@ -185,9 +178,9 @@ class TSDB(object):
             record = query.one()
         except NoResultFound, e:
             raise ValueError('Could not find TimeseriesInstance for ({0}, {1}).'. \
-                    format(identifier, measurand_id))
+                    format(ts_id, measurand_id))
 
-        return record.initial_metadata
+        return record
 
     def __str__(self):
         return self.tsdb_path

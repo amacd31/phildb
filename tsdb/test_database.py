@@ -190,3 +190,14 @@ class DatabaseTest(unittest.TestCase):
 
         metadata = db.read_metadata('410731', 'Q')
         self.assertEqual('Foo', metadata)
+
+    def test_get_ts_instance(self):
+        db = TSDB(self.test_tsdb)
+        ts_instance = db._TSDB__get_ts_instance('410730', 'Q')
+        self.assertEqual('410730', ts_instance.timeseries.primary_id)
+        self.assertEqual('Q', ts_instance.measurand.short_id)
+
+        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410731', 'Q')
+
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
+        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410730', 'P')
