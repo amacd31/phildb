@@ -8,6 +8,7 @@ from datetime import datetime
 
 from . import writer
 from . import reader
+from .constants import METADATA_MISSING_VALUE
 
 class WriterTest(unittest.TestCase):
     def setUp(self):
@@ -33,6 +34,15 @@ class WriterTest(unittest.TestCase):
             datafile = file.read()
 
         self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', md5.md5(datafile).hexdigest())
+
+    def test_bulk_write_with_missing(self):
+        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]])
+
+        data = reader.read_all(self.tsdb_file)
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertTrue(np.isnan(data.values[1][0]))
+        self.assertEqual(3.0, data.values[2][0])
+        self.assertEqual(METADATA_MISSING_VALUE, data.metaID[1])
 
     def test_update_single(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2)], [2.5]])
