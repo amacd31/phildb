@@ -15,6 +15,7 @@ from . import constants
 from . import reader
 from . import writer
 from .dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
+from .dbstructures import Source
 
 class TSDB(object):
     def __init__(self, tsdb_path):
@@ -82,19 +83,27 @@ class TSDB(object):
         session.add(measurand)
         session.commit()
 
-    def add_timeseries_instance(self, identifier, measurand_id, initial_metadata):
+    def add_source(self, source, description):
+        short_id = source.strip().upper()
+        session = Session()
+        source = Source(short_id = short_id, description = description)
+        session.add(source)
+        session.commit()
+
+    def add_timeseries_instance(self, identifier, measurand_id, source_id, initial_metadata):
         session = Session()
 
         timeseries = self.__get_record_by_id(identifier, session)
         measurand = self.__get_measurand(measurand_id, session)
+        source = self.__get_source(source_id, session)
 
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries)
+                filter_by(measurand = measurand, timeseries=timeseries, source=source)
         try:
             record = query.one()
             session.rollback()
-            raise ValueError('TimeseriesInstance for ({0}, {1}) already exists.'. \
-                    format(identifier, measurand_id))
+            raise ValueError('TimeseriesInstance for ({0}, {1}, {2}) already exists.'. \
+                    format(identifier, source_id, measurand_id))
         except NoResultFound, e:
             # No result is good, we can now create a ts instance.
             pass
@@ -102,6 +111,7 @@ class TSDB(object):
         with session.no_autoflush:
             tsi = TimeseriesInstance(initial_metadata = initial_metadata)
             tsi.measurand = measurand
+            tsi.source = source
             timeseries.ts_instances.append(tsi)
 
             session.add(tsi)
@@ -131,27 +141,39 @@ class TSDB(object):
 
         return record
 
+    def __get_source(self, source_id, session = None):
+        if session is None:
+            session = Session()
 
-    def __get_tsdb_file_by_id(self, identifier, measurand_id, ftype='tsdb'):
-        record = self.__get_ts_instance(identifier, measurand_id)
+        query = session.query(Source).filter(Source.short_id == source_id)
+        try:
+            record = query.one()
+        except NoResultFound, e:
+            raise ValueError('Could not find source ({0}) in the database.'.format(source_id))
+
+        return record
+
+    def __get_tsdb_file_by_id(self, identifier, measurand_id, source_id, ftype='tsdb'):
+        record = self.__get_ts_instance(identifier, measurand_id, source_id)
 
         return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
                 '_' + record.measurand.long_id +
+                '_' + record.source.short_id +
                 '.' + ftype
                 )
 
-    def bulk_write(self, identifier, measurand, ts):
-        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand), ts)
+    def bulk_write(self, identifier, measurand, ts, source):
+        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts)
 
-    def write(self, identifier, measurand, ts):
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand), ts)
+    def write(self, identifier, measurand, ts, source):
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts)
 
-        log_file = self.__get_tsdb_file_by_id(identifier, measurand, 'hdf5')
+        log_file = self.__get_tsdb_file_by_id(identifier, measurand, source, 'hdf5')
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
-    def read_all(self, identifier, measurand):
-        return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand))
+    def read_all(self, identifier, measurand, source):
+        return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source))
 
     def list(self):
         """
@@ -161,24 +183,25 @@ class TSDB(object):
         records = session.query(Timeseries).all()
         return [ record.primary_id for record in records ]
 
-    def read_metadata(self, ts_id, measurand_id):
+    def read_metadata(self, ts_id, measurand_id, source_id):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
         """
-        return self.__get_ts_instance(ts_id, measurand_id).initial_metadata
+        return self.__get_ts_instance(ts_id, measurand_id, source_id).initial_metadata
 
-    def __get_ts_instance(self, ts_id, measurand_id):
+    def __get_ts_instance(self, ts_id, measurand_id, source_id):
         timeseries = self.__get_record_by_id(ts_id)
         measurand = self.__get_measurand(measurand_id)
+        source = self.__get_source(source_id)
         session = Session()
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries)
+                filter_by(measurand = measurand, timeseries=timeseries, source=source)
 
         try:
             record = query.one()
         except NoResultFound, e:
-            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}).'. \
-                    format(ts_id, measurand_id))
+            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {2}).'. \
+                    format(ts_id, source_id, measurand_id))
 
         return record
 

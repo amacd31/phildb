@@ -29,6 +29,17 @@ class Measurand(Base):
         return "<Measurand(short_id='{0}', long_id='{1}', description={2})>".format(
                 self.short_id, self.long_id, self.description)
 
+class Source(Base):
+    __tablename__ = 'source'
+
+    id = Column(Integer, primary_key=True)
+    short_id = Column(String, unique=True)
+    description = Column(String, unique=True)
+
+    def __repr__(self):
+        return "<Source(short_id='{0}', description={1})>".format(
+                self.short_id, self.description)
+
 class SchemaVersion(Base):
     __tablename__ = 'schema_version'
 
@@ -42,9 +53,11 @@ class TimeseriesInstance(Base):
     __tablename__ = 'timeseries_instance'
     ts_id = Column(Integer, ForeignKey('timeseries.id'), primary_key=True)
     measurand_id = Column(Integer, ForeignKey('measurand.id'), primary_key=True)
+    source_id = Column(Integer, ForeignKey('source.id'), primary_key=True)
     initial_metadata = Column(String(255))
     measurand = relationship("Measurand", backref="timeseries")
     timeseries = relationship("Timeseries", backref="measurands")
+    source = relationship("Source", backref="source")
 
     def __repr__(self):
         return "<TimeseriesInstance(timeseries='{0}, measurand='{0}')>".format(self.timeseries, self.measurand)

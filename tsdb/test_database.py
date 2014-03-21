@@ -59,7 +59,7 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        self.assertEqual(db.version(), "0.0.3")
+        self.assertEqual(db.version(), "0.0.4")
 
     def test_tsdb_data_dir(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
@@ -97,7 +97,7 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        results = db.read_all('410730', 'Q')
+        results = db.read_all('410730', 'Q', 'DATA_SOURCE')
 
         self.assertEqual(results.index[0].year, 2014)
         self.assertEqual(results.index[0].month, 1)
@@ -113,10 +113,10 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
 
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'Q', 'Foo')
-        db.bulk_write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
+        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'Foo')
+        db.bulk_write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'DATA_SOURCE')
 
-        results = db.read_all('410731', 'Q')
+        results = db.read_all('410731', 'Q', 'DATA_SOURCE')
 
         self.assertEqual(results.index[0].year, 2014)
         self.assertEqual(results.index[0].month, 1)
@@ -130,9 +130,9 @@ class DatabaseTest(unittest.TestCase):
 
     def test_update_and_append(self):
         db = TSDB(self.test_tsdb)
-        db.write('410730', 'Q', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]])
+        db.write('410730', 'Q', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], 'DATA_SOURCE')
 
-        data = db.read_all('410730', 'Q')
+        data = db.read_all('410730', 'Q', 'DATA_SOURCE')
         self.assertEqual(1.0, data.values[0][0])
         self.assertEqual(2.5, data.values[1][0])
         self.assertEqual(3.0, data.values[2][0])
@@ -148,11 +148,11 @@ class DatabaseTest(unittest.TestCase):
 
     def test_write_non_existant_id(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.write, 'DOESNOTEXIST', 'Q', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]])
+        self.assertRaises(ValueError, db.write, 'DOESNOTEXIST', 'Q', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], 'DATA_SOURCE')
 
     def test_write_non_existant_measurand(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.write, '410730', 'DOESNOTEXIST', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]])
+        self.assertRaises(ValueError, db.write, '410730', 'DOESNOTEXIST', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], 'DATA_SOURCE')
 
     def test_list(self):
         db = TSDB(self.test_tsdb)
@@ -161,43 +161,65 @@ class DatabaseTest(unittest.TestCase):
 
     def test_duplicate_add_ts_instance(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.add_timeseries_instance, '410730', 'Q', '')
+        self.assertRaises(ValueError, db.add_timeseries_instance, '410730', 'Q', 'DATA_SOURCE', '')
 
     def test_add_ts_instance(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'Q', 'Foo')
+        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'Foo')
 
         Session.configure(bind=db._TSDB__engine)
         session = Session()
 
         timeseries = db._TSDB__get_record_by_id('410731', session)
         measurand = db._TSDB__get_measurand('Q', session)
+        source = db._TSDB__get_source('DATA_SOURCE', session)
 
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries)
+                filter_by(measurand = measurand, source=source, timeseries=timeseries)
 
         record = query.one()
         self.assertEqual(record.timeseries.primary_id, '410731')
         self.assertEqual(record.measurand.short_id, 'Q')
+        self.assertEqual(record.source.short_id, 'DATA_SOURCE')
+
+    def test_add_source(self):
+        db = TSDB(self.test_tsdb)
+        db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
+        db.add_timeseries_instance('410730', 'Q', 'EXAMPLE_SOURCE', 'Foo')
+
+        Session.configure(bind=db._TSDB__engine)
+        session = Session()
+
+        timeseries = db._TSDB__get_record_by_id('410730', session)
+        measurand = db._TSDB__get_measurand('Q', session)
+        source = db._TSDB__get_source('EXAMPLE_SOURCE', session)
+
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, source=source, timeseries=timeseries)
+
+        record = query.one()
+        self.assertEqual(record.timeseries.primary_id, '410730')
+        self.assertEqual(record.measurand.short_id, 'Q')
+        self.assertEqual(record.source.short_id, 'EXAMPLE_SOURCE')
 
     def test_read_metadata(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'Q', 'Foo')
-        metadata = db.read_metadata('410730', 'Q')
+        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'Foo')
+        metadata = db.read_metadata('410730', 'Q', 'DATA_SOURCE')
         self.assertEqual('', metadata)
 
-        metadata = db.read_metadata('410731', 'Q')
+        metadata = db.read_metadata('410731', 'Q', 'DATA_SOURCE')
         self.assertEqual('Foo', metadata)
 
     def test_get_ts_instance(self):
         db = TSDB(self.test_tsdb)
-        ts_instance = db._TSDB__get_ts_instance('410730', 'Q')
+        ts_instance = db._TSDB__get_ts_instance('410730', 'Q', 'DATA_SOURCE')
         self.assertEqual('410730', ts_instance.timeseries.primary_id)
         self.assertEqual('Q', ts_instance.measurand.short_id)
 
-        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410731', 'Q')
+        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410731', 'Q', 'DATA_SOURCE')
 
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410730', 'P')
+        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410730', 'P', 'DATA_SOURCE')
