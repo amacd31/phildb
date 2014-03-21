@@ -120,6 +120,19 @@ class WriterTest(unittest.TestCase):
         self.assertTrue(np.isnan(data.values[1][0]))
         self.assertEqual(3.5, data.values[2][0])
 
+    def test_write_missing(self):
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4),datetime(2014,1,5),datetime(2014,1,6)], [4.0, np.nan, 6.5]])
+
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertEqual(2.0, data.values[1][0])
+        self.assertEqual(3.0, data.values[2][0])
+        self.assertEqual(4.0, data.values[3][0])
+        self.assertTrue(np.isnan(data.values[4][0]))
+        self.assertEqual(6.5, data.values[5][0])
+
     def test_update_unordered(self):
         self.assertRaises(ValueError,
                 writer.write,
