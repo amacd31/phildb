@@ -9,3 +9,4 @@ cover
 nosetests.xml
 *.swp
 hrs_data/
+examples/hrs/hrs_db/
