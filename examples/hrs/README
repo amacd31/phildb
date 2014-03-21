@@ -1,11 +1,15 @@
 All commands in this example are relative to this directory.
 
-Download Hydrologic Reference Station data from http://www.bom.gov.au/water/hrs:
+The script demonstrating the loading of data is load_hrs_data.py; View
+this script for an example on adding timeseries, measurand, and source
+to the database before loading timeseries data as timeseries instances.
+
+First download Hydrologic Reference Station data from http://www.bom.gov.au/water/hrs:
  cd hrs_data
  sh ./download.sh
  cd ../
 
-Add TSDB to PATH and PYTHONPATH:
+Ensure TSDB is on your PATH and PYTHONPATH:
  export PATH=../../bin:$PATH
  export PYTHONPATH=../../:$PYTHONPATH
 
