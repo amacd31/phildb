@@ -21,3 +21,14 @@ Load HRS data into hrs_db with example script:
 
 Open the newly created TSDB:
  tsdb hrs_db
+
+Another example script, autocorr.py, shows how access to a TSDB instance
+can be automated to perform analysis on the data. This script for example
+iterates over all of the available streamflow timeseries instances for the
+BOM_HRS dataset and invokes the pandas autocorr function. Stations with
+auto-correlation results greater than or equal to 0.95 are then printed.
+
+The script can be run like so:
+  python autocorr.py hrs_db
+
+Such analysis could be performed from the interactive tsdb shell as well.
