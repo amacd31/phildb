@@ -17,6 +17,8 @@ def read_all(filename):
             record = f.read(entry_size)
             records.append(unpack(entry_format, record))
 
+    if records == []: return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
+
     df = pd.DataFrame(records, columns = field_names)
     df['date'] = pd.to_datetime(df['date'], unit='s')
     df = df.set_index('date')

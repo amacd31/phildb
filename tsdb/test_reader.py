@@ -1,6 +1,7 @@
 import os
 import md5
 import numpy as np
+import pandas as pd
 import unittest
 from datetime import datetime
 
@@ -10,6 +11,7 @@ class ReaderTest(unittest.TestCase):
     def setUp(self):
         self.tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'sample.tsdb')
         self.tsdb_file_with_missing = os.path.join(os.path.dirname(__file__), 'test_data', 'sample_missing.tsdb')
+        self.empty_tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'empty.tsdb')
 
     def test_read_all(self):
         data = reader.read_all(self.tsdb_file)
@@ -39,3 +41,7 @@ class ReaderTest(unittest.TestCase):
         self.assertEqual(5.0, data.values[4][0])
         self.assertEqual(6.0, data.values[5][0])
 
+    def test_read_empty(self):
+        data = reader.read_all(self.empty_tsdb_file)
+        self.assertTrue(np.all(data.columns == ['date', 'value', 'metaID']))
+        self.assertEqual(0, len(data))
