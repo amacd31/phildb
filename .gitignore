@@ -3,6 +3,7 @@
 *.csv
 *.zip
 *.txt
+venv
 .coverage
 coverage.xml
 cover
