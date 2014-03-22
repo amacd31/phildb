@@ -4,7 +4,7 @@ import numpy as np
 import shutil
 import tempfile
 import unittest
-from datetime import datetime
+from datetime import date, datetime
 
 from . import writer
 from . import reader
@@ -153,3 +153,23 @@ class WriterTest(unittest.TestCase):
                     datetime(2014,1,4)],
                     [np.nan, 3.5]]
                 )
+
+    def test_bulk_write_date(self):
+        writer.bulk_write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]])
+        with open(self.tsdb_file) as file:
+            datafile = file.read()
+
+        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', md5.md5(datafile).hexdigest())
+
+    def test_write_missing_date(self):
+        modified = writer.write(self.tsdb_existing_file, [[date(2014,1,4),date(2014,1,5),date(2014,1,6)], [4.0, np.nan, 6.5]])
+
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertEqual(2.0, data.values[1][0])
+        self.assertEqual(3.0, data.values[2][0])
+        self.assertEqual(4.0, data.values[3][0])
+        self.assertTrue(np.isnan(data.values[4][0]))
+        self.assertEqual(6.5, data.values[5][0])

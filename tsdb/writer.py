@@ -30,6 +30,9 @@ def bulk_write(tsdb_file, x):
     """
     with open(tsdb_file, 'wb') as writer:
         for date, value in zip(x[0], x[1]):
+            # Convert to datetime when utctimetuple is not available (i.e. date object).
+            if 'utctimetuple' not in dir(date):
+                date = dt.fromordinal(date.toordinal())
             datestamp = calendar.timegm(date.utctimetuple())
             data = __pack(datestamp, value)
             writer.write(data)
@@ -41,6 +44,11 @@ def write(tsdb_file, ts):
         Will only update existing values where they have changed.
         Changed existing values are returned in a list.
     """
+    # Convert all to datetime when utctimetuple is not available (i.e. date object).
+    for i in xrange(0, len(ts[0])):
+        if 'utctimetuple' not in dir(ts[0][i]):
+            ts[0][i] = dt.fromordinal(ts[0][i].toordinal())
+
     start_date = ts[0][0]
     end_date = ts[0][-1]
 
