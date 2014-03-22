@@ -1,0 +1,13 @@
+# General installation
+Install virtual environment with dependencies:
+
+    make venv
+
+Test everything is working:
+
+    make test
+
+# Mac OSX
+If using home brew Python matplotlib may require a symlink so it can find the freetype X11 headers. Link with:
+
+     sudo ln -s /usr/X11/include/freetype2/freetype/ /usr/X11/include/freetype
