@@ -1,0 +1,6 @@
+TSDB_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+
+export PATH=$TSDB_PATH/bin:$PATH
+export PYTHONPATH=$TSDB_PATH:$PYTHONPATH
+
+. venv/bin/activate
