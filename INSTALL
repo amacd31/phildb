@@ -11,3 +11,7 @@ Test everything is working:
 If using home brew Python matplotlib may require a symlink so it can find the freetype X11 headers. Link with:
 
      sudo ln -s /usr/X11/include/freetype2/freetype/ /usr/X11/include/freetype
+
+Then install matplotlib with pip after loading the virtual env. e.g.:
+    . load_env
+    pip install $(grep matplotlib python_requirements)
