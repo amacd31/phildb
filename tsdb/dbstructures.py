@@ -55,8 +55,8 @@ class TimeseriesInstance(Base):
     measurand_id = Column(Integer, ForeignKey('measurand.id'), primary_key=True)
     source_id = Column(Integer, ForeignKey('source.id'), primary_key=True)
     initial_metadata = Column(String(255))
-    measurand = relationship("Measurand", backref="timeseries")
-    timeseries = relationship("Timeseries", backref="measurands")
+    measurand = relationship("Measurand", backref="measurands")
+    timeseries = relationship("Timeseries", backref="timeseries")
     source = relationship("Source", backref="source")
 
     def __repr__(self):
