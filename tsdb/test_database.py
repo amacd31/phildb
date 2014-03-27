@@ -154,10 +154,38 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         self.assertRaises(ValueError, db.write, '410730', 'DOESNOTEXIST', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], 'DATA_SOURCE')
 
-    def test_list(self):
+    def test_ts_list(self):
         db = TSDB(self.test_tsdb)
-        ts_list = db.list()
+        ts_list = db.ts_list()
         self.assertEqual(['410730'], ts_list)
+
+    def test_ts_list_source(self):
+        db = TSDB(self.test_tsdb)
+        db.add_timeseries('410731')
+        db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
+        db.add_timeseries_instance('410731', 'Q', 'EXAMPLE_SOURCE', 'Foo')
+
+        ts_list = db.ts_list(source_id = 'EXAMPLE_SOURCE')
+        self.assertEqual(['410731'], ts_list)
+
+    def test_ts_list_measurand(self):
+        db = TSDB(self.test_tsdb)
+        db.add_timeseries('410731')
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
+        db.add_timeseries_instance('410731', 'P', 'DATA_SOURCE', 'Foo')
+
+        ts_list = db.ts_list(measurand_id = 'P')
+        self.assertEqual(['410731'], ts_list)
+
+    def test_ts_list_measurand_and_source(self):
+        db = TSDB(self.test_tsdb)
+        db.add_timeseries('410731')
+        db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
+        db.add_timeseries_instance('410731', 'P', 'EXAMPLE_SOURCE', 'Foo')
+
+        ts_list = db.ts_list(source_id = 'EXAMPLE_SOURCE', measurand_id = 'P')
+        self.assertEqual(['410731'], ts_list)
 
     def test_duplicate_add_ts_instance(self):
         db = TSDB(self.test_tsdb)

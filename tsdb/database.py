@@ -175,13 +175,20 @@ class TSDB(object):
     def read_all(self, identifier, measurand, source):
         return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source))
 
-    def list(self):
+    def ts_list(self, measurand_id = None, source_id = None):
         """
             Returns list of primary ID for all timeseries records.
         """
         session = Session()
-        records = session.query(Timeseries).all()
-        return [ record.primary_id for record in records ]
+
+        query_args = {}
+        if measurand_id:
+            query_args['measurand'] = self.__get_measurand(measurand_id)
+        if source_id:
+            query_args['source'] = self.__get_source(source_id)
+
+        records = session.query(TimeseriesInstance).filter_by(**query_args)
+        return [ record.timeseries.primary_id for record in records ]
 
     def read_metadata(self, ts_id, measurand_id, source_id):
         """
