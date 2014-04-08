@@ -44,7 +44,7 @@ class DatabaseTest(unittest.TestCase):
         with self.assertRaises(IOError) as context:
             db = TSDB(db_name)
 
-        self.assertEqual(context.exception.message,
+        self.assertEqual(str(context.exception),
             "TSDB doesn't exist ({0})".format(db_name))
 
     def test_missing_meta_data(self):
@@ -52,7 +52,7 @@ class DatabaseTest(unittest.TestCase):
         with self.assertRaises(IOError) as context:
             db = TSDB(db_name)
 
-        self.assertEqual(context.exception.message,
+        self.assertEqual(str(context.exception),
             "TSDB doesn't contain meta-database ({0}{1}{2})".format(db_name, os.path.sep, 'tsdb.sqlite'))
 
     def test_meta_data(self):

@@ -1,5 +1,5 @@
 from datetime import datetime
-import md5
+import hashlib
 import os
 import types
 
@@ -71,7 +71,7 @@ class TSDB(object):
     def add_timeseries(self, identifier):
         the_id = identifier.strip()
         session = Session()
-        ts = Timeseries(primary_id = identifier, timeseries_id = md5.md5(identifier).hexdigest())
+        ts = Timeseries(primary_id = identifier, timeseries_id = hashlib.md5(identifier.encode('utf-8')).hexdigest())
         session.add(ts)
         session.commit()
 
@@ -104,7 +104,7 @@ class TSDB(object):
             session.rollback()
             raise ValueError('TimeseriesInstance for ({0}, {1}, {2}) already exists.'. \
                     format(identifier, source_id, measurand_id))
-        except NoResultFound, e:
+        except NoResultFound as e:
             # No result is good, we can now create a ts instance.
             pass
 
@@ -124,7 +124,7 @@ class TSDB(object):
         query = session.query(Timeseries).filter(Timeseries.primary_id == identifier)
         try:
             record = query.one()
-        except NoResultFound, e:
+        except NoResultFound as e:
             raise ValueError('Could not find metadata record for: {0}'.format(identifier))
 
         return record
@@ -136,7 +136,7 @@ class TSDB(object):
         query = session.query(Measurand).filter(Measurand.short_id == measurand)
         try:
             record = query.one()
-        except NoResultFound, e:
+        except NoResultFound as e:
             raise ValueError('Could not find measurand ({0}) in the database.'.format(measurand))
 
         return record
@@ -148,7 +148,7 @@ class TSDB(object):
         query = session.query(Source).filter(Source.short_id == source_id)
         try:
             record = query.one()
-        except NoResultFound, e:
+        except NoResultFound as e:
             raise ValueError('Could not find source ({0}) in the database.'.format(source_id))
 
         return record
@@ -206,7 +206,7 @@ class TSDB(object):
 
         try:
             record = query.one()
-        except NoResultFound, e:
+        except NoResultFound as e:
             raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {2}).'. \
                     format(ts_id, source_id, measurand_id))
 

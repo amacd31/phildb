@@ -12,7 +12,7 @@ def read_all(filename):
 
     records = []
     with open(filename, mode='rb') as f:
-        entry_count = os.fstat(f.fileno()).st_size / entry_size
+        entry_count = int(os.fstat(f.fileno()).st_size / entry_size)
         for i in range(entry_count):
             record = f.read(entry_size)
             records.append(unpack(entry_format, record))

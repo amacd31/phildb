@@ -5,8 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker()
 
-import constants
-import dbstructures
+from tsdb import constants
+from tsdb import dbstructures
 
 def create(tsdb_path):
 

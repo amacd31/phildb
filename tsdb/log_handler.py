@@ -25,7 +25,7 @@ class LogHandler:
                      'log',
                      TabDesc
                 )
-        except tables.exceptions.NodeError, e:
+        except tables.exceptions.NodeError as e:
             pass
 
         self.hdf5.flush()

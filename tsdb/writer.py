@@ -45,7 +45,7 @@ def write(tsdb_file, ts):
         Changed existing values are returned in a list.
     """
     # Convert all to datetime when utctimetuple is not available (i.e. date object).
-    for i in xrange(0, len(ts[0])):
+    for i in range(0, len(ts[0])):
         if 'utctimetuple' not in dir(ts[0][i]):
             ts[0][i] = dt.fromordinal(ts[0][i].toordinal())
 
@@ -82,12 +82,14 @@ def write(tsdb_file, ts):
                 writer.seek(entry_size * offset, os.SEEK_SET)
 
                 for record in iter(lambda: writer.read(entry_size), ""):
+                    if not record: break
                     records.append(unpack(entry_format, record))
             elif end_date < last_record_date and end_date >= first_record_date:
                 # Read overlapping for comparisons
                 writer.seek(entry_size * offset, os.SEEK_SET)
 
                 for record in iter(lambda: writer.read(entry_size), ""):
+                    if not record: break
                     records.append(unpack(entry_format, record))
 
             records_length = len(records)
@@ -120,7 +122,7 @@ def write(tsdb_file, ts):
     elif start_date > last_record_date and (start_date - last_record_date).days > 1:
         with open(tsdb_file, 'a+b') as writer:
             delta_days = (start_date - last_record_date).days
-            for day in xrange(1, delta_days):
+            for day in range(1, delta_days):
                 the_date = last_record_date + relativedelta(days=day)
                 data = pack('ldi',
                             calendar.timegm(the_date.utctimetuple()),

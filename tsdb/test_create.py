@@ -35,5 +35,5 @@ class CreateDatabaseTest(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             create(db_name)
 
-        self.assertEqual(context.exception.message,
+        self.assertEqual(str(context.exception),
             "TSDB already exists at: {0}".format(db_name))

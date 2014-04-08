@@ -1,5 +1,5 @@
 import os
-import md5
+import hashlib
 import numpy as np
 import shutil
 import tempfile
@@ -30,10 +30,10 @@ class WriterTest(unittest.TestCase):
 
     def test_bulk_write(self):
         writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
-        with open(self.tsdb_file) as file:
+        with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
-        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', md5.md5(datafile).hexdigest())
+        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
 
     def test_bulk_write_with_missing(self):
         writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]])
@@ -156,10 +156,10 @@ class WriterTest(unittest.TestCase):
 
     def test_bulk_write_date(self):
         writer.bulk_write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]])
-        with open(self.tsdb_file) as file:
+        with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
-        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', md5.md5(datafile).hexdigest())
+        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
 
     def test_write_missing_date(self):
         modified = writer.write(self.tsdb_existing_file, [[date(2014,1,4),date(2014,1,5),date(2014,1,6)], [4.0, np.nan, 6.5]])
