@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 .PHONY: all test sonar
 
 all: test
