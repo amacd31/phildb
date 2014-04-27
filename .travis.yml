@@ -1,0 +1,13 @@
+language: python
+python:
+    - "2.6"
+    - "2.7"
+    - "3.2"
+    - "3.3"
+before_install:
+    - sudo apt-get install python-virtualenv libhdf5-serial-dev
+install: make venv
+cache:
+    directories:
+    - venv
+script: . load_env; nosetests
