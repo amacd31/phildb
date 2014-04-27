@@ -8,7 +8,7 @@ docs:
 	make -C doc html
 
 venv: build_venv.sh python_requirements
-	./build_venv.sh
+	./build_venv.sh venv
 	touch venv
 
 test: venv

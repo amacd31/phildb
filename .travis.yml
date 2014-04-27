@@ -6,7 +6,7 @@ python:
     - "3.3"
 before_install:
     - sudo apt-get install python-virtualenv libhdf5-serial-dev
-install: make venv
+install: ./build_venv.sh
 cache:
     directories:
     - venv
