@@ -3,6 +3,15 @@ Create virtual environment with dependencies:
 
     make venv
 
+Alternately use an existing virtual environment:
+
+    ./build_venv.sh virtual_env_filepath
+
+Finally, if you wish to use your already activated virtual env (or system
+Python) invoke build_venv.sh without args:
+
+    ./build_venv.sh
+
 Test everything is working:
 
     make test
