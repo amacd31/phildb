@@ -335,6 +335,17 @@ class TSDB(object):
         records = session.query(TimeseriesInstance).filter_by(**query_args)
         return sorted(list(set([ record.timeseries.primary_id for record in records ])))
 
+    def list_measurands(self):
+        """
+            Returns list of measurand short IDs for all measurand records.
+
+            :returns: list(string) -- Sorted list of timeseries identifiers.
+        """
+        session = Session()
+
+        records = session.query(Measurand)
+        return sorted(list(set([ record.short_id for record in records ])))
+
     def read_metadata(self, ts_id, measurand_id, source_id):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
