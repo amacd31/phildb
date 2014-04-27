@@ -61,6 +61,11 @@ class TSDB(object):
             print("{0}: {1}".format(method, short_string))
 
     def version(self):
+        """
+            Returns the version number of the database schema.
+
+            :returns: string -- Schema version.
+        """
         session = Session()
         query = session.query(SchemaVersion.version)
 
@@ -69,6 +74,12 @@ class TSDB(object):
         return version
 
     def add_timeseries(self, identifier):
+        """
+            Create a timeseries entry to be identified by the supplied ID.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+        """
         the_id = identifier.strip()
         session = Session()
         ts = Timeseries(primary_id = identifier, timeseries_id = hashlib.md5(identifier.encode('utf-8')).hexdigest())
@@ -76,6 +87,18 @@ class TSDB(object):
         session.commit()
 
     def add_measurand(self, measurand_short_id, measurand_long_id, description):
+        """
+            Create a measurand entry.
+
+            Measurand being a measurable timeseries type. e.g. Streamflow, Temperature, Rainfall, etc.
+
+            :param measurand_short_id: Short identifier of the measurand.
+            :type measurand_short_id: string
+            :param measurand_long_id: Long identifier of the measurand.
+            :type measurand_long_id: string
+            :param description: Description of the measurand.
+            :type description: string
+        """
         short_id = measurand_short_id.strip().upper()
         long_id = measurand_long_id.strip().upper()
         session = Session()
@@ -84,6 +107,19 @@ class TSDB(object):
         session.commit()
 
     def add_source(self, source, description):
+        """
+            Define a source.
+
+            Source being the origin of the data. For example the source used in
+            the examples/hrs example is BOM_HRS. Indicated the origin of the
+            data was the Bureau of Metorology Hydrologic Reference Stations
+            project.
+
+            :param source: Identifier of the source.
+            :type source: string
+            :param description: Description of the source.
+            :type description: string
+        """
         short_id = source.strip().upper()
         session = Session()
         source = Source(short_id = short_id, description = description)
@@ -91,6 +127,21 @@ class TSDB(object):
         session.commit()
 
     def add_timeseries_instance(self, identifier, measurand_id, source_id, initial_metadata):
+        """
+            Define an instance of a timeseries.
+
+            A timeseries instance is a combination of a timeseries, measurand, and source.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param measurand_id: Identifier of the measurand.
+            :type measurand_id: string
+            :param source_id: Identifier of the source.
+            :type source_id: string
+            :param initial_metadata: Store some metadata about this series.
+                Potentially freeform header from a source file about to be loaded.
+            :type initial_metadata: string
+        """
         session = Session()
 
         timeseries = self.__get_record_by_id(identifier, session)
@@ -118,6 +169,18 @@ class TSDB(object):
             session.commit()
 
     def __get_record_by_id(self, identifier, session = None):
+        """
+            Get a database record for the given timeseries ID.
+
+            If a timeseries record can not be found a ValueError is raised.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param session: Database session to use. (Optional)
+            :type session: sqlalchemy.orm.sessionmaker.Session
+            :returns: Single session.query result.
+            :raises: ValueError
+        """
         if session is None:
             session = Session()
 
@@ -130,6 +193,18 @@ class TSDB(object):
         return record
 
     def __get_measurand(self, measurand, session = None):
+        """
+            Get a database record for the given measurand ID.
+
+            If a measurand record can not be found a ValueError is raised.
+
+            :param measurand: Identifier of the measurand.
+            :type measurand: string
+            :param session: Database session to use. (Optional)
+            :type session: sqlalchemy.orm.sessionmaker.Session
+            :returns: Single session.query result.
+            :raises: ValueError
+        """
         if session is None:
             session = Session()
 
@@ -142,6 +217,18 @@ class TSDB(object):
         return record
 
     def __get_source(self, source_id, session = None):
+        """
+            Get a database record for the given source ID.
+
+            If a source record can not be found a ValueError is raised.
+
+            :param source: Identifier of the source.
+            :type source: string
+            :param session: Database session to use. (Optional)
+            :type session: sqlalchemy.orm.sessionmaker.Session
+            :returns: Single session.query result.
+            :raises: ValueError
+        """
         if session is None:
             session = Session()
 
@@ -154,6 +241,21 @@ class TSDB(object):
         return record
 
     def __get_tsdb_file_by_id(self, identifier, measurand_id, source_id, ftype='tsdb'):
+        """
+            Get a path to a file for a given timeseries instance.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param measurand_id: Identifier of the measurand.
+            :type measurand_id: string
+            :param source_id: Identifier of the source.
+            :type source_id: string
+            :param ftype: File extension to use (i.e. the type of file).
+                (Default='tsdb')
+            :type ftype: string
+            :returns: string -- Path to file for a timeseries instance identified
+                by the given arguments.
+        """
         record = self.__get_ts_instance(identifier, measurand_id, source_id)
 
         return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
@@ -163,9 +265,33 @@ class TSDB(object):
                 )
 
     def bulk_write(self, identifier, measurand, ts, source):
+        """
+            Bulk write a timeseries to the timeseries database.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param measurand: Identifier of the measurand.
+            :type measurand: string
+            :param ts: Timeseries data to write into the database.
+            :type ts: np.array([np.array(datetime.date), np.array(float)])
+            :param source: Identifier of the source.
+            :type source: string
+        """
         writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts)
 
     def write(self, identifier, measurand, ts, source):
+        """
+            Write/update timeseries data for existing timeseries.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param measurand: Identifier of the measurand.
+            :type measurand: string
+            :param ts: Timeseries data to write into the database.
+            :type ts: np.array([np.array(datetime.date), np.array(float)])
+            :param source: Identifier of the source.
+            :type source: string
+        """
         modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts)
 
         log_file = self.__get_tsdb_file_by_id(identifier, measurand, source, 'hdf5')
@@ -173,11 +299,30 @@ class TSDB(object):
         writer.write_log(log_file, modified, datetime.utcnow())
 
     def read_all(self, identifier, measurand, source):
+        """
+            Read the entire timeseries record for the requested timeseries instance.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param measurand: Identifier of the measurand.
+            :type measurand: string
+            :param source: Identifier of the source.
+            :type source: string
+            :returns: pandas.DataFrame -- Timeseries data.
+        """
         return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source))
 
     def ts_list(self, measurand_id = None, source_id = None):
         """
             Returns list of primary ID for all timeseries records.
+
+            :param measurand_id: Restrict to IDs associated with this measurand
+                ID. (Optional).
+            :type measurand_id: string
+            :param source_id: Restrict to IDs associated with this source ID.
+                (Optional).
+            :type source_id: string
+            :returns: list(string) -- List of timeseries identifiers.
         """
         session = Session()
 
@@ -193,10 +338,34 @@ class TSDB(object):
     def read_metadata(self, ts_id, measurand_id, source_id):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param measurand: Identifier of the measurand.
+            :type measurand: string
+            :param source: Identifier of the source.
+            :type source: string
+            :returns: string -- The initial metadata that was recorded on
+                instance creation.
         """
         return self.__get_ts_instance(ts_id, measurand_id, source_id).initial_metadata
 
     def __get_ts_instance(self, ts_id, measurand_id, source_id):
+        """
+            Get a database record for the requested timeseries instance.
+
+            If a timeseries instance record can not be found a ValueError is
+            raised.
+
+            :param ts_id: Identifier of the timeseries.
+            :type ts_id: string
+            :param measurand_id: Identifier of the measurand.
+            :type measurand_id: string
+            :param source_id: Identifier of the source.
+            :type source_id: string
+            :returns: dbstructures.TimeseriesInstance -- Single session.query result.
+            :raises: ValueError
+        """
         timeseries = self.__get_record_by_id(ts_id)
         measurand = self.__get_measurand(measurand_id)
         source = self.__get_source(source_id)
