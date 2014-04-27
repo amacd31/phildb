@@ -322,7 +322,7 @@ class TSDB(object):
             :param source_id: Restrict to IDs associated with this source ID.
                 (Optional).
             :type source_id: string
-            :returns: list(string) -- List of timeseries identifiers.
+            :returns: list(string) -- Sorted list of timeseries identifiers.
         """
         session = Session()
 
@@ -333,7 +333,7 @@ class TSDB(object):
             query_args['source'] = self.__get_source(source_id)
 
         records = session.query(TimeseriesInstance).filter_by(**query_args)
-        return [ record.timeseries.primary_id for record in records ]
+        return sorted(list(set([ record.timeseries.primary_id for record in records ])))
 
     def read_metadata(self, ts_id, measurand_id, source_id):
         """

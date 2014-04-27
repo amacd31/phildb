@@ -177,6 +177,33 @@ class DatabaseTest(unittest.TestCase):
         ts_list = db.ts_list(measurand_id = 'P')
         self.assertEqual(['410731'], ts_list)
 
+    def test_ts_list_unique_ids(self):
+        """
+            Test that IDs don't appear multiple times due to different combinations.
+        """
+        db = TSDB(self.test_tsdb)
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
+        db.add_timeseries_instance('410730', 'P', 'DATA_SOURCE', 'Foo')
+
+        ts_list = db.ts_list()
+        self.assertEqual(['410730'], ts_list)
+
+    def test_ts_list_sorted(self):
+        """
+            Test that the list of IDs is sorted.
+        """
+        db = TSDB(self.test_tsdb)
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
+
+        db.add_timeseries_instance('410730', 'P', 'DATA_SOURCE', 'Foo')
+
+        db.add_timeseries('410731')
+        db.add_timeseries_instance('410731', 'P', 'DATA_SOURCE', 'Foo')
+        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'Foo')
+
+        ts_list = db.ts_list()
+        self.assertEqual(['410730', '410731'], ts_list)
+
     def test_ts_list_measurand_and_source(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
