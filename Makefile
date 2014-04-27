@@ -11,7 +11,7 @@ venv: build_venv.sh python_requirements
 	./build_venv.sh venv
 	touch venv
 
-test: venv
+test:
 	. load_env; nosetests --cover-erase --with-coverage --cover-package=tsdb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
 
 sonar: test
