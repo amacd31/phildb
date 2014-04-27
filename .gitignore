@@ -9,5 +9,7 @@ coverage.xml
 cover
 nosetests.xml
 *.swp
+doc/build/
+doc/source/api/
 hrs_data/
 examples/hrs/hrs_db/
