@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function pip_install {
+    which python
+    python --version
     # Not using -r because pip builds before installing and
     # we have dependencies that require the package installed
     # before it can build.
@@ -10,21 +12,21 @@ function pip_install {
     done
 }
 
-if [[ ! -d "venv" && $1 -eq "venv" ]]
+if [ ! -d "venv" ] && [ "x$1" = "xvenv" ]
 then
     virtualenv venv
 fi
 
-if [[ $1 -eq "venv" ]]
+if [[ $1 = "venv" ]]
 then
 (
     . venv/bin/activate
     pip_install
 )
-elif [[ $1 -eq "" ]]
+elif [[ "x$1" = "x" ]]
 then
     pip_install
-elif [[ ! $1 -eq "" ]]
+elif [[ ! "x$1" = "x" ]]
 then
 (
     . $1/bin/activate
