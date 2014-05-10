@@ -277,7 +277,7 @@ class TSDB(object):
             :param source: Identifier of the source.
             :type source: string
         """
-        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts)
+        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts, 'D')
 
     def write(self, identifier, measurand, ts, source):
         """
@@ -292,7 +292,7 @@ class TSDB(object):
             :param source: Identifier of the source.
             :type source: string
         """
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts)
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts, 'D')
 
         log_file = self.__get_tsdb_file_by_id(identifier, measurand, source, 'hdf5')
 

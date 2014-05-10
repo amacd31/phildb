@@ -25,7 +25,7 @@ def __pack(record_date, value, default_flag=0):
 
     return data
 
-def __convert_and_validate(ts):
+def __convert_and_validate(ts, freq):
     """
         Turn tuple of (dates, values) into a pandas TimeSeries.
 
@@ -46,17 +46,15 @@ def __convert_and_validate(ts):
                     format(cur_date, the_date))
         cur_date = the_date
 
-    series = pd.TimeSeries(ts[1], index=ts[0]).asfreq('D')
-
-    assert (series.index[-1] - series.index[0]).days + 1 == len(series.values)
+    series = pd.TimeSeries(ts[1], index=ts[0]).asfreq(freq)
 
     return series
 
-def bulk_write(tsdb_file, x):
+def bulk_write(tsdb_file, x, freq):
     """
         Good for initial bulk load. Expects continuous time series.
     """
-    series = __convert_and_validate(x)
+    series = __convert_and_validate(x, freq)
 
     with open(tsdb_file, 'wb') as writer:
         for date, value in zip(series.index, series.values):
@@ -67,15 +65,23 @@ def bulk_write(tsdb_file, x):
             data = __pack(datestamp, value)
             writer.write(data)
 
-def write(tsdb_file, ts):
+def write(tsdb_file, ts, freq):
     """
         Smart write. Expects continuous time series.
 
         Will only update existing values where they have changed.
         Changed existing values are returned in a list.
+
+        :param tsdb_file: File to write timeseries data into.
+        :type tsdb_file: string
+        :param ts: Tuple of (dates, values).
+        :type ts: (np.ndarray, np.ndarray)
+        :param freq: Frequency of the data. (e.g. 'D' for daily, '1Min' for minutely).
+            Accepts any string that pandas.TimeSeries.asfreq does.
+        :type freq: string
     """
 
-    series = __convert_and_validate(ts)
+    series = __convert_and_validate(ts, freq)
 
     start_date = series.index[0]
     end_date = series.index[-1]

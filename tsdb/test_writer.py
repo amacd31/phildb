@@ -29,14 +29,14 @@ class WriterTest(unittest.TestCase):
                 raise
 
     def test_bulk_write(self):
-        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]])
+        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
         with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
         self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
 
     def test_bulk_write_with_missing(self):
-        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]])
+        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]], 'D')
 
         data = reader.read_all(self.tsdb_file)
         self.assertEqual(1.0, data.values[0][0])
@@ -45,7 +45,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(METADATA_MISSING_VALUE, data.metaID[1])
 
     def test_update_single(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2)], [2.5]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2)], [2.5]], 'D')
         self.assertEqual(1, len(modified))
         self.assertEqual([(1388620800, 2.0, 0)], modified)
 
@@ -53,7 +53,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(2.5, data.values[1][0])
 
     def test_update_multiple(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [2.5, 3.5]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [2.5, 3.5]], 'D')
         self.assertEqual(2, len(modified))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
         self.assertEqual((1388707200, 3.0, 0), modified[1])
@@ -63,14 +63,14 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(3.5, data.values[2][0])
 
     def test_append_single(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4)], [4.0]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4)], [4.0]], 'D')
         self.assertEqual([], modified)
 
         data = reader.read_all(self.tsdb_existing_file)
         self.assertEqual(4.0, data.values[-1][0])
 
     def test_append_multiple(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [4.0, 5.0, 6.0]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [4.0, 5.0, 6.0]], 'D')
         self.assertEqual([], modified)
 
         data = reader.read_all(self.tsdb_existing_file)
@@ -82,7 +82,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(6.0, data.values[5][0])
 
     def test_update_and_append(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], 'D')
 
         self.assertEqual(1, len(modified))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
@@ -102,7 +102,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(datetime(2014,1,6), data.index[5].to_pydatetime())
 
     def test_update_and_append_with_gap(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,5), datetime(2014,1,6)], [5.0, 6.0]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,5), datetime(2014,1,6)], [5.0, 6.0]], 'D')
 
         data = reader.read_all(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0][0])
@@ -119,7 +119,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(datetime(2014,1,6), data.index[5].to_pydatetime())
 
     def test_update_multiple_with_gap(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [np.nan, 3.5]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [np.nan, 3.5]], 'D')
 
         self.assertEqual(2, len(modified))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
@@ -131,7 +131,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(3.5, data.values[2][0])
 
     def test_write_missing(self):
-        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4),datetime(2014,1,5),datetime(2014,1,6)], [4.0, np.nan, 6.5]])
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4),datetime(2014,1,5),datetime(2014,1,6)], [4.0, np.nan, 6.5]], 'D')
 
         self.assertEqual(0, len(modified))
 
@@ -151,18 +151,19 @@ class WriterTest(unittest.TestCase):
                     datetime(2014,1,3),
                     datetime(2014,1,2),
                     datetime(2014,1,4)],
-                    [np.nan, 3.5]]
+                    [np.nan, 3.5]],
+                'D'
                 )
 
     def test_bulk_write_date(self):
-        writer.bulk_write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]])
+        writer.bulk_write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
         with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
         self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
 
     def test_write_missing_value(self):
-        modified = writer.write(self.tsdb_existing_file, [[date(2014,1,4),date(2014,1,5),date(2014,1,6)], [4.0, np.nan, 6.5]])
+        modified = writer.write(self.tsdb_existing_file, [[date(2014,1,4),date(2014,1,5),date(2014,1,6)], [4.0, np.nan, 6.5]], 'D')
 
         self.assertEqual(0, len(modified))
 
@@ -175,7 +176,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(6.5, data.values[5][0])
 
     def test_write_missing_date(self):
-        modified = writer.write(self.tsdb_existing_file, [[date(2014,1,3),date(2014,1,5),date(2014,1,6)], [3.0, np.nan, 6.5]])
+        modified = writer.write(self.tsdb_existing_file, [[date(2014,1,3),date(2014,1,5),date(2014,1,6)], [3.0, np.nan, 6.5]], 'D')
 
         self.assertEqual(0, len(modified))
 
