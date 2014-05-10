@@ -87,29 +87,21 @@ def write(tsdb_file, ts):
     last_record_date = dt.utcfromtimestamp(last_record[0])
     modified_entries = []
 
+    offset = (start_date - first_record_date).days
+
     # We are updating existing data
     if start_date <= last_record_date:
-        offset = (start_date - first_record_date).days
-
         with open(tsdb_file, 'r+b') as writer:
-            # If we write past the end of the file
-            records = []
-            if end_date >= last_record_date:
-                # Read until the eof for comparisons
-                writer.seek(entry_size * offset, os.SEEK_SET)
+            existing_records = []
 
-                for record in iter(lambda: writer.read(entry_size), ""):
-                    if not record: break
-                    records.append(unpack(entry_format, record))
-            elif end_date < last_record_date and end_date >= first_record_date:
-                # Read overlapping for comparisons
-                writer.seek(entry_size * offset, os.SEEK_SET)
+            # Read existing overlapping data for comparisons
+            writer.seek(entry_size * offset, os.SEEK_SET)
 
-                for record in iter(lambda: writer.read(entry_size), ""):
-                    if not record: break
-                    records.append(unpack(entry_format, record))
+            for record in iter(lambda: writer.read(entry_size), ""):
+                if not record: break
+                existing_records.append(unpack(entry_format, record))
 
-            records_length = len(records)
+            records_length = len(existing_records)
 
             # Start a count for records from the starting write position
             rec_count = 0
@@ -117,11 +109,11 @@ def write(tsdb_file, ts):
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 overlapping = rec_count <= records_length - 1
-                if overlapping and records[rec_count][1] == value:
+                if overlapping and existing_records[rec_count][1] == value:
                     # Skip writing the entry if it hasn't changed.
                     writer.seek(entry_size * (rec_count +1) + (entry_size * offset), os.SEEK_SET)
-                elif overlapping and records[rec_count][1] != value:
-                    modified_entries.append(records[rec_count])
+                elif overlapping and existing_records[rec_count][1] != value:
+                    modified_entries.append(existing_records[rec_count])
                     data = __pack(datestamp, value)
                     writer.write(data)
                 else:
@@ -130,22 +122,17 @@ def write(tsdb_file, ts):
                 rec_count += 1
 
     # We are appending data
-    elif start_date > last_record_date and (start_date - last_record_date).days == 1:
-        with open(tsdb_file, 'ab') as writer:
-            for date, value in zip(series.index, series.values):
-                datestamp = calendar.timegm(date.utctimetuple())
-                data = __pack(datestamp, value)
-                writer.write(data)
-    elif start_date > last_record_date and (start_date - last_record_date).days > 1:
+    elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
             delta_days = (start_date - last_record_date).days
-            for day in range(1, delta_days):
-                the_date = last_record_date + relativedelta(days=day)
-                data = pack('ldi',
-                            calendar.timegm(the_date.utctimetuple()),
-                                            MISSING_VALUE,
-                                            METADATA_MISSING_VALUE)
-                writer.write(data)
+            if delta_days > 0:
+                for day in range(1, delta_days):
+                    the_date = last_record_date + relativedelta(days=day)
+                    data = pack('ldi',
+                                calendar.timegm(the_date.utctimetuple()),
+                                                MISSING_VALUE,
+                                                METADATA_MISSING_VALUE)
+                    writer.write(data)
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 data = __pack(datestamp, value)
