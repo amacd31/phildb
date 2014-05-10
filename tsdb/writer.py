@@ -46,7 +46,11 @@ def __convert_and_validate(ts):
                     format(cur_date, the_date))
         cur_date = the_date
 
-    return pd.TimeSeries(ts[1], index=ts[0])
+    series = pd.TimeSeries(ts[1], index=ts[0]).asfreq('D')
+
+    assert (series.index[-1] - series.index[0]).days + 1 == len(series.values)
+
+    return series
 
 def bulk_write(tsdb_file, x):
     """
@@ -76,7 +80,6 @@ def write(tsdb_file, ts):
     start_date = series.index[0]
     end_date = series.index[-1]
 
-    assert (end_date - start_date).days + 1 == len(ts[0])
 
     with open(tsdb_file, 'rb') as reader:
         first_record = unpack(entry_format, reader.read(entry_size))

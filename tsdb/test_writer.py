@@ -161,7 +161,7 @@ class WriterTest(unittest.TestCase):
 
         self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
 
-    def test_write_missing_date(self):
+    def test_write_missing_value(self):
         modified = writer.write(self.tsdb_existing_file, [[date(2014,1,4),date(2014,1,5),date(2014,1,6)], [4.0, np.nan, 6.5]])
 
         self.assertEqual(0, len(modified))
@@ -171,5 +171,18 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(2.0, data.values[1][0])
         self.assertEqual(3.0, data.values[2][0])
         self.assertEqual(4.0, data.values[3][0])
+        self.assertTrue(np.isnan(data.values[4][0]))
+        self.assertEqual(6.5, data.values[5][0])
+
+    def test_write_missing_date(self):
+        modified = writer.write(self.tsdb_existing_file, [[date(2014,1,3),date(2014,1,5),date(2014,1,6)], [3.0, np.nan, 6.5]])
+
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertEqual(2.0, data.values[1][0])
+        self.assertEqual(3.0, data.values[2][0])
+        self.assertTrue(np.isnan(data.values[3][0]))
         self.assertTrue(np.isnan(data.values[4][0]))
         self.assertEqual(6.5, data.values[5][0])
