@@ -3,6 +3,7 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import os
+import pandas as pd
 from struct import pack, unpack, calcsize
 
 from .constants import MISSING_VALUE, METADATA_MISSING_VALUE
@@ -24,12 +25,37 @@ def __pack(record_date, value, default_flag=0):
 
     return data
 
+def __convert_and_validate(ts):
+    """
+        Turn tuple of (dates, values) into a pandas TimeSeries.
+
+        Validates the input is sensible (e.g. consecutive values).
+
+        :param ts: Tuple of (dates, values)
+        :type ts: (np.ndarray, np.ndarray)
+    """
+    # Convert all to datetime when utctimetuple is not available (i.e. date object).
+    for i in range(0, len(ts[0])):
+        if 'utctimetuple' not in dir(ts[0][i]):
+            ts[0][i] = dt.fromordinal(ts[0][i].toordinal())
+
+    cur_date = ts[0][0]
+    for the_date in ts[0][1:]:
+        if cur_date >= the_date:
+            raise ValueError('Unordered dates were supplied. {0} >= {1}'. \
+                    format(cur_date, the_date))
+        cur_date = the_date
+
+    return pd.TimeSeries(ts[1], index=ts[0])
+
 def bulk_write(tsdb_file, x):
     """
         Good for initial bulk load. Expects continuous time series.
     """
+    series = __convert_and_validate(x)
+
     with open(tsdb_file, 'wb') as writer:
-        for date, value in zip(x[0], x[1]):
+        for date, value in zip(series.index, series.values):
             # Convert to datetime when utctimetuple is not available (i.e. date object).
             if 'utctimetuple' not in dir(date):
                 date = dt.fromordinal(date.toordinal())
@@ -44,22 +70,13 @@ def write(tsdb_file, ts):
         Will only update existing values where they have changed.
         Changed existing values are returned in a list.
     """
-    # Convert all to datetime when utctimetuple is not available (i.e. date object).
-    for i in range(0, len(ts[0])):
-        if 'utctimetuple' not in dir(ts[0][i]):
-            ts[0][i] = dt.fromordinal(ts[0][i].toordinal())
 
-    start_date = ts[0][0]
-    end_date = ts[0][-1]
+    series = __convert_and_validate(ts)
+
+    start_date = series.index[0]
+    end_date = series.index[-1]
 
     assert (end_date - start_date).days + 1 == len(ts[0])
-
-    cur_date = ts[0][0]
-    for the_date in ts[0][1:]:
-        if cur_date >= the_date:
-            raise ValueError('Unordered dates were supplied. {0} >= {1}'. \
-                    format(cur_date, the_date))
-        cur_date = the_date
 
     with open(tsdb_file, 'rb') as reader:
         first_record = unpack(entry_format, reader.read(entry_size))
@@ -97,7 +114,7 @@ def write(tsdb_file, ts):
             # Start a count for records from the starting write position
             rec_count = 0
             writer.seek(entry_size * offset, os.SEEK_SET)
-            for date, value in zip(ts[0], ts[1]):
+            for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 overlapping = rec_count <= records_length - 1
                 if overlapping and records[rec_count][1] == value:
@@ -115,7 +132,7 @@ def write(tsdb_file, ts):
     # We are appending data
     elif start_date > last_record_date and (start_date - last_record_date).days == 1:
         with open(tsdb_file, 'ab') as writer:
-            for date, value in zip(ts[0], ts[1]):
+            for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 data = __pack(datestamp, value)
                 writer.write(data)
@@ -129,7 +146,7 @@ def write(tsdb_file, ts):
                                             MISSING_VALUE,
                                             METADATA_MISSING_VALUE)
                 writer.write(data)
-            for date, value in zip(ts[0], ts[1]):
+            for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 data = __pack(datestamp, value)
                 writer.write(data)
