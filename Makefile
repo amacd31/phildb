@@ -4,7 +4,6 @@ SHELL := /bin/bash
 all: test docs
 
 docs:
-	sphinx-apidoc -T -f -o doc/source/api tsdb tsdb/dbstructures.py tsdb/test*
 	make -C doc html
 
 venv: build_venv.sh python_requirements
