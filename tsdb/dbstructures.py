@@ -58,6 +58,7 @@ class TimeseriesInstance(Base):
     measurand = relationship("Measurand", backref="measurands")
     timeseries = relationship("Timeseries", backref="timeseries")
     source = relationship("Source", backref="source")
+    freq = Column(String(10))
 
     def __repr__(self):
         return "<TimeseriesInstance(timeseries='{0}, measurand='{0}')>".format(self.timeseries, self.measurand)

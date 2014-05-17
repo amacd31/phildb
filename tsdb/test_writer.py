@@ -187,3 +187,39 @@ class WriterTest(unittest.TestCase):
         self.assertTrue(np.isnan(data.values[3][0]))
         self.assertTrue(np.isnan(data.values[4][0]))
         self.assertEqual(6.5, data.values[5][0])
+
+    def test_write_overlapping_hourly(self):
+        input_a = [
+                    [datetime(2014,1,1,0,0,0),
+                        datetime(2014,1,1,1,0,0),
+                        datetime(2014,1,1,2,0,0)
+                    ],
+                    [1.0,
+                        2.0,
+                        3.0]
+                    ]
+        input_b = [
+                    [datetime(2014,1,1,2,0,0),
+                        datetime(2014,1,1,3,0,0),
+                        datetime(2014,1,1,4,0,0),
+                        datetime(2014,1,1,5,0,0)
+                    ],
+                    [4.0,
+                        5.0,
+                        6.0,
+                        7.0]
+                    ]
+
+        writer.bulk_write(self.tsdb_file, input_a, 'H')
+        modified = writer.write(self.tsdb_file, input_b, 'H')
+        self.assertEqual(1, len(modified))
+        print(modified)
+        self.assertEqual([(1388541600, 3.0, 0)], modified)
+
+        data = reader.read_all(self.tsdb_file)
+        self.assertEqual(1.0, data.values[0][0])
+        self.assertEqual(2.0, data.values[1][0])
+        self.assertEqual(4.0, data.values[2][0])
+        self.assertEqual(5.0, data.values[3][0])
+        self.assertEqual(6.0, data.values[4][0])
+        self.assertEqual(7.0, data.values[5][0])

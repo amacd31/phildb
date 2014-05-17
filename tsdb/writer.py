@@ -96,7 +96,13 @@ def write(tsdb_file, ts, freq):
     last_record_date = dt.utcfromtimestamp(last_record[0])
     modified_entries = []
 
-    offset = (start_date - first_record_date).days
+    delta_seconds = (start_date - first_record_date).total_seconds()
+    freq_seconds = series.index.freq.delta.total_seconds()
+
+    if delta_seconds == 0:
+        offset = 0
+    else:
+        offset = int(delta_seconds / freq_seconds)
 
     # We are updating existing data
     if start_date <= last_record_date:

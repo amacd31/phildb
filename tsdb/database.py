@@ -126,7 +126,7 @@ class TSDB(object):
         session.add(source)
         session.commit()
 
-    def add_timeseries_instance(self, identifier, measurand_id, source_id, initial_metadata):
+    def add_timeseries_instance(self, identifier, measurand_id, source_id, freq, initial_metadata):
         """
             Define an instance of a timeseries.
 
@@ -138,6 +138,8 @@ class TSDB(object):
             :type measurand_id: string
             :param source_id: Identifier of the source.
             :type source_id: string
+            :param freq: Data frequency (e.g. 'D' for day, as supported by pandas.)
+            :type freq: string
             :param initial_metadata: Store some metadata about this series.
                 Potentially freeform header from a source file about to be loaded.
             :type initial_metadata: string
@@ -149,7 +151,7 @@ class TSDB(object):
         source = self.__get_source(source_id, session)
 
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries, source=source)
+                filter_by(measurand = measurand, timeseries=timeseries, source=source, freq=freq)
         try:
             record = query.one()
             session.rollback()
@@ -163,6 +165,7 @@ class TSDB(object):
             tsi = TimeseriesInstance(initial_metadata = initial_metadata)
             tsi.measurand = measurand
             tsi.source = source
+            tsi.freq = freq
             timeseries.ts_instances.append(tsi)
 
             session.add(tsi)
@@ -240,7 +243,7 @@ class TSDB(object):
 
         return record
 
-    def __get_tsdb_file_by_id(self, identifier, measurand_id, source_id, ftype='tsdb'):
+    def __get_tsdb_file_by_id(self, identifier, measurand_id, source_id, freq, ftype='tsdb'):
         """
             Get a path to a file for a given timeseries instance.
 
@@ -256,15 +259,16 @@ class TSDB(object):
             :returns: string -- Path to file for a timeseries instance identified
                 by the given arguments.
         """
-        record = self.__get_ts_instance(identifier, measurand_id, source_id)
+        record = self.__get_ts_instance(identifier, measurand_id, source_id, freq)
 
         return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
                 '_' + record.measurand.long_id +
                 '_' + record.source.short_id +
+                '_' + record.freq +
                 '.' + ftype
                 )
 
-    def bulk_write(self, identifier, measurand, ts, source):
+    def bulk_write(self, identifier, measurand, ts, source, freq):
         """
             Bulk write a timeseries to the timeseries database.
 
@@ -277,9 +281,9 @@ class TSDB(object):
             :param source: Identifier of the source.
             :type source: string
         """
-        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts, 'D')
+        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source, freq), ts, freq)
 
-    def write(self, identifier, measurand, ts, source):
+    def write(self, identifier, measurand, ts, source, freq):
         """
             Write/update timeseries data for existing timeseries.
 
@@ -292,13 +296,13 @@ class TSDB(object):
             :param source: Identifier of the source.
             :type source: string
         """
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source), ts, 'D')
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source, freq), ts, freq)
 
-        log_file = self.__get_tsdb_file_by_id(identifier, measurand, source, 'hdf5')
+        log_file = self.__get_tsdb_file_by_id(identifier, measurand, source, freq, 'hdf5')
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
-    def read_all(self, identifier, measurand, source):
+    def read_all(self, identifier, measurand, source, freq):
         """
             Read the entire timeseries record for the requested timeseries instance.
 
@@ -308,9 +312,11 @@ class TSDB(object):
             :type measurand: string
             :param source: Identifier of the source.
             :type source: string
+            :param freq: Timeseries data frequency.
+            :type freq: string
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source))
+        return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source, freq))
 
     def ts_list(self, measurand_id = None, source_id = None):
         """
@@ -346,7 +352,7 @@ class TSDB(object):
         records = session.query(Measurand)
         return sorted(list(set([ record.short_id for record in records ])))
 
-    def read_metadata(self, ts_id, measurand_id, source_id):
+    def read_metadata(self, ts_id, measurand_id, source_id, freq):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
 
@@ -359,9 +365,9 @@ class TSDB(object):
             :returns: string -- The initial metadata that was recorded on
                 instance creation.
         """
-        return self.__get_ts_instance(ts_id, measurand_id, source_id).initial_metadata
+        return self.__get_ts_instance(ts_id, measurand_id, source_id, freq).initial_metadata
 
-    def __get_ts_instance(self, ts_id, measurand_id, source_id):
+    def __get_ts_instance(self, ts_id, measurand_id, source_id, freq):
         """
             Get a database record for the requested timeseries instance.
 
@@ -382,13 +388,13 @@ class TSDB(object):
         source = self.__get_source(source_id)
         session = Session()
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries, source=source)
+                filter_by(measurand = measurand, timeseries=timeseries, source=source, freq=freq)
 
         try:
             record = query.one()
         except NoResultFound as e:
-            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {2}).'. \
-                    format(ts_id, source_id, measurand_id))
+            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {2}, {3}).'. \
+                    format(ts_id, source_id, measurand_id, freq))
 
         return record
 
