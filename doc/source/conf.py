@@ -16,6 +16,16 @@
 import sys
 import os
 
+import mock
+
+MOCK_MODULES = ['numpy',
+                'pandas',
+                'tables',
+                'matplotlib']
+
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+
 os.system("sphinx-apidoc -T -f -o ./api ../../tsdb ../../tsdb/dbstructures.py ../../tsdb/test*")
 
 # If extensions (or modules to document with autodoc) are in another directory,

@@ -1,12 +1,14 @@
 # TSDB project
 Timeseries database project: For storing potentially changing timeseries data.
-For example hydrological data such as streamflow where the timeseries may be
+For example hydrological data; like streamflow data where the timeseries may be
 revised as quality control processes improve the recorded dataset.
 
-At present only daily data is supported.
+TSDB should be capable of storing data at any frequency supported by Pandas.
+At this time only daily data has been extensively tested with some limited sub-
+daily usage.
 
 ## Dependencies
-Requires Python 2.7 or greater (mostly tested with Python 2.7 on Linux).
+Requires Python 2.7 or greater (mostly tested with Python 2.7 on Mac OSX and Linux).
 Test suite status when run with Python 2.7, 3.2 and 3.3 on Ubuntu (using travis):
 ![Build Status](https://travis-ci.org/amacd31/tsdb.svg?branch=master)
 
