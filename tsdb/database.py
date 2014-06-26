@@ -99,8 +99,8 @@ class TSDB(object):
             :param description: Description of the measurand.
             :type description: string
         """
-        short_id = measurand_short_id.strip().upper()
-        long_id = measurand_long_id.strip().upper()
+        short_id = measurand_short_id.strip()
+        long_id = measurand_long_id.strip()
         session = Session()
         measurand = Measurand(short_id = short_id, long_id = long_id,  description = description)
         session.add(measurand)
