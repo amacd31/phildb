@@ -138,10 +138,10 @@ def write(tsdb_file, ts, freq):
     # We are appending data
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
-            delta_days = (start_date - last_record_date).days
-            if delta_days > 0:
-                for day in range(1, delta_days):
-                    the_date = last_record_date + relativedelta(days=day)
+            delta_append_seconds = int((start_date - last_record_date).total_seconds())
+            if delta_append_seconds > 0:
+                for day in range(1, int(delta_append_seconds / freq_seconds)):
+                    the_date = last_record_date + relativedelta(seconds=freq_seconds)
                     data = pack('ldi',
                                 calendar.timegm(the_date.utctimetuple()),
                                                 MISSING_VALUE,
