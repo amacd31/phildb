@@ -213,7 +213,6 @@ class WriterTest(unittest.TestCase):
         writer.write(self.tsdb_file, input_a, 'H')
         modified = writer.write(self.tsdb_file, input_b, 'H')
         self.assertEqual(1, len(modified))
-        print(modified)
         self.assertEqual([(1388541600, 3.0, 0)], modified)
 
         data = reader.read_all(self.tsdb_file)
