@@ -9,6 +9,8 @@ db = TSDB(sys.argv[1])
 db.add_measurand('Q', 'STREAMFLOW', 'Streamflow')
 db.add_source('BOM_HRS', 'Bureau of Meteorology; Hydrological Reference Stations dataset.')
 
+freq = 'D'
+
 hrs_header_len = 18
 
 for i in range(2, len(sys.argv)):
@@ -21,8 +23,8 @@ for i in range(2, len(sys.argv)):
         header = ''.join(header)
         df = pandas.read_csv(sys.argv[i], parse_dates=True, index_col='Date', skiprows=hrs_header_len)
         db.add_timeseries(station_id)
-        db.add_timeseries_instance(station_id, 'Q', 'BOM_HRS', header)
-        db.bulk_write(station_id, 'Q', (df.index, df['Q'].values), 'BOM_HRS')
+        db.add_timeseries_instance(station_id, 'Q', 'BOM_HRS', freq, header)
+        db.bulk_write(station_id, 'Q', (df.index, df['Q'].values), 'BOM_HRS', freq)
     except ValueError as e:
         print("Skipping unloadable text file: ", sys.argv[i])
         pass
