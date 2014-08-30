@@ -327,6 +327,17 @@ class TSDB(object):
         records = session.query(TimeseriesInstance).filter_by(**query_args)
         return sorted(list(set([ record.timeseries.primary_id for record in records ])))
 
+    def list_ids(self):
+        """
+            Returns list of timeseries IDs for all timeseries records.
+
+            :returns: list(string) -- Sorted list of timeseries identifiers.
+        """
+        session = Session()
+
+        records = session.query(Timeseries)
+        return sorted(list(set([ record.primary_id for record in records ])))
+
     def list_measurands(self):
         """
             Returns list of measurand short IDs for all measurand records.
