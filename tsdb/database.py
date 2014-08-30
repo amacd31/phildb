@@ -268,20 +268,6 @@ class TSDB(object):
                 '.' + ftype
                 )
 
-    def bulk_write(self, identifier, measurand, ts, source, freq):
-        """
-            Bulk write a timeseries to the timeseries database.
-
-            :param identifier: Identifier of the timeseries.
-            :type identifier: string
-            :param measurand: Identifier of the measurand.
-            :type measurand: string
-            :param ts: Timeseries data to write into the database.
-            :type ts: np.array([np.array(datetime.date), np.array(float)])
-            :param source: Identifier of the source.
-            :type source: string
-        """
-        writer.bulk_write(self.__get_tsdb_file_by_id(identifier, measurand, source, freq), ts, freq)
 
     def write(self, identifier, measurand, ts, source, freq):
         """

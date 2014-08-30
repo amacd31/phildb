@@ -50,20 +50,6 @@ def __convert_and_validate(ts, freq):
 
     return series
 
-def bulk_write(tsdb_file, x, freq):
-    """
-        Good for initial bulk load. Expects continuous time series.
-    """
-    series = __convert_and_validate(x, freq)
-
-    with open(tsdb_file, 'wb') as writer:
-        for date, value in zip(series.index, series.values):
-            # Convert to datetime when utctimetuple is not available (i.e. date object).
-            if 'utctimetuple' not in dir(date):
-                date = dt.fromordinal(date.toordinal())
-            datestamp = calendar.timegm(date.utctimetuple())
-            data = __pack(datestamp, value)
-            writer.write(data)
 
 def write(tsdb_file, ts, freq):
     """
@@ -86,6 +72,20 @@ def write(tsdb_file, ts, freq):
     start_date = series.index[0]
     end_date = series.index[-1]
 
+    modified_entries = []
+
+    # If the file didn't exist it is a straight foward write and we can
+    # just return at the end of this if block.
+    if not os.path.isfile(tsdb_file):
+        with open(tsdb_file, 'wb') as writer:
+            for date, value in zip(series.index, series.values):
+                datestamp = calendar.timegm(date.utctimetuple())
+                data = __pack(datestamp, value)
+                writer.write(data)
+
+        return modified_entries
+
+    # If we reached here it wasn't a straight write to a new file.
 
     with open(tsdb_file, 'rb') as reader:
         first_record = unpack(entry_format, reader.read(entry_size))
@@ -94,7 +94,6 @@ def write(tsdb_file, ts, freq):
 
     first_record_date = dt.utcfromtimestamp(first_record[0])
     last_record_date = dt.utcfromtimestamp(last_record[0])
-    modified_entries = []
 
     delta_seconds = (start_date - first_record_date).total_seconds()
     freq_seconds = series.index.freq.delta.total_seconds()

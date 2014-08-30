@@ -109,12 +109,12 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.value[1], 2)
         self.assertEqual(results.value[2], 3)
 
-    def test_bulk_write(self):
+    def test_new_write(self):
         db = TSDB(self.test_tsdb)
 
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'D', 'Foo')
-        db.bulk_write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'DATA_SOURCE', 'D')
+        db.write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'DATA_SOURCE', 'D')
 
         results = db.read_all('410731', 'Q', 'DATA_SOURCE', 'D')
 

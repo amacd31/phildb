@@ -22,7 +22,7 @@ db.add_source('DATA_SOURCE', '')
 
 db.add_timeseries('410730')
 db.add_timeseries_instance('410730', 'Q', 'DATA_SOURCE', 'D', '')
-db.bulk_write('410730', 'Q', [[datetime.date(2014, 1, 1),
+db.write('410730', 'Q', [[datetime.date(2014, 1, 1),
             datetime.date(2014, 1, 2),
             datetime.date(2014, 1, 3)],
             [1,2,3]],

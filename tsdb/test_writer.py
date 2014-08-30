@@ -28,15 +28,15 @@ class WriterTest(unittest.TestCase):
             if e.errno != 2: # Code 2: No such file or directory.
                 raise
 
-    def test_bulk_write(self):
-        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
+    def test_new_write(self):
+        writer.write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
         with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
         self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
 
-    def test_bulk_write_with_missing(self):
-        writer.bulk_write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]], 'D')
+    def test_new_write_with_missing(self):
+        writer.write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]], 'D')
 
         data = reader.read_all(self.tsdb_file)
         self.assertEqual(1.0, data.values[0][0])
@@ -155,8 +155,8 @@ class WriterTest(unittest.TestCase):
                 'D'
                 )
 
-    def test_bulk_write_date(self):
-        writer.bulk_write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
+    def test_new_write_date(self):
+        writer.write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
         with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
@@ -210,7 +210,7 @@ class WriterTest(unittest.TestCase):
                         7.0]
                     ]
 
-        writer.bulk_write(self.tsdb_file, input_a, 'H')
+        writer.write(self.tsdb_file, input_a, 'H')
         modified = writer.write(self.tsdb_file, input_b, 'H')
         self.assertEqual(1, len(modified))
         print(modified)
