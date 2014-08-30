@@ -16,12 +16,12 @@ entry_size = calcsize(entry_format)
 def __pack(record_date, value, default_flag=0):
 
     if np.isnan(value):
-        data = pack('ldi',
+        data = pack(entry_format,
                     record_date,
                     MISSING_VALUE,
                     METADATA_MISSING_VALUE)
     else:
-        data = pack('ldi', record_date, value, default_flag)
+        data = pack(entry_format, record_date, value, default_flag)
 
     return data
 
