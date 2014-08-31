@@ -10,12 +10,10 @@ class Timeseries(Base):
 
     id = Column(Integer, primary_key=True)
     primary_id = Column(String, unique=True)
-    timeseries_id = Column(Integer, unique=True)
     ts_instances = relationship("TimeseriesInstance")
 
     def __repr__(self):
-        return "<Timeseries(primary_id='{0}', timeseries_id='{1}')>".format(
-                self.primary_id, self.timeseries_id)
+        return "<Timeseries(primary_id='{0}')>".format(self.primary_id)
 
 class Measurand(Base):
     __tablename__ = 'measurand'
@@ -59,6 +57,7 @@ class TimeseriesInstance(Base):
     timeseries = relationship("Timeseries", backref="timeseries")
     source = relationship("Source", backref="source")
     freq = Column(String(10))
+    uuid = Column(String(32))
 
     def __repr__(self):
         return "<TimeseriesInstance(timeseries='{0}, measurand='{0}')>".format(self.timeseries, self.measurand)

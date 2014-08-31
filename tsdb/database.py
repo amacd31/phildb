@@ -2,6 +2,7 @@ from datetime import datetime
 import hashlib
 import os
 import types
+import uuid
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -82,7 +83,7 @@ class TSDB(object):
         """
         the_id = identifier.strip()
         session = Session()
-        ts = Timeseries(primary_id = identifier, timeseries_id = hashlib.md5(identifier.encode('utf-8')).hexdigest())
+        ts = Timeseries(primary_id = identifier)
         session.add(ts)
         session.commit()
 
@@ -166,6 +167,7 @@ class TSDB(object):
             tsi.measurand = measurand
             tsi.source = source
             tsi.freq = freq
+            tsi.uuid = uuid.uuid4().hex
             timeseries.ts_instances.append(tsi)
 
             session.add(tsi)
@@ -261,10 +263,7 @@ class TSDB(object):
         """
         record = self.__get_ts_instance(identifier, measurand_id, source_id, freq)
 
-        return os.path.join(self.__data_dir(), record.timeseries.timeseries_id +
-                '_' + record.measurand.long_id +
-                '_' + record.source.short_id +
-                '_' + record.freq +
+        return os.path.join(self.__data_dir(), record.uuid +
                 '.' + ftype
                 )
 

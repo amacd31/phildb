@@ -1,9 +1,11 @@
 from datetime import datetime
+import mock
 import os
 import shutil
 import sqlite3
 import tempfile
 import unittest
+import uuid
 
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker()
@@ -11,6 +13,11 @@ Session = sessionmaker()
 from .database import TSDB
 from .dbstructures import TimeseriesInstance
 from .create import create
+
+uuid_pool = iter(['47e4e0b4-0c04-4c1d-8dc4-272acfcd6bb3'])
+
+def generate_uuid():
+    return uuid.UUID(next(uuid_pool))
 
 class DatabaseTest(unittest.TestCase):
     def setUp(self):
@@ -74,10 +81,9 @@ class DatabaseTest(unittest.TestCase):
         conn = sqlite3.connect(db._TSDB__meta_data_db())
         c = conn.cursor()
         c.execute("SELECT * FROM timeseries;")
-        pk, primary_id, ts_id = c.fetchone();
+        pk, primary_id = c.fetchone();
 
         self.assertEqual(primary_id, '410730')
-        self.assertEqual(ts_id, 'be29d3018ddb34acbe2174ee6522fd00')
 
     def test_add_measurand_entry(self):
         create(self.temp_dir)
@@ -109,6 +115,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.value[1], 2)
         self.assertEqual(results.value[2], 3)
 
+    @mock.patch('uuid.uuid4', generate_uuid)
     def test_new_write(self):
         db = TSDB(self.test_tsdb)
 
