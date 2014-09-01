@@ -333,20 +333,16 @@ class TSDB(object):
         records = session.query(Measurand)
         return sorted(list(set([ record.short_id for record in records ])))
 
-    def read_metadata(self, ts_id, measurand_id, source_id, freq):
+    def read_metadata(self, ts_id, freq, **kwargs):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
-            :param measurand: Identifier of the measurand.
-            :type measurand: string
-            :param source: Identifier of the source.
-            :type source: string
             :returns: string -- The initial metadata that was recorded on
                 instance creation.
         """
-        return self.__get_ts_instance(ts_id, freq, measurand = measurand_id, source = source_id).initial_metadata
+        return self.__get_ts_instance(ts_id, freq, **kwargs).initial_metadata
 
     def __get_ts_instance(self, ts_id, freq, **kwargs):
         """

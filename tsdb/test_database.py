@@ -288,10 +288,10 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
-        metadata = db.read_metadata('410730', 'Q', 'DATA_SOURCE', 'D')
+        metadata = db.read_metadata('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('', metadata)
 
-        metadata = db.read_metadata('410731', 'Q', 'DATA_SOURCE', 'D')
+        metadata = db.read_metadata('410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('Foo', metadata)
 
     def test_get_ts_instance(self):
