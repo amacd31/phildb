@@ -244,54 +244,6 @@ class TSDB(object):
         return record
 
 
-    def __get_measurand(self, measurand, session = None):
-        """
-            Get a database record for the given measurand ID.
-
-            If a measurand record can not be found a ValueError is raised.
-
-            :param measurand: Identifier of the measurand.
-            :type measurand: string
-            :param session: Database session to use. (Optional)
-            :type session: sqlalchemy.orm.sessionmaker.Session
-            :returns: Single session.query result.
-            :raises: ValueError
-        """
-        if session is None:
-            session = Session()
-
-        query = session.query(Measurand).filter(Measurand.short_id == measurand)
-        try:
-            record = query.one()
-        except NoResultFound as e:
-            raise ValueError('Could not find measurand ({0}) in the database.'.format(measurand))
-
-        return record
-
-    def __get_source(self, source_id, session = None):
-        """
-            Get a database record for the given source ID.
-
-            If a source record can not be found a ValueError is raised.
-
-            :param source: Identifier of the source.
-            :type source: string
-            :param session: Database session to use. (Optional)
-            :type session: sqlalchemy.orm.sessionmaker.Session
-            :returns: Single session.query result.
-            :raises: ValueError
-        """
-        if session is None:
-            session = Session()
-
-        query = session.query(Source).filter(Source.short_id == source_id)
-        try:
-            record = query.one()
-        except NoResultFound as e:
-            raise ValueError('Could not find source ({0}) in the database.'.format(source_id))
-
-        return record
-
     def __get_tsdb_file_by_id(self, identifier, measurand_id, source_id, freq, ftype='tsdb'):
         """
             Get a path to a file for a given timeseries instance.
