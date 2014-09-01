@@ -284,21 +284,17 @@ class TSDB(object):
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
-    def read_all(self, identifier, measurand, source, freq):
+    def read_all(self, identifier, freq, **kwargs):
         """
             Read the entire timeseries record for the requested timeseries instance.
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
-            :param measurand: Identifier of the measurand.
-            :type measurand: string
-            :param source: Identifier of the source.
-            :type source: string
             :param freq: Timeseries data frequency.
             :type freq: string
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read_all(self.__get_tsdb_file_by_id(identifier, freq, measurand = measurand, source = source))
+        return reader.read_all(self.__get_tsdb_file_by_id(identifier, freq, **kwargs))
 
     def ts_list(self, **kwargs):
         """
