@@ -127,6 +127,23 @@ class TSDB(object):
         session.add(source)
         session.commit()
 
+
+    def __parse_attribute_kwargs(self, **kwargs):
+        """
+            Convert kwargs of attribute short IDs into database objects
+
+            :param **kwargs: Any additional attributes to attach to the timeseries instance.
+            :type **kwargs: kwargs
+
+            :return: Dictionary of attributes from the database.
+        """
+        session = kwargs.pop('session', None)
+        attributes = {}
+        for attribute, value in kwargs.iteritems():
+            attributes[attribute] = self.__get_attribute(attribute, value, session)
+
+        return attributes
+
     def add_timeseries_instance(self, identifier, freq, initial_metadata, **kwargs):
         """
             Define an instance of a timeseries.
@@ -147,9 +164,7 @@ class TSDB(object):
 
         timeseries = self.__get_record_by_id(identifier, session)
 
-        attributes = {}
-        for attribute, value in kwargs.iteritems():
-            attributes[attribute] = self.__get_attribute(attribute, value, session)
+        attributes = self.__parse_attribute_kwargs(session = session, **kwargs)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(timeseries=timeseries, freq=freq, **attributes)
