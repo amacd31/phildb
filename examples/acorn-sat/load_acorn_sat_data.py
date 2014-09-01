@@ -22,5 +22,5 @@ for i in range(2, len(sys.argv)):
         input_file = 'data/acorn.sat.{0}.{1}.daily.txt'.format(variable, station_id)
         df = pd.read_csv(input_file, parse_dates=[0], index_col=0, header=None, skiprows=1, sep=r"\s+", na_values='99999.9', names=['Date',variable])
         db.add_timeseries_instance(station_id, freq, 'ACORN-SAT', measurand = variable, source = 'BOM_ACORN_SAT')
-        db.write(station_id, variable, (df.index, df[variable].values), 'BOM_ACORN_SAT', freq)
+        db.write(station_id, freq, (df.index, df[variable].values), measurand = variable, source = 'BOM_ACORN_SAT')
 

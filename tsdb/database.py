@@ -267,22 +267,20 @@ class TSDB(object):
                 )
 
 
-    def write(self, identifier, measurand, ts, source, freq):
+    def write(self, identifier, freq, ts, **kwargs):
         """
             Write/update timeseries data for existing timeseries.
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
-            :param measurand: Identifier of the measurand.
-            :type measurand: string
+            :param freq: Data frequency (e.g. 'D' for day, as supported by pandas.)
+            :type freq: string
             :param ts: Timeseries data to write into the database.
             :type ts: np.array([np.array(datetime.date), np.array(float)])
-            :param source: Identifier of the source.
-            :type source: string
         """
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, freq, measurand = measurand, source = source), ts, freq)
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier, freq, **kwargs), ts, freq)
 
-        log_file = self.__get_tsdb_file_by_id(identifier, freq, measurand = measurand, source = source, ftype = 'hdf5')
+        log_file = self.__get_tsdb_file_by_id(identifier, freq, ftype = 'hdf5', **kwargs)
 
         writer.write_log(log_file, modified, datetime.utcnow())
 

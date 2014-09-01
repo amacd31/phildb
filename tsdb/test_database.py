@@ -121,7 +121,7 @@ class DatabaseTest(unittest.TestCase):
 
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
-        db.write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'DATA_SOURCE', 'D')
+        db.write('410731', 'D', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
         results = db.read_all('410731', 'Q', 'DATA_SOURCE', 'D')
 
@@ -137,7 +137,7 @@ class DatabaseTest(unittest.TestCase):
 
     def test_update_and_append(self):
         db = TSDB(self.test_tsdb)
-        db.write('410730', 'Q', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], 'DATA_SOURCE', 'D')
+        db.write('410730', 'D', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
         data = db.read_all('410730', 'Q', 'DATA_SOURCE', 'D')
         self.assertEqual(1.0, data.values[0][0])
@@ -155,11 +155,11 @@ class DatabaseTest(unittest.TestCase):
 
     def test_write_non_existant_id(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.write, 'DOESNOTEXIST', 'Q', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], 'DATA_SOURCE', 'D')
+        self.assertRaises(ValueError, db.write, 'DOESNOTEXIST', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
     def test_write_non_existant_measurand(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.write, '410730', 'DOESNOTEXIST', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], 'DATA_SOURCE', 'D')
+        self.assertRaises(ValueError, db.write, '410730', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'DOESNOTEXIST', source = 'DATA_SOURCE')
 
     def test_ts_list(self):
         db = TSDB(self.test_tsdb)

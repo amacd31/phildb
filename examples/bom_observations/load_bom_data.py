@@ -37,14 +37,14 @@ db.add_source('BOM_OBS', 'Australian Bureau of Meteorology Observations')
 
 db.add_timeseries(station_id)
 db.add_timeseries_instance(station_id, freq, 'None', measurand = measurand, source = source)
-db.write(station_id, measurand, (dates, data), source, freq)
+db.write(station_id, freq, (dates, data), measurand = measurand, source = source)
 
 for i in range(3, len(sys.argv)):
     print("Processing file: ", sys.argv[i], '...')
 
     try:
         x = parse(json.load(open(sys.argv[i])), measurand)
-        db.write(station_id, measurand, x, source, freq)
+        db.write(station_id, freq, x, measurand = measurand, source = source)
     except ValueError as e:
         print('Could not parse: {0}'.format(sys.argv[i]))
 
