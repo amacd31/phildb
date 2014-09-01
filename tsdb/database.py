@@ -148,7 +148,7 @@ class TSDB(object):
         """
             Define an instance of a timeseries.
 
-            A timeseries instance is a combination of a timeseries, measurand, and source.
+            A timeseries instance is a combination of a timeseries, frequency and attributes.
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
@@ -250,10 +250,6 @@ class TSDB(object):
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
-            :param measurand_id: Identifier of the measurand.
-            :type measurand_id: string
-            :param source_id: Identifier of the source.
-            :type source_id: string
             :param ftype: File extension to use (i.e. the type of file).
                 (Default='tsdb')
             :type ftype: string
@@ -353,10 +349,6 @@ class TSDB(object):
 
             :param ts_id: Identifier of the timeseries.
             :type ts_id: string
-            :param measurand_id: Identifier of the measurand.
-            :type measurand_id: string
-            :param source_id: Identifier of the source.
-            :type source_id: string
             :returns: dbstructures.TimeseriesInstance -- Single session.query result.
             :raises: ValueError
         """
