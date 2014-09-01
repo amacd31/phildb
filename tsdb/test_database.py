@@ -253,8 +253,8 @@ class DatabaseTest(unittest.TestCase):
         session = Session()
 
         timeseries = db._TSDB__get_record_by_id('410731', session)
-        measurand = db._TSDB__get_measurand('Q', session)
-        source = db._TSDB__get_source('DATA_SOURCE', session)
+        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
+        source = db._TSDB__get_attribute('source', 'DATA_SOURCE', session)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(measurand = measurand, source=source, timeseries=timeseries)
@@ -273,8 +273,8 @@ class DatabaseTest(unittest.TestCase):
         session = Session()
 
         timeseries = db._TSDB__get_record_by_id('410730', session)
-        measurand = db._TSDB__get_measurand('Q', session)
-        source = db._TSDB__get_source('EXAMPLE_SOURCE', session)
+        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
+        source = db._TSDB__get_attribute('source', 'EXAMPLE_SOURCE', session)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(measurand = measurand, source=source, timeseries=timeseries)
