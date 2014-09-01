@@ -308,7 +308,7 @@ class TSDB(object):
             :returns: string -- Path to file for a timeseries instance identified
                 by the given arguments.
         """
-        record = self.__get_ts_instance(identifier, measurand_id, source_id, freq)
+        record = self.__get_ts_instance(identifier, freq, measurand = measurand_id, source = source_id)
 
         return os.path.join(self.__data_dir(), record.uuid +
                 '.' + ftype
@@ -360,10 +360,7 @@ class TSDB(object):
             :returns: list(string) -- Sorted list of timeseries identifiers.
         """
         session = Session()
-
-        query_args = {}
-        for attribute, value in kwargs.iteritems():
-            query_args[attribute] = self.__get_attribute(attribute, value)
+        query_args = self.__parse_attribute_kwargs(**kwargs)
 
         records = session.query(TimeseriesInstance).filter_by(**query_args)
         return sorted(list(set([ record.timeseries.primary_id for record in records ])))
@@ -403,9 +400,9 @@ class TSDB(object):
             :returns: string -- The initial metadata that was recorded on
                 instance creation.
         """
-        return self.__get_ts_instance(ts_id, measurand_id, source_id, freq).initial_metadata
+        return self.__get_ts_instance(ts_id, freq, measurand = measurand_id, source = source_id).initial_metadata
 
-    def __get_ts_instance(self, ts_id, measurand_id, source_id, freq):
+    def __get_ts_instance(self, ts_id, freq, **kwargs):
         """
             Get a database record for the requested timeseries instance.
 
@@ -422,17 +419,18 @@ class TSDB(object):
             :raises: ValueError
         """
         timeseries = self.__get_record_by_id(ts_id)
-        measurand = self.__get_measurand(measurand_id)
-        source = self.__get_source(source_id)
+
+        query_args = self.__parse_attribute_kwargs(**kwargs)
+
         session = Session()
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries, source=source, freq=freq)
+                filter_by(timeseries=timeseries, freq=freq, **query_args)
 
         try:
             record = query.one()
         except NoResultFound as e:
-            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {2}, {3}).'. \
-                    format(ts_id, source_id, measurand_id, freq))
+            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {:}).'. \
+                    format(ts_id, freq, **kwargs))
 
         return record
 

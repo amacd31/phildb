@@ -296,11 +296,11 @@ class DatabaseTest(unittest.TestCase):
 
     def test_get_ts_instance(self):
         db = TSDB(self.test_tsdb)
-        ts_instance = db._TSDB__get_ts_instance('410730', 'Q', 'DATA_SOURCE', 'D')
+        ts_instance = db._TSDB__get_ts_instance('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('410730', ts_instance.timeseries.primary_id)
         self.assertEqual('Q', ts_instance.measurand.short_id)
 
-        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410731', 'Q', 'DATA_SOURCE', 'D')
+        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410730', 'P', 'DATA_SOURCE', 'D')
+        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410730', 'D', measurand = 'P', source = 'DATA_SOURCE')
