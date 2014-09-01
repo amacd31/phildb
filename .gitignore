@@ -14,3 +14,6 @@ doc/build/
 doc/source/api/
 hrs_data/
 examples/hrs/hrs_db/
+examples/acorn-sat/acorn_sat/
+examples/bom_observations/bom_tsdb/
+examples/bom_observations/IDN60901.94767.json
