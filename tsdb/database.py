@@ -244,7 +244,7 @@ class TSDB(object):
         return record
 
 
-    def __get_tsdb_file_by_id(self, identifier, measurand_id, source_id, freq, ftype='tsdb'):
+    def __get_tsdb_file_by_id(self, identifier, freq, ftype='tsdb', **kwargs):
         """
             Get a path to a file for a given timeseries instance.
 
@@ -260,7 +260,7 @@ class TSDB(object):
             :returns: string -- Path to file for a timeseries instance identified
                 by the given arguments.
         """
-        record = self.__get_ts_instance(identifier, freq, measurand = measurand_id, source = source_id)
+        record = self.__get_ts_instance(identifier, freq, **kwargs)
 
         return os.path.join(self.__data_dir(), record.uuid +
                 '.' + ftype
@@ -280,9 +280,9 @@ class TSDB(object):
             :param source: Identifier of the source.
             :type source: string
         """
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, measurand, source, freq), ts, freq)
+        modified = writer.write(self.__get_tsdb_file_by_id(identifier, freq, measurand = measurand, source = source), ts, freq)
 
-        log_file = self.__get_tsdb_file_by_id(identifier, measurand, source, freq, 'hdf5')
+        log_file = self.__get_tsdb_file_by_id(identifier, freq, measurand = measurand, source = source, ftype = 'hdf5')
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
@@ -300,7 +300,7 @@ class TSDB(object):
             :type freq: string
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source, freq))
+        return reader.read_all(self.__get_tsdb_file_by_id(identifier, freq, measurand = measurand, source = source))
 
     def ts_list(self, **kwargs):
         """
