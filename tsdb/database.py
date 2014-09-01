@@ -127,7 +127,7 @@ class TSDB(object):
         session.add(source)
         session.commit()
 
-    def add_timeseries_instance(self, identifier, measurand_id, source_id, freq, initial_metadata):
+    def add_timeseries_instance(self, identifier, freq, initial_metadata, **kwargs):
         """
             Define an instance of a timeseries.
 
@@ -135,37 +135,37 @@ class TSDB(object):
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
-            :param measurand_id: Identifier of the measurand.
-            :type measurand_id: string
-            :param source_id: Identifier of the source.
-            :type source_id: string
             :param freq: Data frequency (e.g. 'D' for day, as supported by pandas.)
             :type freq: string
             :param initial_metadata: Store some metadata about this series.
                 Potentially freeform header from a source file about to be loaded.
             :type initial_metadata: string
+            :param **kwargs: Any additional attributes to attach to the timeseries instance.
+            :type **kwargs: kwargs
         """
         session = Session()
 
         timeseries = self.__get_record_by_id(identifier, session)
-        measurand = self.__get_measurand(measurand_id, session)
-        source = self.__get_source(source_id, session)
+
+        attributes = {}
+        for attribute, value in kwargs.iteritems():
+            attributes[attribute] = self.__get_attribute(attribute, value, session)
 
         query = session.query(TimeseriesInstance). \
-                filter_by(measurand = measurand, timeseries=timeseries, source=source, freq=freq)
+                filter_by(timeseries=timeseries, freq=freq, **attributes)
         try:
             record = query.one()
             session.rollback()
-            raise ValueError('TimeseriesInstance for ({0}, {1}, {2}) already exists.'. \
-                    format(identifier, source_id, measurand_id))
+            raise ValueError('TimeseriesInstance for ({0}, {:}) already exists.'. \
+                    format(identifier, **kwargs))
         except NoResultFound as e:
             # No result is good, we can now create a ts instance.
             pass
 
         with session.no_autoflush:
             tsi = TimeseriesInstance(initial_metadata = initial_metadata)
-            tsi.measurand = measurand
-            tsi.source = source
+            tsi.measurand = attributes['measurand']
+            tsi.source = attributes['source']
             tsi.freq = freq
             tsi.uuid = uuid.uuid4().hex
             timeseries.ts_instances.append(tsi)
@@ -196,6 +196,38 @@ class TSDB(object):
             raise ValueError('Could not find metadata record for: {0}'.format(identifier))
 
         return record
+
+
+    def __get_attribute(self, attribute, value, session = None):
+        """
+            Get a database record for the given attribute.
+
+            If a attribute record can not be found a ValueError is raised.
+
+            :param attribute: Identifier of the attribute.
+            :type attribute: string
+            :param session: Database session to use. (Optional)
+            :type session: sqlalchemy.orm.sessionmaker.Session
+            :returns: Single session.query result.
+            :raises: ValueError
+        """
+        if session is None:
+            session = Session()
+
+        if attribute == 'measurand':
+            query = session.query(Measurand).filter(Measurand.short_id == value)
+        elif attribute == 'source':
+            query = session.query(Source).filter(Source.short_id == value)
+        else:
+            raise ValueError('Attribute {0} unknown'.format(attribute))
+
+        try:
+            record = query.one()
+        except NoResultFound as e:
+            raise ValueError('Could not find {0} ({1}) in the database.'.format(attribute, value))
+
+        return record
+
 
     def __get_measurand(self, measurand, session = None):
         """

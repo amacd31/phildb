@@ -120,7 +120,7 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
 
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
         db.write('410731', 'Q', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], 'DATA_SOURCE', 'D')
 
         results = db.read_all('410731', 'Q', 'DATA_SOURCE', 'D')
@@ -170,7 +170,7 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
-        db.add_timeseries_instance('410731', 'Q', 'EXAMPLE_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'EXAMPLE_SOURCE')
 
         ts_list = db.ts_list(source_id = 'EXAMPLE_SOURCE')
         self.assertEqual(['410731'], ts_list)
@@ -179,7 +179,7 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        db.add_timeseries_instance('410731', 'P', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
         ts_list = db.ts_list(measurand_id = 'P')
         self.assertEqual(['410731'], ts_list)
@@ -188,7 +188,7 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        db.add_timeseries_instance('410731', 'P', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
         ts_list = db.list_ids()
         self.assertEqual(['410730', '410731'], ts_list)
@@ -199,7 +199,7 @@ class DatabaseTest(unittest.TestCase):
         """
         db = TSDB(self.test_tsdb)
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        db.add_timeseries_instance('410730', 'P', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
         ts_list = db.ts_list()
         self.assertEqual(['410730'], ts_list)
@@ -211,11 +211,11 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
 
-        db.add_timeseries_instance('410730', 'P', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'P', 'DATA_SOURCE', 'D', 'Foo')
-        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
 
         ts_list = db.ts_list()
         self.assertEqual(['410730', '410731'], ts_list)
@@ -235,19 +235,19 @@ class DatabaseTest(unittest.TestCase):
         db.add_timeseries('410731')
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        db.add_timeseries_instance('410731', 'P', 'EXAMPLE_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'EXAMPLE_SOURCE')
 
         ts_list = db.ts_list(source_id = 'EXAMPLE_SOURCE', measurand_id = 'P')
         self.assertEqual(['410731'], ts_list)
 
     def test_duplicate_add_ts_instance(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.add_timeseries_instance, '410730', 'Q', 'DATA_SOURCE', 'D', '')
+        self.assertRaises(ValueError, db.add_timeseries_instance, '410730', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
 
     def test_add_ts_instance(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
 
         Session.configure(bind=db._TSDB__engine)
         session = Session()
@@ -267,7 +267,7 @@ class DatabaseTest(unittest.TestCase):
     def test_add_source(self):
         db = TSDB(self.test_tsdb)
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
-        db.add_timeseries_instance('410730', 'Q', 'EXAMPLE_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'Q', source = 'EXAMPLE_SOURCE')
 
         Session.configure(bind=db._TSDB__engine)
         session = Session()
@@ -287,7 +287,7 @@ class DatabaseTest(unittest.TestCase):
     def test_read_metadata(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')
-        db.add_timeseries_instance('410731', 'Q', 'DATA_SOURCE', 'D', 'Foo')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
         metadata = db.read_metadata('410730', 'Q', 'DATA_SOURCE', 'D')
         self.assertEqual('', metadata)
 

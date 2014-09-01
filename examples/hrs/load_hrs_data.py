@@ -23,7 +23,7 @@ for i in range(2, len(sys.argv)):
         header = ''.join(header)
         df = pandas.read_csv(sys.argv[i], parse_dates=True, index_col='Date', skiprows=hrs_header_len)
         db.add_timeseries(station_id)
-        db.add_timeseries_instance(station_id, 'Q', 'BOM_HRS', freq, header)
+        db.add_timeseries_instance(station_id, freq, header, measurand = 'Q', source = 'BOM_HRS')
         db.write(station_id, 'Q', (df.index, df['Q'].values), 'BOM_HRS', freq)
     except ValueError as e:
         print("Skipping unloadable text file: ", sys.argv[i])

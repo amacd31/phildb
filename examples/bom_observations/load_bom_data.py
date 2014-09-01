@@ -36,7 +36,7 @@ db.add_measurand(measurand, measurand, 'Air Temperature')
 db.add_source('BOM_OBS', 'Australian Bureau of Meteorology Observations')
 
 db.add_timeseries(station_id)
-db.add_timeseries_instance(station_id, measurand, source, freq, 'None')
+db.add_timeseries_instance(station_id, freq, 'None', measurand = measurand, source = source)
 db.write(station_id, measurand, (dates, data), source, freq)
 
 for i in range(3, len(sys.argv)):
