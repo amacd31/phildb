@@ -335,25 +335,20 @@ class TSDB(object):
         """
         return reader.read_all(self.__get_tsdb_file_by_id(identifier, measurand, source, freq))
 
-    def ts_list(self, measurand_id = None, source_id = None):
+    def ts_list(self, **kwargs):
         """
             Returns list of primary ID for all timeseries records.
 
-            :param measurand_id: Restrict to IDs associated with this measurand
-                ID. (Optional).
-            :type measurand_id: string
-            :param source_id: Restrict to IDs associated with this source ID.
-                (Optional).
-            :type source_id: string
+            :param kwargs: Restrict to records associated with this the kwargs
+                attributes supplied. (Optional).
+            :type kwargs: kwargs
             :returns: list(string) -- Sorted list of timeseries identifiers.
         """
         session = Session()
 
         query_args = {}
-        if measurand_id:
-            query_args['measurand'] = self.__get_measurand(measurand_id)
-        if source_id:
-            query_args['source'] = self.__get_source(source_id)
+        for attribute, value in kwargs.iteritems():
+            query_args[attribute] = self.__get_attribute(attribute, value)
 
         records = session.query(TimeseriesInstance).filter_by(**query_args)
         return sorted(list(set([ record.timeseries.primary_id for record in records ])))
