@@ -9,7 +9,7 @@ If you haven't already loaded the virtual env:
 
     cd ../../ && . load_env && cd -
 
-First download Hydrologic Reference Station data from http://www.bom.gov.au/water/hrs:
+First download the ACORN-SAT data from http://www.bom.gov.au/climate/change/acorn-sat/ with the provided shell script:
 
     cd data
     sh ./download.sh
