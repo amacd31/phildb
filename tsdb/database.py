@@ -139,7 +139,7 @@ class TSDB(object):
         """
         session = kwargs.pop('session', None)
         attributes = {}
-        for attribute, value in kwargs.iteritems():
+        for attribute, value in kwargs.items():
             attributes[attribute] = self.__get_attribute(attribute, value, session)
 
         return attributes
