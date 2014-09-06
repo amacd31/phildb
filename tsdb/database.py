@@ -17,6 +17,7 @@ from . import reader
 from . import writer
 from .dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
 from .dbstructures import Source
+from .exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
 class TSDB(object):
     def __init__(self, tsdb_path):
@@ -171,7 +172,7 @@ class TSDB(object):
         try:
             record = query.one()
             session.rollback()
-            raise ValueError('TimeseriesInstance for ({0}, {:}) already exists.'. \
+            raise DuplicateError('TimeseriesInstance for ({:}) already exists.'. \
                     format(identifier, **kwargs))
         except NoResultFound as e:
             # No result is good, we can now create a ts instance.
@@ -192,14 +193,14 @@ class TSDB(object):
         """
             Get a database record for the given timeseries ID.
 
-            If a timeseries record can not be found a ValueError is raised.
+            If a timeseries record can not be found a MissingDataError is raised.
 
             :param identifier: Identifier of the timeseries.
             :type identifier: string
             :param session: Database session to use. (Optional)
             :type session: sqlalchemy.orm.sessionmaker.Session
             :returns: Single session.query result.
-            :raises: ValueError
+            :raises: MissingDataError
         """
         if session is None:
             session = Session()
@@ -208,7 +209,7 @@ class TSDB(object):
         try:
             record = query.one()
         except NoResultFound as e:
-            raise ValueError('Could not find metadata record for: {0}'.format(identifier))
+            raise MissingDataError('Could not find metadata record for: {0}'.format(identifier))
 
         return record
 
@@ -217,14 +218,14 @@ class TSDB(object):
         """
             Get a database record for the given attribute.
 
-            If a attribute record can not be found a ValueError is raised.
+            If a attribute record can not be found a MissingAttributeError is raised.
 
             :param attribute: Identifier of the attribute.
             :type attribute: string
             :param session: Database session to use. (Optional)
             :type session: sqlalchemy.orm.sessionmaker.Session
             :returns: Single session.query result.
-            :raises: ValueError
+            :raises: MissingAttributeError
         """
         if session is None:
             session = Session()
@@ -234,12 +235,12 @@ class TSDB(object):
         elif attribute == 'source':
             query = session.query(Source).filter(Source.short_id == value)
         else:
-            raise ValueError('Attribute {0} unknown'.format(attribute))
+            raise MissingAttributeError('Attribute {0} unknown'.format(attribute))
 
         try:
             record = query.one()
         except NoResultFound as e:
-            raise ValueError('Could not find {0} ({1}) in the database.'.format(attribute, value))
+            raise MissingAttributeError('Could not find {0} ({1}) in the database.'.format(attribute, value))
 
         return record
 
@@ -344,13 +345,13 @@ class TSDB(object):
         """
             Get a database record for the requested timeseries instance.
 
-            If a timeseries instance record can not be found a ValueError is
+            If a timeseries instance record can not be found a MissingDataError is
             raised.
 
             :param ts_id: Identifier of the timeseries.
             :type ts_id: string
             :returns: dbstructures.TimeseriesInstance -- Single session.query result.
-            :raises: ValueError
+            :raises: MissingDataError
         """
         timeseries = self.__get_record_by_id(ts_id)
 
@@ -363,7 +364,7 @@ class TSDB(object):
         try:
             record = query.one()
         except NoResultFound as e:
-            raise ValueError('Could not find TimeseriesInstance for ({0}, {1}, {:}).'. \
+            raise MissingDataError('Could not find TimeseriesInstance for ({:}).'. \
                     format(ts_id, freq, **kwargs))
 
         return record

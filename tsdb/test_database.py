@@ -13,6 +13,7 @@ Session = sessionmaker()
 from .database import TSDB
 from .dbstructures import TimeseriesInstance
 from .create import create
+from .exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
 uuid_pool = iter(['47e4e0b4-0c04-4c1d-8dc4-272acfcd6bb3'])
 
@@ -155,11 +156,11 @@ class DatabaseTest(unittest.TestCase):
 
     def test_write_non_existant_id(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.write, 'DOESNOTEXIST', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertRaises(MissingDataError, db.write, 'DOESNOTEXIST', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
     def test_write_non_existant_measurand(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.write, '410730', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'DOESNOTEXIST', source = 'DATA_SOURCE')
+        self.assertRaises(MissingAttributeError, db.write, '410730', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'DOESNOTEXIST', source = 'DATA_SOURCE')
 
     def test_ts_list(self):
         db = TSDB(self.test_tsdb)
@@ -242,7 +243,7 @@ class DatabaseTest(unittest.TestCase):
 
     def test_duplicate_add_ts_instance(self):
         db = TSDB(self.test_tsdb)
-        self.assertRaises(ValueError, db.add_timeseries_instance, '410730', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertRaises(DuplicateError, db.add_timeseries_instance, '410730', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
 
     def test_add_ts_instance(self):
         db = TSDB(self.test_tsdb)
@@ -300,7 +301,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual('410730', ts_instance.timeseries.primary_id)
         self.assertEqual('Q', ts_instance.measurand.short_id)
 
-        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertRaises(MissingDataError, db._TSDB__get_ts_instance, '410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        self.assertRaises(ValueError, db._TSDB__get_ts_instance, '410730', 'D', measurand = 'P', source = 'DATA_SOURCE')
+        self.assertRaises(MissingDataError, db._TSDB__get_ts_instance, '410730', 'D', measurand = 'P', source = 'DATA_SOURCE')
