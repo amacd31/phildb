@@ -1,3 +1,6 @@
+class AlreadyExistsError(Exception):
+    pass
+
 class DuplicateError(Exception):
     pass
 

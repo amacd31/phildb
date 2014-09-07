@@ -5,6 +5,7 @@ import unittest
 
 from .database import TSDB
 from .create import create
+from .exceptions import AlreadyExistsError
 
 class CreateDatabaseTest(unittest.TestCase):
     def setUp(self):
@@ -32,7 +33,7 @@ class CreateDatabaseTest(unittest.TestCase):
 
     def test_protect_existing(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(AlreadyExistsError) as context:
             create(db_name)
 
         self.assertEqual(str(context.exception),
