@@ -8,6 +8,7 @@ from struct import pack, unpack, calcsize
 
 from .constants import MISSING_VALUE, METADATA_MISSING_VALUE
 from .log_handler import LogHandler
+from .exceptions import DataError
 
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
@@ -42,7 +43,7 @@ def __convert_and_validate(ts, freq):
     cur_date = ts[0][0]
     for the_date in ts[0][1:]:
         if cur_date >= the_date:
-            raise ValueError('Unordered dates were supplied. {0} >= {1}'. \
+            raise DataError('Unordered dates were supplied. {0} >= {1}'. \
                     format(cur_date, the_date))
         cur_date = the_date
 

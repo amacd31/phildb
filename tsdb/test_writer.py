@@ -9,6 +9,7 @@ from datetime import date, datetime
 from . import writer
 from . import reader
 from .constants import METADATA_MISSING_VALUE
+from .exceptions import DataError
 
 class WriterTest(unittest.TestCase):
     def setUp(self):
@@ -150,7 +151,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(6.5, data.values[5][0])
 
     def test_update_unordered(self):
-        self.assertRaises(ValueError,
+        self.assertRaises(DataError,
                 writer.write,
                 self.tsdb_existing_file,
                 [[datetime(2014,1,1),
