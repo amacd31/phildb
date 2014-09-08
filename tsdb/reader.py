@@ -10,12 +10,7 @@ def read_all(filename):
     entry_format = 'ldi' # long, double, int; See field names above.
     entry_size = calcsize(entry_format)
 
-    records = []
-    with open(filename, mode='rb') as f:
-        entry_count = int(os.fstat(f.fileno()).st_size / entry_size)
-        for i in range(entry_count):
-            record = f.read(entry_size)
-            records.append(unpack(entry_format, record))
+    records = np.fromfile(filename, dtype=np.dtype({'names':field_names, 'formats': entry_format}))
 
     if records == []: return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
 

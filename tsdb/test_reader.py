@@ -42,5 +42,5 @@ class ReaderTest(unittest.TestCase):
 
     def test_read_empty(self):
         data = reader.read_all(self.empty_tsdb_file)
-        self.assertTrue(np.all(data.columns == ['date', 'value', 'metaID']))
+        self.assertTrue(np.all(data.columns == ['value', 'metaID']))
         self.assertEqual(0, len(data))
