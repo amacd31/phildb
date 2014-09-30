@@ -285,6 +285,29 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(record.measurand.short_id, 'Q')
         self.assertEqual(record.source.short_id, 'EXAMPLE_SOURCE')
 
+    def test_add_attribute_with_value(self):
+        db = TSDB(self.test_tsdb)
+        db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
+        db.add_attribute('provider', 'Data provider')
+        db.add_attribute_value('provider', 'EXAMPLE_PROVIDER')
+        db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'Q', source = 'EXAMPLE_SOURCE')
+
+        Session.configure(bind=db._TSDB__engine)
+        session = Session()
+
+        timeseries = db._TSDB__get_record_by_id('410730', session)
+        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
+        source = db._TSDB__get_attribute('source', 'EXAMPLE_SOURCE', session)
+        provider = db._TSDB__get_attribute('provider', 'EXAMPLE_PROVIDER', session)
+
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, source=source, timeseries=timeseries)
+
+        record = query.one()
+        self.assertEqual(record.timeseries.primary_id, '410730')
+        self.assertEqual(record.measurand.short_id, 'Q')
+        self.assertEqual(record.source.short_id, 'EXAMPLE_SOURCE')
+
     def test_read_metadata(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')

@@ -38,6 +38,28 @@ class Source(Base):
         return "<Source(short_id='{0}', description={1})>".format(
                 self.short_id, self.description)
 
+class Attribute(Base):
+    __tablename__ = 'attribute'
+
+    id = Column(Integer, primary_key=True)
+    short_id = Column(String, unique=True)
+    description = Column(String, unique=True)
+
+    def __repr__(self):
+        return "<Attribute(short_id='{0}', description={1})>".format(
+                self.short_id, self.description)
+
+class AttributeValue(Base):
+    __tablename__ = 'attribute_value'
+
+    id = Column(Integer, primary_key=True)
+    attribute_id = Column(Integer, ForeignKey('attribute.id'))
+    attribute_value = Column(String, unique=True)
+
+    def __repr__(self):
+        return "<Attribute(attribute_id='{0}', attribute_value={1})>".format(
+                self.attribute_id, self.attribute_value)
+
 class SchemaVersion(Base):
     __tablename__ = 'schema_version'
 

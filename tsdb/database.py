@@ -17,6 +17,7 @@ from . import reader
 from . import writer
 from .dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
 from .dbstructures import Source
+from .dbstructures import Attribute, AttributeValue
 from .exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
 class TSDB(object):
@@ -129,6 +130,45 @@ class TSDB(object):
         session.commit()
 
 
+    def add_attribute(self, attribute_id, description):
+        """
+            Define an attribute.
+
+            :param attribute_id: Identifier of the attribute.
+            :type attribute_id: string
+            :param description: Description of the attribute.
+            :type description: string
+        """
+        short_id = attribute_id.strip().upper()
+        session = Session()
+        attribute = Attribute(short_id = short_id, description = description)
+        session.add(attribute)
+        session.commit()
+
+
+    def add_attribute_value(self, attribute_id, value):
+        """
+            Store an attribute value.
+
+            :param attribute_id: Identifier of the attribute.
+            :type attribute_id: string
+            :param value: The attribute value to store.
+            :type value: string
+        """
+        short_id = attribute_id.strip().upper()
+        session = Session()
+
+        query = session.query(Attribute).filter(Attribute.short_id == short_id)
+        try:
+            attribute = query.one()
+        except NoResultFound as e:
+            raise MissingAttributeError('Could not find {0} ({1}) in the database.'.format(attribute_id, value))
+
+        attribute = AttributeValue(attribute_id = attribute.id, attribute_value = value)
+        session.add(attribute)
+        session.commit()
+
+
     def __parse_attribute_kwargs(self, **kwargs):
         """
             Convert kwargs of attribute short IDs into database objects
@@ -234,6 +274,14 @@ class TSDB(object):
             query = session.query(Measurand).filter(Measurand.short_id == value)
         elif attribute == 'source':
             query = session.query(Source).filter(Source.short_id == value)
+        elif attribute == 'provider':
+            short_id = attribute.strip().upper()
+            query = session.query(Attribute).filter(Attribute.short_id == short_id)
+            try:
+                record = query.one()
+            except NoResultFound as e:
+                raise MissingAttributeError('Could not find {0} ({1}) in the database.'.format(attribute, value))
+            query = session.query(AttributeValue).filter(AttributeValue.attribute_id == record.id, AttributeValue.attribute_value == value)
         else:
             raise MissingAttributeError('Attribute {0} unknown'.format(attribute))
 
