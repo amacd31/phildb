@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from IPython.terminal.embed import InteractiveShellEmbed
 ipshell = InteractiveShellEmbed()
 
-from tsdb.database import TSDB
+from .database import TSDB
 
 print("")
 if len(sys.argv) != 2:
