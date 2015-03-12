@@ -18,7 +18,7 @@ def read_all(filename):
     df['date'] = pd.to_datetime(df['date'], unit='s')
     df = df.set_index('date')
 
-    df.value[df.metaID == METADATA_MISSING_VALUE] = np.nan
+    df.value.loc[df.metaID == METADATA_MISSING_VALUE] = np.nan
 
     return df
 
