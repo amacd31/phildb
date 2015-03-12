@@ -12,16 +12,16 @@ class LogHandler:
     """
 
     def __init__(self, filename, mode):
-        self.hdf5 = tables.openFile(filename, mode, complib='blosc')
+        self.hdf5 = tables.open_file(filename, mode, complib='blosc')
 
     def create_skeleton(self):
         """
             Create the skeleton of the data self.hdf5.
         """
-        data_group = self.hdf5.createGroup('/', 'data', 'data group')
+        data_group = self.hdf5.create_group('/', 'data', 'data group')
 
         try:
-            new_table = self.hdf5.createTable(data_group,
+            new_table = self.hdf5.create_table(data_group,
                      'log',
                      TabDesc
                 )
@@ -32,7 +32,7 @@ class LogHandler:
 
     def write(self, modified, replacement_datetime):
 
-        ts_table = self.hdf5.getNode('/data/log')
+        ts_table = self.hdf5.get_node('/data/log')
 
         index_row = ts_table.row
         for dt, val, meta in iter(modified):
