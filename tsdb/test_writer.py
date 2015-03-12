@@ -6,10 +6,10 @@ import tempfile
 import unittest
 from datetime import date, datetime
 
-from . import writer
-from . import reader
-from .constants import METADATA_MISSING_VALUE
-from .exceptions import DataError
+from tsdb import writer
+from tsdb import reader
+from tsdb.constants import METADATA_MISSING_VALUE
+from tsdb.exceptions import DataError
 
 class WriterTest(unittest.TestCase):
     def setUp(self):

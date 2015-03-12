@@ -12,13 +12,13 @@ Session = sessionmaker()
 import logging
 logger = logging.getLogger('TSDB_database')
 
-from . import constants
-from . import reader
-from . import writer
-from .dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
-from .dbstructures import Source
-from .dbstructures import Attribute, AttributeValue
-from .exceptions import DuplicateError, MissingAttributeError, MissingDataError
+from tsdb import constants
+from tsdb import reader
+from tsdb import writer
+from tsdb.dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
+from tsdb.dbstructures import Source
+from tsdb.dbstructures import Attribute, AttributeValue
+from tsdb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
 class TSDB(object):
     def __init__(self, tsdb_path):

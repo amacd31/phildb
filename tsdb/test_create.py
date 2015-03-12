@@ -3,9 +3,9 @@ import shutil
 import tempfile
 import unittest
 
-from .database import TSDB
-from .create import create
-from .exceptions import AlreadyExistsError
+from tsdb.database import TSDB
+from tsdb.create import create
+from tsdb.exceptions import AlreadyExistsError
 
 class CreateDatabaseTest(unittest.TestCase):
     def setUp(self):

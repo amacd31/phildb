@@ -10,10 +10,10 @@ import uuid
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker()
 
-from .database import TSDB
-from .dbstructures import TimeseriesInstance
-from .create import create
-from .exceptions import DuplicateError, MissingAttributeError, MissingDataError
+from tsdb.database import TSDB
+from tsdb.dbstructures import TimeseriesInstance
+from tsdb.create import create
+from tsdb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
 uuid_pool = iter(['47e4e0b4-0c04-4c1d-8dc4-272acfcd6bb3'])
 

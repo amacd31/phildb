@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from .constants import METADATA_MISSING_VALUE
+from tsdb.constants import METADATA_MISSING_VALUE
 
 def read_all(filename):
     field_names = ['date', 'value', 'metaID']

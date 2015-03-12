@@ -6,9 +6,9 @@ import os
 import pandas as pd
 from struct import pack, unpack, calcsize
 
-from .constants import MISSING_VALUE, METADATA_MISSING_VALUE
-from .log_handler import LogHandler
-from .exceptions import DataError
+from tsdb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
+from tsdb.log_handler import LogHandler
+from tsdb.exceptions import DataError
 
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
