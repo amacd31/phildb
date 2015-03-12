@@ -1,0 +1,2 @@
+include versioneer.py
+include tsdb/_version.py
