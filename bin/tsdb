@@ -1,7 +1,2 @@
 #!/bin/bash
-
-TSDB_PATH=$(cd `dirname "${BASH_SOURCE[0]}"`/.. && pwd)
-
-export PYTHONPATH=$TSDB_PATH:$PYTHONPATH
-
 python -m tsdb.console $@
