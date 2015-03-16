@@ -20,5 +20,5 @@ def read_all(filename):
 
     df.value.loc[df.metaID == METADATA_MISSING_VALUE] = np.nan
 
-    return df
+    return df.value
 

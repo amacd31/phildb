@@ -46,10 +46,9 @@ class WriterTest(unittest.TestCase):
         writer.write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]], 'D')
 
         data = reader.read_all(self.tsdb_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertTrue(np.isnan(data.values[1][0]))
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertEqual(METADATA_MISSING_VALUE, data.metaID[1])
+        self.assertEqual(1.0, data.values[0])
+        self.assertTrue(np.isnan(data.values[1]))
+        self.assertEqual(3.0, data.values[2])
 
     def test_update_single(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2)], [2.5]], 'D')
@@ -57,7 +56,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual([(1388620800, 2.0, 0)], modified)
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(2.5, data.values[1][0])
+        self.assertEqual(2.5, data.values[1])
 
     def test_update_multiple(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [2.5, 3.5]], 'D')
@@ -66,27 +65,27 @@ class WriterTest(unittest.TestCase):
         self.assertEqual((1388707200, 3.0, 0), modified[1])
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(2.5, data.values[1][0])
-        self.assertEqual(3.5, data.values[2][0])
+        self.assertEqual(2.5, data.values[1])
+        self.assertEqual(3.5, data.values[2])
 
     def test_append_single(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4)], [4.0]], 'D')
         self.assertEqual([], modified)
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(4.0, data.values[-1][0])
+        self.assertEqual(4.0, data.values[-1])
 
     def test_append_multiple(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [4.0, 5.0, 6.0]], 'D')
         self.assertEqual([], modified)
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.0, data.values[1][0])
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertEqual(4.0, data.values[3][0])
-        self.assertEqual(5.0, data.values[4][0])
-        self.assertEqual(6.0, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(4.0, data.values[3])
+        self.assertEqual(5.0, data.values[4])
+        self.assertEqual(6.0, data.values[5])
 
     def test_update_and_append(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], 'D')
@@ -95,12 +94,12 @@ class WriterTest(unittest.TestCase):
         self.assertEqual((1388620800, 2.0, 0), modified[0])
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.5, data.values[1][0])
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertEqual(4.0, data.values[3][0])
-        self.assertEqual(5.0, data.values[4][0])
-        self.assertEqual(6.0, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.5, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(4.0, data.values[3])
+        self.assertEqual(5.0, data.values[4])
+        self.assertEqual(6.0, data.values[5])
         self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
         self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
         self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
@@ -112,12 +111,12 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,5), datetime(2014,1,6)], [5.0, 6.0]], 'D')
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.0, data.values[1][0])
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertTrue(np.isnan(data.values[3][0]))
-        self.assertEqual(5.0, data.values[4][0])
-        self.assertEqual(6.0, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertTrue(np.isnan(data.values[3]))
+        self.assertEqual(5.0, data.values[4])
+        self.assertEqual(6.0, data.values[5])
         self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
         self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
         self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
@@ -133,9 +132,9 @@ class WriterTest(unittest.TestCase):
         self.assertEqual((1388707200, 3.0, 0), modified[1])
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertTrue(np.isnan(data.values[1][0]))
-        self.assertEqual(3.5, data.values[2][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertTrue(np.isnan(data.values[1]))
+        self.assertEqual(3.5, data.values[2])
 
     def test_write_missing(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4),datetime(2014,1,5),datetime(2014,1,6)], [4.0, np.nan, 6.5]], 'D')
@@ -143,12 +142,12 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(0, len(modified))
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.0, data.values[1][0])
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertEqual(4.0, data.values[3][0])
-        self.assertTrue(np.isnan(data.values[4][0]))
-        self.assertEqual(6.5, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(4.0, data.values[3])
+        self.assertTrue(np.isnan(data.values[4]))
+        self.assertEqual(6.5, data.values[5])
 
     def test_update_unordered(self):
         self.assertRaises(DataError,
@@ -175,12 +174,12 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(0, len(modified))
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.0, data.values[1][0])
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertEqual(4.0, data.values[3][0])
-        self.assertTrue(np.isnan(data.values[4][0]))
-        self.assertEqual(6.5, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(4.0, data.values[3])
+        self.assertTrue(np.isnan(data.values[4]))
+        self.assertEqual(6.5, data.values[5])
 
     def test_write_missing_date(self):
         modified = writer.write(self.tsdb_existing_file, [[date(2014,1,3),date(2014,1,5),date(2014,1,6)], [3.0, np.nan, 6.5]], 'D')
@@ -188,12 +187,12 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(0, len(modified))
 
         data = reader.read_all(self.tsdb_existing_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.0, data.values[1][0])
-        self.assertEqual(3.0, data.values[2][0])
-        self.assertTrue(np.isnan(data.values[3][0]))
-        self.assertTrue(np.isnan(data.values[4][0]))
-        self.assertEqual(6.5, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertTrue(np.isnan(data.values[3]))
+        self.assertTrue(np.isnan(data.values[4]))
+        self.assertEqual(6.5, data.values[5])
 
     def test_write_overlapping_hourly(self):
         input_a = [
@@ -223,12 +222,12 @@ class WriterTest(unittest.TestCase):
         self.assertEqual([(1388541600, 3.0, 0)], modified)
 
         data = reader.read_all(self.tsdb_file)
-        self.assertEqual(1.0, data.values[0][0])
-        self.assertEqual(2.0, data.values[1][0])
-        self.assertEqual(4.0, data.values[2][0])
-        self.assertEqual(5.0, data.values[3][0])
-        self.assertEqual(6.0, data.values[4][0])
-        self.assertEqual(7.0, data.values[5][0])
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(4.0, data.values[2])
+        self.assertEqual(5.0, data.values[3])
+        self.assertEqual(6.0, data.values[4])
+        self.assertEqual(7.0, data.values[5])
 
     def test_append_30min(self):
         new_data = [
@@ -248,7 +247,7 @@ class WriterTest(unittest.TestCase):
         data = reader.read_all(self.tsdb_30min_existing_file)
         self.assertEqual(148, len(data))
 
-        self.assertEqual(17.2, data.value[0])
-        self.assertTrue(np.isnan(data.value[-3]))
-        self.assertEqual(6.0, data.value[-2])
-        self.assertEqual(6.3, data.value[-1])
+        self.assertEqual(17.2, data.values[0])
+        self.assertTrue(np.isnan(data.values[-3]))
+        self.assertEqual(6.0, data.values[-2])
+        self.assertEqual(6.3, data.values[-1])
