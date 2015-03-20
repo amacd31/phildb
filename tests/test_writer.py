@@ -313,7 +313,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(9.1, data.values[3])
 
 
-    def test_append_monthly_start_data(self):
+    def test_append_monthly_end_data(self):
         new_data = [
                     [
                         datetime(1901,1,31),
@@ -326,6 +326,27 @@ class WriterTest(unittest.TestCase):
                 ]
 
         modified = writer.write(self.tsdb_monthly_existing_file, new_data, 'M')
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_monthly_existing_file)
+        self.assertEqual(14, len(data))
+
+        self.assertEqual(31.1, data.values[-2])
+        self.assertEqual(28.2, data.values[-1])
+
+    def test_append_monthly_start_data(self):
+        new_data = [
+                    [
+                        datetime(1901,1,1),
+                        datetime(1901,2,1),
+                    ],
+                    [
+                        31.1,
+                        28.2
+                    ]
+                ]
+
+        modified = writer.write(self.tsdb_monthly_existing_file, new_data, 'MS')
         self.assertEqual(0, len(modified))
 
         data = reader.read_all(self.tsdb_monthly_existing_file)

@@ -107,6 +107,10 @@ def write(tsdb_file, ts, freq):
             freqstr = 'T'
         else:
             freq_mult = 1
+
+        if freqstr[-1] == 'S' and len(freqstr) > 1:
+            freqstr = freqstr[:-1]
+
         offset = start_date.to_period(freqstr) - pd.to_datetime(first_record_date).to_period(freqstr)
 
     # We are updating existing data
