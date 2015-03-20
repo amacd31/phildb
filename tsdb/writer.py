@@ -97,12 +97,17 @@ def write(tsdb_file, ts, freq):
     last_record_date = dt.utcfromtimestamp(last_record[0])
 
     delta_seconds = (start_date - first_record_date).total_seconds()
-    freq_seconds = series.index.freq.delta.total_seconds()
+    freqstr = series.index.freqstr
 
     if delta_seconds == 0:
         offset = 0
     else:
-        offset = int(delta_seconds / freq_seconds)
+        if freqstr[-1] == 'T':
+            freq_mult = int(freqstr[:-1])
+            freqstr = 'T'
+        else:
+            freq_mult = 1
+        offset = start_date.to_period(freqstr) - pd.to_datetime(first_record_date).to_period(freqstr)
 
     # We are updating existing data
     if start_date <= last_record_date:
@@ -139,15 +144,17 @@ def write(tsdb_file, ts, freq):
     # We are appending data
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
-            delta_append_seconds = int((start_date - last_record_date).total_seconds())
-            if delta_append_seconds > 0:
-                for day in range(1, int(delta_append_seconds / freq_seconds)):
-                    the_date = last_record_date + relativedelta(seconds=freq_seconds)
+            last_record_date = pd.Timestamp(last_record_date, offset=freqstr)
+            delta_append = start_date - last_record_date
+            if delta_append.total_seconds() > 0:
+                the_date = last_record_date + 1 * freq_mult
+                while the_date < start_date:
                     data = pack('ldi',
                                 calendar.timegm(the_date.utctimetuple()),
                                                 MISSING_VALUE,
                                                 METADATA_MISSING_VALUE)
                     writer.write(data)
+                    the_date = the_date + 1 * freq_mult
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 data = __pack(datestamp, value)

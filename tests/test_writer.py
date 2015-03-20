@@ -26,6 +26,12 @@ class WriterTest(unittest.TestCase):
             'sample_30min.tsdb'),
             self.tsdb_30min_existing_file)
 
+        self.tsdb_monthly_existing_file = os.path.join(self.tsdb_path, 'monthly_existing_test.tsdb')
+        shutil.copy(os.path.join(os.path.dirname(__file__),
+            'test_data',
+            'sample_monthly.tsdb'),
+            self.tsdb_monthly_existing_file)
+
         self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.tsdb')
 
     def tearDown(self):
@@ -251,3 +257,79 @@ class WriterTest(unittest.TestCase):
         self.assertTrue(np.isnan(data.values[-3]))
         self.assertEqual(6.0, data.values[-2])
         self.assertEqual(6.3, data.values[-1])
+
+    def test_write_monthly_end_data(self):
+        new_data = [
+                    [
+                        datetime(2014,6,30),
+                        datetime(2014,7,31),
+                        datetime(2014,8,31),
+                        datetime(2014,9,30)
+                    ],
+                    [
+                        6.0,
+                        7.3,
+                        8.0,
+                        9.1
+                    ]
+                ]
+
+        modified = writer.write(self.tsdb_file, new_data, 'M')
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_file)
+        self.assertEqual(4, len(data))
+
+        self.assertEqual(6.0, data.values[0])
+        self.assertEqual(7.3, data.values[1])
+        self.assertEqual(8.0, data.values[2])
+        self.assertEqual(9.1, data.values[3])
+
+    def test_write_monthly_start_data(self):
+        new_data = [
+                    [
+                        datetime(2014,6,1),
+                        datetime(2014,7,1),
+                        datetime(2014,8,1),
+                        datetime(2014,9,1)
+                    ],
+                    [
+                        6.0,
+                        7.3,
+                        8.0,
+                        9.1
+                    ]
+                ]
+
+        modified = writer.write(self.tsdb_file, new_data, 'MS')
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_file)
+        self.assertEqual(4, len(data))
+
+        self.assertEqual(6.0, data.values[0])
+        self.assertEqual(7.3, data.values[1])
+        self.assertEqual(8.0, data.values[2])
+        self.assertEqual(9.1, data.values[3])
+
+
+    def test_append_monthly_start_data(self):
+        new_data = [
+                    [
+                        datetime(1901,1,31),
+                        datetime(1901,2,28),
+                    ],
+                    [
+                        31.1,
+                        28.2
+                    ]
+                ]
+
+        modified = writer.write(self.tsdb_monthly_existing_file, new_data, 'M')
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_monthly_existing_file)
+        self.assertEqual(14, len(data))
+
+        self.assertEqual(31.1, data.values[-2])
+        self.assertEqual(28.2, data.values[-1])
