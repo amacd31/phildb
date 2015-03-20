@@ -96,22 +96,18 @@ def write(tsdb_file, ts, freq):
     first_record_date = dt.utcfromtimestamp(first_record[0])
     last_record_date = dt.utcfromtimestamp(last_record[0])
 
-    delta_seconds = (start_date - first_record_date).total_seconds()
     freqstr = series.index.freqstr
 
-    if delta_seconds == 0:
-        offset = 0
+    if freqstr[-1] == 'T':
+        freq_mult = int(freqstr[:-1])
+        freqstr = 'T'
     else:
-        if freqstr[-1] == 'T':
-            freq_mult = int(freqstr[:-1])
-            freqstr = 'T'
-        else:
-            freq_mult = 1
+        freq_mult = 1
 
-        if freqstr[-1] == 'S' and len(freqstr) > 1:
-            freqstr = freqstr[:-1]
+    if freqstr[-1] == 'S' and len(freqstr) > 1:
+        freqstr = freqstr[:-1]
 
-        offset = start_date.to_period(freqstr) - pd.to_datetime(first_record_date).to_period(freqstr)
+    offset = start_date.to_period(freqstr) - pd.to_datetime(first_record_date).to_period(freqstr)
 
     # We are updating existing data
     if start_date <= last_record_date:
