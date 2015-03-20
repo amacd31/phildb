@@ -145,20 +145,20 @@ def write(tsdb_file, ts, freq):
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
             last_record_date = pd.Timestamp(last_record_date, offset=freqstr)
-            delta_append = start_date - last_record_date
-            if delta_append.total_seconds() > 0:
-                the_date = last_record_date + 1 * freq_mult
-                while the_date < start_date:
-                    data = pack('ldi',
-                                calendar.timegm(the_date.utctimetuple()),
-                                                MISSING_VALUE,
-                                                METADATA_MISSING_VALUE)
-                    writer.write(data)
-                    the_date = the_date + 1 * freq_mult
+            the_date = last_record_date + 1 * freq_mult
+            while the_date < start_date:
+                data = pack('ldi',
+                            calendar.timegm(the_date.utctimetuple()),
+                                            MISSING_VALUE,
+                                            METADATA_MISSING_VALUE)
+                writer.write(data)
+                the_date = the_date + 1 * freq_mult
+
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 data = __pack(datestamp, value)
                 writer.write(data)
+
     else: # Not yet supported
         raise NotImplementedError
 
