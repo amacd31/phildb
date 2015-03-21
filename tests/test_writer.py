@@ -32,6 +32,12 @@ class WriterTest(unittest.TestCase):
             'sample_monthly.tsdb'),
             self.tsdb_monthly_existing_file)
 
+        self.tsdb_monthly_start_existing_file = os.path.join(self.tsdb_path, 'monthly_start_existing_test.tsdb')
+        shutil.copy(os.path.join(os.path.dirname(__file__),
+            'test_data',
+            'sample_monthly_start.tsdb'),
+            self.tsdb_monthly_start_existing_file)
+
         self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.tsdb')
 
     def tearDown(self):
@@ -346,11 +352,12 @@ class WriterTest(unittest.TestCase):
                     ]
                 ]
 
-        modified = writer.write(self.tsdb_monthly_existing_file, new_data, 'MS')
+        modified = writer.write(self.tsdb_monthly_start_existing_file, new_data, 'MS')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_monthly_existing_file)
-        self.assertEqual(14, len(data))
+        data = reader.read_all(self.tsdb_monthly_start_existing_file)
 
-        self.assertEqual(31.1, data.values[-2])
-        self.assertEqual(28.2, data.values[-1])
+        self.assertEqual(datetime(1900,1,1), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(1901,2,1), data.index[-1].to_pydatetime())
+
+        self.assertEqual(14, len(data))

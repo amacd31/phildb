@@ -144,15 +144,15 @@ def write(tsdb_file, ts, freq):
     # We are appending data
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
-            last_record_date = pd.Timestamp(last_record_date, offset=freqstr)
-            the_date = last_record_date + 1 * freq_mult
+            last_record_date = pd.Timestamp(last_record_date, offset=series.index.freq)
+            the_date = last_record_date + 1
             while the_date < start_date:
                 data = pack('ldi',
                             calendar.timegm(the_date.utctimetuple()),
                                             MISSING_VALUE,
                                             METADATA_MISSING_VALUE)
                 writer.write(data)
-                the_date = the_date + 1 * freq_mult
+                the_date = the_date + 1
 
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
