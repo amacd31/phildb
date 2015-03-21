@@ -67,7 +67,7 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        self.assertEqual(db.version(), "0.0.5")
+        self.assertEqual(db.version(), "0.0.6")
 
     def test_tsdb_data_dir(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
@@ -264,6 +264,26 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(record.timeseries.primary_id, '410731')
         self.assertEqual(record.measurand.short_id, 'Q')
         self.assertEqual(record.source.short_id, 'DATA_SOURCE')
+
+    def test_add_ts_instance_alternate_freq(self):
+        db = TSDB(self.test_tsdb)
+        db.add_timeseries_instance('410730', 'M', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
+
+        Session.configure(bind=db._TSDB__engine)
+        session = Session()
+
+        timeseries = db._TSDB__get_record_by_id('410730', session)
+        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
+        source = db._TSDB__get_attribute('source', 'DATA_SOURCE', session)
+
+        query = session.query(TimeseriesInstance). \
+                filter_by(measurand = measurand, source=source, timeseries=timeseries, freq='M')
+
+        record = query.one()
+        self.assertEqual(record.timeseries.primary_id, '410730')
+        self.assertEqual(record.measurand.short_id, 'Q')
+        self.assertEqual(record.source.short_id, 'DATA_SOURCE')
+        self.assertEqual(record.freq, 'M')
 
     def test_add_source(self):
         db = TSDB(self.test_tsdb)

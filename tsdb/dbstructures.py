@@ -72,13 +72,13 @@ class SchemaVersion(Base):
 class TimeseriesInstance(Base):
     __tablename__ = 'timeseries_instance'
     ts_id = Column(Integer, ForeignKey('timeseries.id'), primary_key=True)
+    freq = Column(String(10), primary_key=True)
     measurand_id = Column(Integer, ForeignKey('measurand.id'), primary_key=True)
     source_id = Column(Integer, ForeignKey('source.id'), primary_key=True)
     initial_metadata = Column(String(255))
     measurand = relationship("Measurand", backref="measurands")
     timeseries = relationship("Timeseries", backref="timeseries")
     source = relationship("Source", backref="source")
-    freq = Column(String(10))
     uuid = Column(String(32))
 
     def __repr__(self):
