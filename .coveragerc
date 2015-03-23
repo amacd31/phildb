@@ -5,6 +5,7 @@ include = tsdb/**
 [report]
 include = tsdb/**
 omit =  **/test*
+        tsdb/_version.py
 
 exclude_lines =
     raise NotImplementedError
