@@ -231,6 +231,16 @@ class DatabaseTest(unittest.TestCase):
         ts_list = db.list_measurands()
         self.assertEqual(['P', 'Q'], ts_list)
 
+    def test_source_list_sorted(self):
+        """
+            Test that the list of source short IDs is sorted.
+        """
+        db = TSDB(self.test_tsdb)
+        db.add_source('EXAMPLE_SOURCE', 'Example source.')
+
+        ts_list = db.list_sources()
+        self.assertEqual(['DATA_SOURCE', 'EXAMPLE_SOURCE'], ts_list)
+
     def test_ts_list_measurand_and_source(self):
         db = TSDB(self.test_tsdb)
         db.add_timeseries('410731')

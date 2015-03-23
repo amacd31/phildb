@@ -378,6 +378,17 @@ class TSDB(object):
         records = session.query(Measurand)
         return sorted(list(set([ record.short_id for record in records ])))
 
+    def list_sources(self):
+        """
+            Returns list of source IDs for all sources.
+
+            :returns: list(string) -- Sorted list of source identifiers.
+        """
+        session = Session()
+
+        records = session.query(Source)
+        return sorted(list(set([ record.short_id for record in records ])))
+
     def read_metadata(self, ts_id, freq, **kwargs):
         """
             Returns the metadata that was associated with an initial TimeseriesInstance.
