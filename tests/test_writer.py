@@ -361,3 +361,56 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(datetime(1901,2,1), data.index[-1].to_pydatetime())
 
         self.assertEqual(14, len(data))
+
+    def test_write_irregular_data(self):
+        new_data = [
+                    [
+                        datetime(1900,1,1),
+                        datetime(1900,3,1),
+                        datetime(1900,4,1),
+                        datetime(1900,6,1),
+                    ],
+                    [
+                        1.0,
+                        2.0,
+                        3.0,
+                        4.0
+                    ]
+                ]
+
+        modified = writer.write(self.tsdb_file, new_data, 'IRR')
+        self.assertEqual(0, len(modified))
+
+        data = reader.read_all(self.tsdb_file)
+
+        self.assertEqual(datetime(1900,1,1), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(1900,3,1), data.index[1].to_pydatetime())
+        self.assertEqual(datetime(1900,4,1), data.index[2].to_pydatetime())
+        self.assertEqual(datetime(1900,6,1), data.index[3].to_pydatetime())
+
+        self.assertEqual(4, len(data))
+
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(4.0, data.values[3])
+
+    def test_irregular_update_and_append(self):
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,5), datetime(2014,1,7), datetime(2014,1,8)], [2.5, 3.0, 5.0, 7.0, 8.0]], 'IRR')
+
+        self.assertEqual(1, len(modified))
+        self.assertEqual((1388620800, 2.0, 0), modified[0])
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.5, data.values[1])
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(5.0, data.values[3])
+        self.assertEqual(7.0, data.values[4])
+        self.assertEqual(8.0, data.values[5])
+        self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
+        self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
+        self.assertEqual(datetime(2014,1,5), data.index[3].to_pydatetime())
+        self.assertEqual(datetime(2014,1,7), data.index[4].to_pydatetime())
+        self.assertEqual(datetime(2014,1,8), data.index[5].to_pydatetime())

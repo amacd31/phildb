@@ -9,6 +9,7 @@ from struct import pack, unpack, calcsize
 from tsdb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 from tsdb.log_handler import LogHandler
 from tsdb.exceptions import DataError
+from tsdb.reader import read_all
 
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
@@ -47,14 +48,17 @@ def __convert_and_validate(ts, freq):
                     format(cur_date, the_date))
         cur_date = the_date
 
-    series = pd.TimeSeries(ts[1], index=ts[0]).asfreq(freq)
+    if freq == 'IRR':
+        series = pd.TimeSeries(ts[1], index=ts[0])
+    else:
+        series = pd.TimeSeries(ts[1], index=ts[0]).asfreq(freq)
 
     return series
 
 
 def write(tsdb_file, ts, freq):
     """
-        Smart write. Expects continuous time series.
+        Smart write.
 
         Will only update existing values where they have changed.
         Changed existing values are returned in a list.
@@ -64,16 +68,11 @@ def write(tsdb_file, ts, freq):
         :param ts: Tuple of (dates, values).
         :type ts: (np.ndarray, np.ndarray)
         :param freq: Frequency of the data. (e.g. 'D' for daily, '1Min' for minutely).
-            Accepts any string that pandas.TimeSeries.asfreq does.
+            Accepts any string that pandas.TimeSeries.asfreq does or 'IRR' for irregular data.
         :type freq: string
     """
 
     series = __convert_and_validate(ts, freq)
-
-    start_date = series.index[0]
-    end_date = series.index[-1]
-
-    modified_entries = []
 
     # If the file didn't exist it is a straight foward write and we can
     # just return at the end of this if block.
@@ -84,10 +83,30 @@ def write(tsdb_file, ts, freq):
                 data = __pack(datestamp, value)
                 writer.write(data)
 
-        return modified_entries
+        return [] # No modified entries.
 
     # If we reached here it wasn't a straight write to a new file.
+    if freq == 'IRR':
+        return write_irregular_data(tsdb_file, series)
+    else:
+        return write_regular_data(tsdb_file, series)
 
+def write_regular_data(tsdb_file, series):
+    """
+        Smart write. Expects continuous time series.
+
+        Will only update existing values where they have changed.
+        Changed existing values are returned in a list.
+
+        :param tsdb_file: File to write timeseries data into.
+        :type tsdb_file: string
+        :param series: Pandas Series of regular data to write.
+        :type series: pandas.Series
+    """
+    start_date = series.index[0]
+    end_date = series.index[-1]
+
+    modified_entries = []
     with open(tsdb_file, 'rb') as reader:
         first_record = unpack(entry_format, reader.read(entry_size))
         reader.seek(entry_size * -1, os.SEEK_END)
@@ -161,6 +180,51 @@ def write(tsdb_file, ts, freq):
 
     else: # Not yet supported
         raise NotImplementedError
+
+    return modified_entries
+
+def write_irregular_data(tsdb_file, series):
+    """
+        Smart write of irregular data.
+
+        Will only update existing values where they have changed.
+        Changed existing values are returned in a list.
+
+        :param tsdb_file: File to write timeseries data into.
+        :type tsdb_file: string
+        :param series: Pandas Series of irregular data to write.
+        :type series: pandas.Series
+        :type freq: string
+    """
+    existing = read_all(tsdb_file)
+
+    # TODO: Actually track the meta data value
+    # TODO: Don't just dropna, currently updating na values will be lost.
+    overlap_idx = existing.ix[series.index].dropna().index
+    modified = series.ix[overlap_idx] == existing.ix[overlap_idx]
+    records_to_modify = existing.ix[modified.values]
+
+    modified_entries = []
+    for date, value in zip(records_to_modify.index, records_to_modify.values):
+        modified_entries.append((calendar.timegm(date.utctimetuple()), value, 0))
+
+    series = series.combine_first(existing)
+
+    os.rename(tsdb_file, tsdb_file + 'backup')
+
+    try:
+        with open(tsdb_file, 'wb') as writer:
+            for date, value in zip(series.index, series.values):
+                datestamp = calendar.timegm(date.utctimetuple())
+                data = __pack(datestamp, value)
+                writer.write(data)
+    except:
+        # On any failure writing restore the original file.
+        os.rename(tsdb_file + 'backup', tsdb_file)
+    else:
+        # On successfull write remove the original file.
+        os.unlink(tsdb_file + 'backup')
+
 
     return modified_entries
 
