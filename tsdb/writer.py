@@ -198,23 +198,29 @@ def write_irregular_data(tsdb_file, series):
     """
     existing = read_all(tsdb_file)
 
-    # TODO: Actually track the meta data value
-    # TODO: Don't just dropna, currently updating na values will be lost.
-    overlap_idx = existing.ix[series.index].dropna().index
-    modified = series.ix[overlap_idx] == existing.ix[overlap_idx]
-    records_to_modify = existing.ix[modified.values]
+    overlap_idx = existing.index.intersection(series.index)
+    modified = series.ix[overlap_idx] != existing.ix[overlap_idx]
+    records_to_modify = existing.loc[overlap_idx].ix[modified.values]
 
     modified_entries = []
     for date, value in zip(records_to_modify.index, records_to_modify.values):
+        # TODO: Actually track the meta data value
         modified_entries.append((calendar.timegm(date.utctimetuple()), value, 0))
 
-    series = series.combine_first(existing)
+    # combine_first does not preserve null values in the original series.
+    # So do an initial merge.
+    merged = series.combine_first(existing)
+
+    # Then replace the null values from the update series.
+    null_vals = series.isnull()
+    null_idx = null_vals.loc[null_vals==True].index
+    merged.loc[null_idx] = np.nan
 
     os.rename(tsdb_file, tsdb_file + 'backup')
 
     try:
         with open(tsdb_file, 'wb') as writer:
-            for date, value in zip(series.index, series.values):
+            for date, value in zip(merged.index, merged.values):
                 datestamp = calendar.timegm(date.utctimetuple())
                 data = __pack(datestamp, value)
                 writer.write(data)

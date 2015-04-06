@@ -414,3 +414,40 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(datetime(2014,1,5), data.index[3].to_pydatetime())
         self.assertEqual(datetime(2014,1,7), data.index[4].to_pydatetime())
         self.assertEqual(datetime(2014,1,8), data.index[5].to_pydatetime())
+
+    def test_irregular_update_nan(self):
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,5), datetime(2014,1,7), datetime(2014,1,8)], [2, np.nan, 5.0, 7.0, 8.0]], 'IRR')
+
+        self.assertEqual(1, len(modified))
+        self.assertEqual((1388707200, 3.0, 0), modified[0])
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertTrue(np.isnan(data.values[2]))
+        self.assertEqual(5.0, data.values[3])
+        self.assertEqual(7.0, data.values[4])
+        self.assertEqual(8.0, data.values[5])
+        self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
+        self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
+        self.assertEqual(datetime(2014,1,5), data.index[3].to_pydatetime())
+        self.assertEqual(datetime(2014,1,7), data.index[4].to_pydatetime())
+        self.assertEqual(datetime(2014,1,8), data.index[5].to_pydatetime())
+
+    def test_irregular_update_of_nan(self):
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,5), datetime(2014,1,7), datetime(2014,1,8)], [2, np.nan, 5.0, 7.0, 8.0]], 'IRR')
+
+        modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,5), datetime(2014,1,7), datetime(2014,1,8)], [2, 3.5, 5.0, 7.0, 8.0]], 'IRR')
+
+        self.assertEqual(1, len(modified))
+        self.assertEqual(1388707200, modified[0][0])
+        self.assertTrue(np.isnan(modified[0][1]))
+        # TODO: Meta value should actually be the missing value meta-value.
+        self.assertEqual(0, modified[0][2])
+
+        data = reader.read_all(self.tsdb_existing_file)
+        self.assertEqual(1.0, data.values[0])
+        self.assertEqual(2.0, data.values[1])
+        self.assertEqual(3.5, data.values[2])
+        self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
