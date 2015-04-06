@@ -9,7 +9,7 @@ from struct import pack, unpack, calcsize
 from tsdb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 from tsdb.log_handler import LogHandler
 from tsdb.exceptions import DataError
-from tsdb.reader import read_all
+from tsdb.reader import __read_all, read_all
 
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
@@ -196,20 +196,19 @@ def write_irregular_data(tsdb_file, series):
         :type series: pandas.Series
         :type freq: string
     """
-    existing = read_all(tsdb_file)
+    existing = __read_all(tsdb_file)
 
     overlap_idx = existing.index.intersection(series.index)
-    modified = series.ix[overlap_idx] != existing.ix[overlap_idx]
+    modified = series.ix[overlap_idx] != existing.value.ix[overlap_idx]
     records_to_modify = existing.loc[overlap_idx].ix[modified.values]
 
     modified_entries = []
-    for date, value in zip(records_to_modify.index, records_to_modify.values):
-        # TODO: Actually track the meta data value
-        modified_entries.append((calendar.timegm(date.utctimetuple()), value, 0))
+    for date, value, meta_id in zip(records_to_modify.index, records_to_modify.value, records_to_modify.metaID):
+        modified_entries.append((calendar.timegm(date.utctimetuple()), value, meta_id))
 
     # combine_first does not preserve null values in the original series.
     # So do an initial merge.
-    merged = series.combine_first(existing)
+    merged = series.combine_first(existing.value)
 
     # Then replace the null values from the update series.
     null_vals = series.isnull()

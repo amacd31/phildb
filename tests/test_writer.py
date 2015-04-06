@@ -443,8 +443,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(modified))
         self.assertEqual(1388707200, modified[0][0])
         self.assertTrue(np.isnan(modified[0][1]))
-        # TODO: Meta value should actually be the missing value meta-value.
-        self.assertEqual(0, modified[0][2])
+        self.assertEqual(9999, modified[0][2])
 
         data = reader.read_all(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
