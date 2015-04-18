@@ -8,9 +8,9 @@ from tsdb import reader
 
 class ReaderTest(unittest.TestCase):
     def setUp(self):
-        self.tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'sample.tsdb')
-        self.tsdb_file_with_missing = os.path.join(os.path.dirname(__file__), 'test_data', 'sample_missing.tsdb')
-        self.empty_tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'empty.tsdb')
+        self.tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'sample.csv')
+        self.tsdb_file_with_missing = os.path.join(os.path.dirname(__file__), 'test_data', 'sample_missing.csv')
+        self.empty_tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'empty.csv')
 
     def test_read(self):
         data = reader.read(self.tsdb_file)

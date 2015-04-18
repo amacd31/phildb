@@ -45,6 +45,10 @@ class TSDB(object):
     def __data_dir(self):
         return os.path.join(self.tsdb_path, 'data')
 
+    def __make_dir(self, directory):
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
     def help(self):
         """
             List methods of the TSDB class with the first line of their docstring.
@@ -295,7 +299,7 @@ class TSDB(object):
         return record
 
 
-    def __get_tsdb_file_by_id(self, identifier, freq, ftype='tsdb', **kwargs):
+    def __get_tsdb_file_by_id(self, identifier, freq, ftype='csv', **kwargs):
         """
             Get a path to a file for a given timeseries instance.
 
@@ -309,7 +313,8 @@ class TSDB(object):
         """
         record = self.__get_ts_instance(identifier, freq, **kwargs)
 
-        return os.path.join(self.__data_dir(), record.uuid +
+        return os.path.join(self.__data_dir(), record.measurand.short_id, record.freq,
+                record.source.short_id, record.timeseries.primary_id +
                 '.' + ftype
                 )
 
@@ -325,7 +330,9 @@ class TSDB(object):
             :param ts: Timeseries data to write into the database.
             :type ts: np.array([np.array(datetime.date), np.array(float)])
         """
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, freq, **kwargs), ts, freq)
+        filename = self.__get_tsdb_file_by_id(identifier, freq, **kwargs)
+        self.__make_dir(os.path.dirname(filename))
+        modified = writer.write(filename, ts, freq)
 
         log_file = self.__get_tsdb_file_by_id(identifier, freq, ftype = 'hdf5', **kwargs)
 

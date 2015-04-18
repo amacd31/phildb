@@ -14,31 +14,31 @@ from tsdb.exceptions import DataError
 class WriterTest(unittest.TestCase):
     def setUp(self):
         self.tsdb_path = tempfile.mkdtemp()
-        self.tsdb_existing_file = os.path.join(self.tsdb_path, 'existing_test.tsdb')
+        self.tsdb_existing_file = os.path.join(self.tsdb_path, 'existing_test.csv')
         shutil.copy(os.path.join(os.path.dirname(__file__),
             'test_data',
-            'sample.tsdb'),
+            'sample.csv'),
             self.tsdb_existing_file)
 
-        self.tsdb_30min_existing_file = os.path.join(self.tsdb_path, '30min_existing_test.tsdb')
+        self.tsdb_30min_existing_file = os.path.join(self.tsdb_path, '30min_existing_test.csv')
         shutil.copy(os.path.join(os.path.dirname(__file__),
             'test_data',
-            'sample_30min.tsdb'),
+            'sample_30min.csv'),
             self.tsdb_30min_existing_file)
 
-        self.tsdb_monthly_existing_file = os.path.join(self.tsdb_path, 'monthly_existing_test.tsdb')
+        self.tsdb_monthly_existing_file = os.path.join(self.tsdb_path, 'monthly_existing_test.csv')
         shutil.copy(os.path.join(os.path.dirname(__file__),
             'test_data',
-            'sample_monthly.tsdb'),
+            'sample_monthly.csv'),
             self.tsdb_monthly_existing_file)
 
-        self.tsdb_monthly_start_existing_file = os.path.join(self.tsdb_path, 'monthly_start_existing_test.tsdb')
+        self.tsdb_monthly_start_existing_file = os.path.join(self.tsdb_path, 'monthly_start_existing_test.csv')
         shutil.copy(os.path.join(os.path.dirname(__file__),
             'test_data',
-            'sample_monthly_start.tsdb'),
+            'sample_monthly_start.csv'),
             self.tsdb_monthly_start_existing_file)
 
-        self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.tsdb')
+        self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.csv')
 
     def tearDown(self):
         try:
@@ -52,7 +52,7 @@ class WriterTest(unittest.TestCase):
         with open(self.tsdb_file, 'rb') as file:
             datafile = file.read()
 
-        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
+        self.assertEqual('ac46a194ac4a2d86c30994f6daa6544d', hashlib.md5(datafile).hexdigest())
 
     def test_new_write_with_missing(self):
         writer.write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]], 'D')
