@@ -173,13 +173,6 @@ class WriterTest(unittest.TestCase):
                 'D'
                 )
 
-    def test_new_write_date(self):
-        writer.write(self.tsdb_file, [[date(2014,1,1), date(2014,1,2), date(2014,1,3)], [1.0, 2.0, 3.0]], 'D')
-        with open(self.tsdb_file, 'rb') as file:
-            datafile = file.read()
-
-        self.assertEqual('06606801154cbfdc8e1b8c7b1e3c1956', hashlib.md5(datafile).hexdigest())
-
     def test_write_missing_value(self):
         modified = writer.write(self.tsdb_existing_file, [[date(2014,1,4),date(2014,1,5),date(2014,1,6)], [4.0, np.nan, 6.5]], 'D')
 
