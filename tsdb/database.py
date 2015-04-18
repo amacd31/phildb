@@ -4,6 +4,8 @@ import os
 import types
 import uuid
 
+import pandas as pd
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -337,9 +339,55 @@ class TSDB(object):
             :type identifier: string
             :param freq: Timeseries data frequency.
             :type freq: string
+            :param kwargs: Attributes to match against timeseries instances (e.g. source, measurand).
+            :type kwargs: kwargs
+
             :returns: pandas.DataFrame -- Timeseries data.
         """
         return reader.read(self.__get_tsdb_file_by_id(identifier, freq, **kwargs))
+
+    def read_all(self, freq, excludes = None, **kwargs):
+        """
+            Read the entire timeseries record for all matching timeseries instances.
+            Optionally exclude timeseries from the final DataFrame by specifying IDs in the exclude argument.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param freq: Timeseries data frequency.
+            :type freq: string
+            :param excludes: IDs of timeseries to exclude from final DataFrame.
+            :type excludes: array[string]
+            :param kwargs: Attributes to match against timeseries instances (e.g. source, measurand).
+            :type kwargs: kwargs
+
+            :returns: pandas.DataFrame -- Timeseries data.
+        """
+        data = {}
+        if excludes is None:
+            identifiers = self.ts_list(**kwargs)
+        else:
+            identifiers = set(self.ts_list(**kwargs)).difference(excludes)
+
+        return self.read_dataframe(identifiers, freq, **kwargs)
+
+    def read_dataframe(self, identifiers, freq, **kwargs):
+        """
+            Read the entire timeseries record for the requested timeseries instances.
+
+            :param identifiers: Identifiers of the timeseries to read into a DataFrame.
+            :type identifiers: array[string]
+            :param freq: Timeseries data frequency.
+            :type freq: string
+            :param kwargs: Attributes to match against timeseries instances (e.g. source, measurand).
+            :type kwargs: kwargs
+
+            :returns: pandas.DataFrame -- Timeseries data.
+        """
+        data = {}
+        for ts_id in identifiers:
+            data[ts_id] = reader.read(self.__get_tsdb_file_by_id(ts_id, freq, **kwargs))
+        return pd.DataFrame(data)
+
 
     def ts_list(self, **kwargs):
         """

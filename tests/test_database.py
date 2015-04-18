@@ -358,3 +358,23 @@ class DatabaseTest(unittest.TestCase):
 
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
         self.assertRaises(MissingDataError, db._TSDB__get_ts_instance, '410730', 'D', measurand = 'P', source = 'DATA_SOURCE')
+
+    def test_read_all(self):
+        db = TSDB(self.test_tsdb)
+
+        all = db.read_all('D', measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertEqual('123456', all.columns[0])
+        self.assertEqual('410730', all.columns[1])
+
+    def test_read_dataframe(self):
+        db = TSDB(self.test_tsdb)
+
+        all = db.read_dataframe(['410730', '123456'], 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertEqual('123456', all.columns[0])
+        self.assertEqual('410730', all.columns[1])
+
+    def test_read_all_with_exclusions(self):
+        db = TSDB(self.test_tsdb)
+
+        all = db.read_all('D', excludes = ['410730'], measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertEqual('123456', all.columns[0])
