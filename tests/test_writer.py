@@ -57,7 +57,7 @@ class WriterTest(unittest.TestCase):
     def test_new_write_with_missing(self):
         writer.write(self.tsdb_file, [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, np.nan, 3.0]], 'D')
 
-        data = reader.read_all(self.tsdb_file)
+        data = reader.read(self.tsdb_file)
         self.assertEqual(1.0, data.values[0])
         self.assertTrue(np.isnan(data.values[1]))
         self.assertEqual(3.0, data.values[2])
@@ -67,7 +67,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(modified))
         self.assertEqual([(1388620800, 2.0, 0)], modified)
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(2.5, data.values[1])
 
     def test_update_multiple(self):
@@ -76,7 +76,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual((1388620800, 2.0, 0), modified[0])
         self.assertEqual((1388707200, 3.0, 0), modified[1])
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(2.5, data.values[1])
         self.assertEqual(3.5, data.values[2])
 
@@ -84,14 +84,14 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4)], [4.0]], 'D')
         self.assertEqual([], modified)
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(4.0, data.values[-1])
 
     def test_append_multiple(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [4.0, 5.0, 6.0]], 'D')
         self.assertEqual([], modified)
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -105,7 +105,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(modified))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.5, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -122,7 +122,7 @@ class WriterTest(unittest.TestCase):
     def test_update_and_append_with_gap(self):
         modified = writer.write(self.tsdb_existing_file, [[datetime(2014,1,5), datetime(2014,1,6)], [5.0, 6.0]], 'D')
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -143,7 +143,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual((1388620800, 2.0, 0), modified[0])
         self.assertEqual((1388707200, 3.0, 0), modified[1])
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertTrue(np.isnan(data.values[1]))
         self.assertEqual(3.5, data.values[2])
@@ -153,7 +153,7 @@ class WriterTest(unittest.TestCase):
 
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -178,7 +178,7 @@ class WriterTest(unittest.TestCase):
 
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -191,7 +191,7 @@ class WriterTest(unittest.TestCase):
 
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -226,7 +226,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(modified))
         self.assertEqual([(1388541600, 3.0, 0)], modified)
 
-        data = reader.read_all(self.tsdb_file)
+        data = reader.read(self.tsdb_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(4.0, data.values[2])
@@ -249,7 +249,7 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_30min_existing_file, new_data, '30min')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_30min_existing_file)
+        data = reader.read(self.tsdb_30min_existing_file)
         self.assertEqual(148, len(data))
 
         self.assertEqual(17.2, data.values[0])
@@ -276,7 +276,7 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_file, new_data, 'M')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_file)
+        data = reader.read(self.tsdb_file)
         self.assertEqual(4, len(data))
 
         self.assertEqual(6.0, data.values[0])
@@ -303,7 +303,7 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_file, new_data, 'MS')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_file)
+        data = reader.read(self.tsdb_file)
         self.assertEqual(4, len(data))
 
         self.assertEqual(6.0, data.values[0])
@@ -327,7 +327,7 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_monthly_existing_file, new_data, 'M')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_monthly_existing_file)
+        data = reader.read(self.tsdb_monthly_existing_file)
         self.assertEqual(14, len(data))
 
         self.assertEqual(31.1, data.values[-2])
@@ -348,7 +348,7 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_monthly_start_existing_file, new_data, 'MS')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_monthly_start_existing_file)
+        data = reader.read(self.tsdb_monthly_start_existing_file)
 
         self.assertEqual(datetime(1900,1,1), data.index[0].to_pydatetime())
         self.assertEqual(datetime(1901,2,1), data.index[-1].to_pydatetime())
@@ -374,7 +374,7 @@ class WriterTest(unittest.TestCase):
         modified = writer.write(self.tsdb_file, new_data, 'IRR')
         self.assertEqual(0, len(modified))
 
-        data = reader.read_all(self.tsdb_file)
+        data = reader.read(self.tsdb_file)
 
         self.assertEqual(datetime(1900,1,1), data.index[0].to_pydatetime())
         self.assertEqual(datetime(1900,3,1), data.index[1].to_pydatetime())
@@ -394,7 +394,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(modified))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.5, data.values[1])
         self.assertEqual(3.0, data.values[2])
@@ -414,7 +414,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(modified))
         self.assertEqual((1388707200, 3.0, 0), modified[0])
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertTrue(np.isnan(data.values[2]))
@@ -438,7 +438,7 @@ class WriterTest(unittest.TestCase):
         self.assertTrue(np.isnan(modified[0][1]))
         self.assertEqual(9999, modified[0][2])
 
-        data = reader.read_all(self.tsdb_existing_file)
+        data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.5, data.values[2])

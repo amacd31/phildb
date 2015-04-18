@@ -12,8 +12,8 @@ class ReaderTest(unittest.TestCase):
         self.tsdb_file_with_missing = os.path.join(os.path.dirname(__file__), 'test_data', 'sample_missing.tsdb')
         self.empty_tsdb_file = os.path.join(os.path.dirname(__file__), 'test_data', 'empty.tsdb')
 
-    def test_read_all(self):
-        data = reader.read_all(self.tsdb_file)
+    def test_read(self):
+        data = reader.read(self.tsdb_file)
 
         self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
         self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
@@ -24,7 +24,7 @@ class ReaderTest(unittest.TestCase):
         self.assertEqual(3.0, data.values[2])
 
     def test_read_missing(self):
-        data = reader.read_all(self.tsdb_file_with_missing)
+        data = reader.read(self.tsdb_file_with_missing)
 
         self.assertEqual(datetime(2014,1,1), data.index[0].to_pydatetime())
         self.assertEqual(datetime(2014,1,2), data.index[1].to_pydatetime())
@@ -41,5 +41,5 @@ class ReaderTest(unittest.TestCase):
         self.assertEqual(6.0, data.values[5])
 
     def test_read_empty(self):
-        data = reader.read_all(self.empty_tsdb_file)
+        data = reader.read(self.empty_tsdb_file)
         self.assertEqual(0, len(data))

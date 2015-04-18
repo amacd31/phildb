@@ -9,7 +9,7 @@ from struct import pack, unpack, calcsize
 from tsdb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 from tsdb.log_handler import LogHandler
 from tsdb.exceptions import DataError
-from tsdb.reader import __read_all, read_all
+from tsdb.reader import __read, read
 
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
@@ -196,7 +196,7 @@ def write_irregular_data(tsdb_file, series):
         :type series: pandas.Series
         :type freq: string
     """
-    existing = __read_all(tsdb_file)
+    existing = __read(tsdb_file)
 
     overlap_idx = existing.index.intersection(series.index)
     modified = series.ix[overlap_idx] != existing.value.ix[overlap_idx]

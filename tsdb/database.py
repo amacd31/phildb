@@ -329,7 +329,7 @@ class TSDB(object):
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
-    def read_all(self, identifier, freq, **kwargs):
+    def read(self, identifier, freq, **kwargs):
         """
             Read the entire timeseries record for the requested timeseries instance.
 
@@ -339,7 +339,7 @@ class TSDB(object):
             :type freq: string
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read_all(self.__get_tsdb_file_by_id(identifier, freq, **kwargs))
+        return reader.read(self.__get_tsdb_file_by_id(identifier, freq, **kwargs))
 
     def ts_list(self, **kwargs):
         """

@@ -100,11 +100,11 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(measurand_long_id, 'PRECIPITATION')
         self.assertEqual(measurand_description, 'Precipitation')
 
-    def test_read_all(self):
+    def test_read(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = TSDB(db_name)
 
-        results = db.read_all('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        results = db.read('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
         self.assertEqual(results.index[0].year, 2014)
         self.assertEqual(results.index[0].month, 1)
@@ -124,7 +124,7 @@ class DatabaseTest(unittest.TestCase):
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
         db.write('410731', 'D', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
-        results = db.read_all('410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        results = db.read('410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
         self.assertEqual(results.index[0].year, 2014)
         self.assertEqual(results.index[0].month, 1)
@@ -140,7 +140,7 @@ class DatabaseTest(unittest.TestCase):
         db = TSDB(self.test_tsdb)
         db.write('410730', 'D', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
-        data = db.read_all('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        data = db.read('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual(1.0, data.values[0])
         self.assertEqual(2.5, data.values[1])
         self.assertEqual(3.0, data.values[2])
