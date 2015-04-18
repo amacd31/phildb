@@ -29,3 +29,13 @@ db.write('410730', 'D', [[datetime.date(2014, 1, 1),
             source = 'DATA_SOURCE',
             measurand = 'Q'
         )
+
+db.add_timeseries('123456')
+db.add_timeseries_instance('123456', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
+db.write('123456', 'D', [[datetime.date(2014, 1, 1),
+            datetime.date(2014, 1, 2),
+            datetime.date(2014, 1, 3)],
+            [1,2,3]],
+            source = 'DATA_SOURCE',
+            measurand = 'Q'
+        )

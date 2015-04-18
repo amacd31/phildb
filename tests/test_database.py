@@ -165,7 +165,7 @@ class DatabaseTest(unittest.TestCase):
     def test_ts_list(self):
         db = TSDB(self.test_tsdb)
         ts_list = db.ts_list()
-        self.assertEqual(['410730'], ts_list)
+        self.assertEqual(['123456', '410730'], ts_list)
 
     def test_ts_list_source(self):
         db = TSDB(self.test_tsdb)
@@ -192,7 +192,7 @@ class DatabaseTest(unittest.TestCase):
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
         ts_list = db.list_ids()
-        self.assertEqual(['410730', '410731'], ts_list)
+        self.assertEqual(['123456', '410730', '410731'], ts_list)
 
     def test_ts_list_unique_ids(self):
         """
@@ -203,7 +203,7 @@ class DatabaseTest(unittest.TestCase):
         db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
         ts_list = db.ts_list()
-        self.assertEqual(['410730'], ts_list)
+        self.assertEqual(['123456', '410730'], ts_list)
 
     def test_ts_list_sorted(self):
         """
@@ -219,7 +219,7 @@ class DatabaseTest(unittest.TestCase):
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
 
         ts_list = db.ts_list()
-        self.assertEqual(['410730', '410731'], ts_list)
+        self.assertEqual(['123456', '410730', '410731'], ts_list)
 
     def test_measurand_list_sorted(self):
         """
