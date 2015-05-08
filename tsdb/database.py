@@ -183,6 +183,8 @@ class TSDB(object):
         session = kwargs.pop('session', None)
         attributes = {}
         for attribute, value in kwargs.items():
+            if value is None:
+                continue
             attributes[attribute] = self.__get_attribute(attribute, value, session)
 
         return attributes

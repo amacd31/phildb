@@ -8,6 +8,7 @@ import unittest
 import uuid
 
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import MultipleResultsFound
 Session = sessionmaker()
 
 from tsdb.database import TSDB
@@ -115,6 +116,23 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.values[0], 1)
         self.assertEqual(results.values[1], 2)
         self.assertEqual(results.values[2], 3)
+
+    def test_read_unique(self):
+        db = TSDB(self.test_tsdb)
+
+        results = db.read('410730', 'D')
+        self.assertEqual(results.values[0], 1)
+        self.assertEqual(results.values[1], 2)
+        self.assertEqual(results.values[2], 3)
+
+    def test_read_non_unique(self):
+        db = TSDB(self.test_tsdb)
+
+        db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
+        db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
+
+        with self.assertRaises(MultipleResultsFound) as context:
+            results = db.read('410730', 'D')
 
     @mock.patch('uuid.uuid4', generate_uuid)
     def test_new_write(self):
