@@ -396,3 +396,17 @@ class DatabaseTest(unittest.TestCase):
 
         all = db.read_all('D', excludes = ['410730'], measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('123456', all.columns[0])
+
+    def test_list_ts_instance(self):
+        db = TSDB(self.test_tsdb)
+
+        results = db.list_timeseries_instances()
+        self.assertEqual(len(results), 2)
+
+        results = db.list_timeseries_instances(freq='D')
+        self.assertEqual(len(results), 2)
+
+        results = db.list_timeseries_instances(timeseries='410730')
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results.loc[0]['ts_id'], '410730')
+        self.assertEqual(results.loc[0]['measurand'], 'Q')

@@ -278,6 +278,8 @@ class TSDB(object):
             query = session.query(Measurand).filter(Measurand.short_id == value)
         elif attribute == 'source':
             query = session.query(Source).filter(Source.short_id == value)
+        elif attribute == 'timeseries':
+            query = session.query(Timeseries).filter(Timeseries.primary_id == value)
         elif attribute == 'provider':
             short_id = attribute.strip().upper()
             query = session.query(Attribute).filter(Attribute.short_id == short_id)
@@ -416,6 +418,39 @@ class TSDB(object):
 
         records = session.query(Timeseries)
         return sorted(list(set([ record.primary_id for record in records ])))
+
+    def list_timeseries_instances(self, **kwargs):
+        """
+            Returns list of timeseries instances for all instance records.
+
+            Can filter by using keyword arguments.
+
+            :returns: list(string) -- Sorted list of timeseries instances.
+        """
+        session = Session()
+
+        initial_args = {}
+        for attr in ['freq']:
+            attr_val = kwargs.pop(attr, None)
+
+            if attr_val:
+                initial_args[attr] = attr_val
+
+        query_args = self.__parse_attribute_kwargs(**kwargs)
+        query_args.update(initial_args)
+
+        records = session.query(TimeseriesInstance).filter_by(**query_args)
+        instance_list = []
+        for record in records:
+            instance = {
+                'ts_id': record.timeseries.primary_id,
+                'freq': record.freq,
+                'measurand': record.measurand.short_id,
+                'source': record.source.short_id,
+            }
+            instance_list.append(instance)
+
+        return pd.DataFrame(instance_list)
 
     def list_measurands(self):
         """
