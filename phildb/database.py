@@ -125,7 +125,7 @@ class PhilDB(object):
             :param description: Description of the source.
             :type description: string
         """
-        short_id = source.strip().upper()
+        short_id = source.strip()
         session = Session()
         source = Source(short_id = short_id, description = description)
         session.add(source)
