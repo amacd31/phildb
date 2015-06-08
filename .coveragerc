@@ -1,11 +1,11 @@
 [run]
 branch = True
-include = tsdb/**
+include = phildb/**
 
 [report]
-include = tsdb/**
+include = phildb/**
 omit =  **/test*
-        tsdb/_version.py
+        phildb/_version.py
 
 exclude_lines =
     raise NotImplementedError

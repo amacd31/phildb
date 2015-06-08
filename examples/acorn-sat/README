@@ -4,7 +4,7 @@ The script demonstrating the loading of data is load_acorn_sat_data.py; View
 this script for an example on adding timeseries, measurands, and source
 to the database before loading timeseries data as timeseries instances.
 
-Ensure you are using the virtual environment and TSDB is on your PATH and PYTHONPATH.
+Ensure you are using the virtual environment and PhilDB is on your PATH and PYTHONPATH.
 If you haven't already loaded the virtual env:
 
     cd ../../ && . load_env && cd -
@@ -15,15 +15,15 @@ First download the ACORN-SAT data from http://www.bom.gov.au/climate/change/acor
     sh ./download.sh
     cd ../
 
-Create a new TSDB:
+Create a new PhilDB:
 
-    tsdb-create acorn_sat
+    phil-create acorn_sat
 
 Load ACORN-SAT data into acorn_sat with example script:
 
     python load_acorn_sat_data.py acorn_sat $(cat data/station_list.txt)
 
-Open the newly created TSDB:
+Open the newly created PhilDB:
 
-    tsdb acorn_sat
+    phil acorn_sat
 

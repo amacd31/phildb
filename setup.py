@@ -3,10 +3,10 @@ from io import open
 
 import versioneer
 versioneer.VCS = 'git'
-versioneer.versionfile_source = 'tsdb/_version.py'
-versioneer.versionfile_build = 'tsdb/_version.py'
+versioneer.versionfile_source = 'phildb/_version.py'
+versioneer.versionfile_build = 'phildb/_version.py'
 versioneer.tag_prefix = 'v'
-versioneer.parentdir_prefix = 'tsdb-'
+versioneer.parentdir_prefix = 'phildb-'
 
 from setuptools import setup
 from pip.req import parse_requirements
@@ -21,7 +21,7 @@ install_reqs = parse_requirements('python_requirements')
 requirements = [str(ir.req) for ir in install_reqs]
 
 setup(
-    name='tsdb',
+    name='PhilDB',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description='Timeseries database',
@@ -31,10 +31,10 @@ setup(
     license='BSD',
     url='https://github.com/amacd31/tsdb',
     install_requires=requirements,
-    packages = ['tsdb'],
+    packages = ['phildb'],
     test_suite = 'tests',
-    scripts=['bin/tsdb-create',
-            'bin/tsdb',
+    scripts=['bin/phil-create',
+            'bin/phil',
         ],
     classifiers=[
         'Development Status :: 3 - Alpha',

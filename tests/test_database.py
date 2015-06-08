@@ -11,10 +11,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import MultipleResultsFound
 Session = sessionmaker()
 
-from tsdb.database import TSDB
-from tsdb.dbstructures import TimeseriesInstance
-from tsdb.create import create
-from tsdb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
+from phildb.database import PhilDB
+from phildb.dbstructures import TimeseriesInstance
+from phildb.create import create
+from phildb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
 uuid_pool = iter(['47e4e0b4-0c04-4c1d-8dc4-272acfcd6bb3'])
 
@@ -33,7 +33,7 @@ class DatabaseTest(unittest.TestCase):
             self.test_tsdb)
 
         db_name = os.path.join(self.test_data_dir, self.test_tsdb)
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
     def tearDown(self):
         try:
@@ -51,36 +51,36 @@ class DatabaseTest(unittest.TestCase):
     def test_tsdb_exists(self):
         db_name = os.path.join(self.test_data_dir, 'this_tsdb_does_not_exist')
         with self.assertRaises(IOError) as context:
-            db = TSDB(db_name)
+            db = PhilDB(db_name)
 
         self.assertEqual(str(context.exception),
-            "TSDB doesn't exist ({0})".format(db_name))
+            "PhilDB database doesn't exist ({0})".format(db_name))
 
     def test_missing_meta_data(self):
         db_name = os.path.join(self.test_data_dir, 'missing_meta_data')
         with self.assertRaises(IOError) as context:
-            db = TSDB(db_name)
+            db = PhilDB(db_name)
 
         self.assertEqual(str(context.exception),
-            "TSDB doesn't contain meta-database ({0}{1}{2})".format(db_name, os.path.sep, 'tsdb.sqlite'))
+            "PhilDB database doesn't contain meta-database ({0}{1}{2})".format(db_name, os.path.sep, 'tsdb.sqlite'))
 
     def test_meta_data(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
-        db = TSDB(db_name)
+        db = PhilDB(db_name)
 
         self.assertEqual(db.version(), "0.0.6")
 
     def test_tsdb_data_dir(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
-        db = TSDB(db_name)
-        self.assertEqual(db._TSDB__data_dir(), os.path.join(db_name, 'data'))
+        db = PhilDB(db_name)
+        self.assertEqual(db._PhilDB__data_dir(), os.path.join(db_name, 'data'))
 
     def test_add_ts_entry(self):
         create(self.temp_dir)
-        db = TSDB(self.temp_dir)
+        db = PhilDB(self.temp_dir)
         db.add_timeseries('410730')
 
-        conn = sqlite3.connect(db._TSDB__meta_data_db())
+        conn = sqlite3.connect(db._PhilDB__meta_data_db())
         c = conn.cursor()
         c.execute("SELECT * FROM timeseries;")
         pk, primary_id = c.fetchone();
@@ -89,10 +89,10 @@ class DatabaseTest(unittest.TestCase):
 
     def test_add_measurand_entry(self):
         create(self.temp_dir)
-        db = TSDB(self.temp_dir)
+        db = PhilDB(self.temp_dir)
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
 
-        conn = sqlite3.connect(db._TSDB__meta_data_db())
+        conn = sqlite3.connect(db._PhilDB__meta_data_db())
         c = conn.cursor()
         c.execute("SELECT * FROM measurand;")
         pk, measurand_short_id, measurand_long_id, measurand_description = c.fetchone();
@@ -103,7 +103,7 @@ class DatabaseTest(unittest.TestCase):
 
     def test_read(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
-        db = TSDB(db_name)
+        db = PhilDB(db_name)
 
         results = db.read('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
@@ -118,7 +118,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.values[2], 3)
 
     def test_read_unique(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         results = db.read('410730', 'D')
         self.assertEqual(results.values[0], 1)
@@ -126,7 +126,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.values[2], 3)
 
     def test_read_non_unique(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
         db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
@@ -136,7 +136,7 @@ class DatabaseTest(unittest.TestCase):
 
     @mock.patch('uuid.uuid4', generate_uuid)
     def test_new_write(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
@@ -155,7 +155,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(results.values[2], 3.0)
 
     def test_update_and_append(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.write('410730', 'D', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
         data = db.read('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
@@ -173,20 +173,20 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(datetime(2014,1,6), data.index[5].to_pydatetime())
 
     def test_write_non_existant_id(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         self.assertRaises(MissingDataError, db.write, 'DOESNOTEXIST', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
 
     def test_write_non_existant_measurand(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         self.assertRaises(MissingAttributeError, db.write, '410730', 'D', [[datetime(2014,1,1), datetime(2014,1,2)], [2.0, 3.0]], measurand = 'DOESNOTEXIST', source = 'DATA_SOURCE')
 
     def test_ts_list(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         ts_list = db.ts_list()
         self.assertEqual(['123456', '410730'], ts_list)
 
     def test_ts_list_source(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'EXAMPLE_SOURCE')
@@ -195,7 +195,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(['410731'], ts_list)
 
     def test_ts_list_measurand(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
@@ -204,7 +204,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(['410731'], ts_list)
 
     def test_ts_list_ids(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
@@ -216,7 +216,7 @@ class DatabaseTest(unittest.TestCase):
         """
             Test that IDs don't appear multiple times due to different combinations.
         """
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
         db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
 
@@ -227,7 +227,7 @@ class DatabaseTest(unittest.TestCase):
         """
             Test that the list of IDs is sorted.
         """
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
 
         db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'P', source = 'DATA_SOURCE')
@@ -243,7 +243,7 @@ class DatabaseTest(unittest.TestCase):
         """
             Test that the list of measurand short IDs is sorted.
         """
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
 
         ts_list = db.list_measurands()
@@ -253,14 +253,14 @@ class DatabaseTest(unittest.TestCase):
         """
             Test that the list of source short IDs is sorted.
         """
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_source('EXAMPLE_SOURCE', 'Example source.')
 
         ts_list = db.list_sources()
         self.assertEqual(['DATA_SOURCE', 'EXAMPLE_SOURCE'], ts_list)
 
     def test_ts_list_measurand_and_source(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
@@ -270,20 +270,20 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(['410731'], ts_list)
 
     def test_duplicate_add_ts_instance(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         self.assertRaises(DuplicateError, db.add_timeseries_instance, '410730', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
 
     def test_add_ts_instance(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
 
-        Session.configure(bind=db._TSDB__engine)
+        Session.configure(bind=db._PhilDB__engine)
         session = Session()
 
-        timeseries = db._TSDB__get_record_by_id('410731', session)
-        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
-        source = db._TSDB__get_attribute('source', 'DATA_SOURCE', session)
+        timeseries = db._PhilDB__get_record_by_id('410731', session)
+        measurand = db._PhilDB__get_attribute('measurand', 'Q', session)
+        source = db._PhilDB__get_attribute('source', 'DATA_SOURCE', session)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(measurand = measurand, source=source, timeseries=timeseries)
@@ -294,15 +294,15 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(record.source.short_id, 'DATA_SOURCE')
 
     def test_add_ts_instance_alternate_freq(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries_instance('410730', 'M', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
 
-        Session.configure(bind=db._TSDB__engine)
+        Session.configure(bind=db._PhilDB__engine)
         session = Session()
 
-        timeseries = db._TSDB__get_record_by_id('410730', session)
-        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
-        source = db._TSDB__get_attribute('source', 'DATA_SOURCE', session)
+        timeseries = db._PhilDB__get_record_by_id('410730', session)
+        measurand = db._PhilDB__get_attribute('measurand', 'Q', session)
+        source = db._PhilDB__get_attribute('source', 'DATA_SOURCE', session)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(measurand = measurand, source=source, timeseries=timeseries, freq='M')
@@ -314,16 +314,16 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(record.freq, 'M')
 
     def test_add_source(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
         db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'Q', source = 'EXAMPLE_SOURCE')
 
-        Session.configure(bind=db._TSDB__engine)
+        Session.configure(bind=db._PhilDB__engine)
         session = Session()
 
-        timeseries = db._TSDB__get_record_by_id('410730', session)
-        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
-        source = db._TSDB__get_attribute('source', 'EXAMPLE_SOURCE', session)
+        timeseries = db._PhilDB__get_record_by_id('410730', session)
+        measurand = db._PhilDB__get_attribute('measurand', 'Q', session)
+        source = db._PhilDB__get_attribute('source', 'EXAMPLE_SOURCE', session)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(measurand = measurand, source=source, timeseries=timeseries)
@@ -334,19 +334,19 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(record.source.short_id, 'EXAMPLE_SOURCE')
 
     def test_add_attribute_with_value(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_source('EXAMPLE_SOURCE', 'Example source, i.e. a dataset')
         db.add_attribute('provider', 'Data provider')
         db.add_attribute_value('provider', 'EXAMPLE_PROVIDER')
         db.add_timeseries_instance('410730', 'D', 'Foo', measurand = 'Q', source = 'EXAMPLE_SOURCE')
 
-        Session.configure(bind=db._TSDB__engine)
+        Session.configure(bind=db._PhilDB__engine)
         session = Session()
 
-        timeseries = db._TSDB__get_record_by_id('410730', session)
-        measurand = db._TSDB__get_attribute('measurand', 'Q', session)
-        source = db._TSDB__get_attribute('source', 'EXAMPLE_SOURCE', session)
-        provider = db._TSDB__get_attribute('provider', 'EXAMPLE_PROVIDER', session)
+        timeseries = db._PhilDB__get_record_by_id('410730', session)
+        measurand = db._PhilDB__get_attribute('measurand', 'Q', session)
+        source = db._PhilDB__get_attribute('source', 'EXAMPLE_SOURCE', session)
+        provider = db._PhilDB__get_attribute('provider', 'EXAMPLE_PROVIDER', session)
 
         query = session.query(TimeseriesInstance). \
                 filter_by(measurand = measurand, source=source, timeseries=timeseries)
@@ -357,7 +357,7 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(record.source.short_id, 'EXAMPLE_SOURCE')
 
     def test_read_metadata(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
         metadata = db.read_metadata('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
@@ -367,38 +367,38 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual('Foo', metadata)
 
     def test_get_ts_instance(self):
-        db = TSDB(self.test_tsdb)
-        ts_instance = db._TSDB__get_ts_instance('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        db = PhilDB(self.test_tsdb)
+        ts_instance = db._PhilDB__get_ts_instance('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('410730', ts_instance.timeseries.primary_id)
         self.assertEqual('Q', ts_instance.measurand.short_id)
 
-        self.assertRaises(MissingDataError, db._TSDB__get_ts_instance, '410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
+        self.assertRaises(MissingDataError, db._PhilDB__get_ts_instance, '410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
         db.add_measurand('P', 'PRECIPITATION', 'Precipitation')
-        self.assertRaises(MissingDataError, db._TSDB__get_ts_instance, '410730', 'D', measurand = 'P', source = 'DATA_SOURCE')
+        self.assertRaises(MissingDataError, db._PhilDB__get_ts_instance, '410730', 'D', measurand = 'P', source = 'DATA_SOURCE')
 
     def test_read_all(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         all = db.read_all('D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('123456', all.columns[0])
         self.assertEqual('410730', all.columns[1])
 
     def test_read_dataframe(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         all = db.read_dataframe(['410730', '123456'], 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('123456', all.columns[0])
         self.assertEqual('410730', all.columns[1])
 
     def test_read_all_with_exclusions(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         all = db.read_all('D', excludes = ['410730'], measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual('123456', all.columns[0])
 
     def test_list_ts_instance(self):
-        db = TSDB(self.test_tsdb)
+        db = PhilDB(self.test_tsdb)
 
         results = db.list_timeseries_instances()
         self.assertEqual(len(results), 2)

@@ -1,4 +1,4 @@
-TSDB project
+PhilDB project
 ============
 
 Timeseries database project: For storing potentially changing timeseries
@@ -6,7 +6,7 @@ data. For example hydrological data; like streamflow data where the
 timeseries may be revised as quality control processes improve the
 recorded dataset.
 
-TSDB should be capable of storing data at any frequency supported by
+PhilDB should be capable of storing data at any frequency supported by
 Pandas. At this time only daily data has been extensively tested with
 some limited sub- daily usage.
 
@@ -51,35 +51,35 @@ For additional details see the INSTALL file.
 Usage
 =====
 
-Load virtual environment along with adding TSDB tools to your path:
+Load virtual environment along with adding PhilDB tools to your path:
 
 ::
 
     . load_env
 
-Create a new TSDB:
+Create a new PhilDB
 
 ::
 
-    tsdb-create new_tsdb
+    phil-create new_tsdb
 
-Open the newly created TSDB:
+Open the newly created PhilDB
 
 ::
 
-    tsdb new_tsdb
+    phil new_tsdb
 
 Examples
 ========
 
-See the examples directory for code on setting up test tsdbs with
+See the examples directory for code on setting up test phil databases with
 different data sets. Each example comes with a README file outlining the
 steps to acquire some data and load it. The loading scripts in each
 example can be used as a basis for preparing a timeseries database and
 loading it with data.
 
 The examples/hrs/ example also contains an example script (autocorr.py)
-for processing the HRS data using tsdb. The script calculates
+for processing the HRS data using phildb. The script calculates
 auto-correlation for all the streamflow timeseries in the HRS dataset.
 
 Presently there are three sets of example code, acorn-sat,

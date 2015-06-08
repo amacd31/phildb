@@ -5,9 +5,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker()
 
-from tsdb import constants
-from tsdb import dbstructures
-from tsdb.exceptions import AlreadyExistsError
+from phildb import constants
+from phildb import dbstructures
+from phildb.exceptions import AlreadyExistsError
 
 def create(tsdb_path):
 
@@ -17,7 +17,7 @@ def create(tsdb_path):
     elif not os.listdir(tsdb_path):
         os.makedirs(os.path.join(tsdb_path, 'data'))
     else:
-        raise AlreadyExistsError('TSDB already exists at: {0}'.format(tsdb_path))
+        raise AlreadyExistsError('PhilDB database already exists at: {0}'.format(tsdb_path))
 
     engine = create_engine('sqlite:///{0}{1}{2}'.format(tsdb_path, os.path.sep, constants.METADATA_DB))
     dbstructures.Base.metadata.create_all(engine)

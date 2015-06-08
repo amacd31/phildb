@@ -3,9 +3,9 @@ import shutil
 import tempfile
 import unittest
 
-from tsdb.database import TSDB
-from tsdb.create import create
-from tsdb.exceptions import AlreadyExistsError
+from phildb.database import PhilDB
+from phildb.create import create
+from phildb.exceptions import AlreadyExistsError
 
 class CreateDatabaseTest(unittest.TestCase):
     def setUp(self):
@@ -22,14 +22,14 @@ class CreateDatabaseTest(unittest.TestCase):
     def test_create_new(self):
         db_name = os.path.join(self.temp_dir, 'new_project')
         create(db_name)
-        db = TSDB(db_name)
-        self.assertEqual(os.path.exists(db._TSDB__meta_data_db()), True)
+        db = PhilDB(db_name)
+        self.assertEqual(os.path.exists(db._PhilDB__meta_data_db()), True)
 
     def test_create_existing_dir(self):
         db_name = os.path.join(self.temp_dir)
         create(db_name)
-        db = TSDB(db_name)
-        self.assertEqual(os.path.exists(db._TSDB__meta_data_db()), True)
+        db = PhilDB(db_name)
+        self.assertEqual(os.path.exists(db._PhilDB__meta_data_db()), True)
 
     def test_protect_existing(self):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
@@ -37,4 +37,4 @@ class CreateDatabaseTest(unittest.TestCase):
             create(db_name)
 
         self.assertEqual(str(context.exception),
-            "TSDB already exists at: {0}".format(db_name))
+            "PhilDB database already exists at: {0}".format(db_name))

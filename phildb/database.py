@@ -12,27 +12,27 @@ from sqlalchemy.orm.exc import NoResultFound
 Session = sessionmaker()
 
 import logging
-logger = logging.getLogger('TSDB_database')
+logger = logging.getLogger('PhilDB_database')
 
-from tsdb import constants
-from tsdb import reader
-from tsdb import writer
-from tsdb.dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
-from tsdb.dbstructures import Source
-from tsdb.dbstructures import Attribute, AttributeValue
-from tsdb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
+from phildb import constants
+from phildb import reader
+from phildb import writer
+from phildb.dbstructures import SchemaVersion, Timeseries, Measurand, TimeseriesInstance
+from phildb.dbstructures import Source
+from phildb.dbstructures import Attribute, AttributeValue
+from phildb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
-class TSDB(object):
+class PhilDB(object):
     def __init__(self, tsdb_path):
         self.tsdb_path = tsdb_path
 
         logger.debug(self.__meta_data_db())
 
         if not os.path.exists(self.tsdb_path):
-            raise IOError("TSDB doesn't exist ({0})".format(self.tsdb_path))
+            raise IOError("PhilDB database doesn't exist ({0})".format(self.tsdb_path))
 
         if not os.path.exists(self.__meta_data_db()):
-            raise IOError("TSDB doesn't contain meta-database ({0})".format(self.__meta_data_db()))
+            raise IOError("PhilDB database doesn't contain meta-database ({0})".format(self.__meta_data_db()))
 
         self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()))
         Session.configure(bind=self.__engine)
@@ -47,7 +47,7 @@ class TSDB(object):
 
     def help(self):
         """
-            List methods of the TSDB class with the first line of their docstring.
+            List methods of the PhilDB class with the first line of their docstring.
         """
         for method in sorted(dir(self)):
             if method.startswith("_"):

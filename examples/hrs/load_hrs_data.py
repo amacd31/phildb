@@ -2,10 +2,10 @@ import os
 import sys
 import datetime
 import pandas
-from tsdb.database import TSDB
+from phildb.database import PhilDB
 
-print("Writing to TSDB({0})".format(sys.argv[1]))
-db = TSDB(sys.argv[1])
+print("Writing to PhilDB({0})".format(sys.argv[1]))
+db = PhilDB(sys.argv[1])
 db.add_measurand('Q', 'STREAMFLOW', 'Streamflow')
 db.add_source('BOM_HRS', 'Bureau of Meteorology; Hydrological Reference Stations dataset.')
 

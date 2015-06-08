@@ -6,10 +6,10 @@ import os
 import pandas as pd
 from struct import pack, unpack, calcsize
 
-from tsdb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
-from tsdb.log_handler import LogHandler
-from tsdb.exceptions import DataError
-from tsdb.reader import __read, read
+from phildb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
+from phildb.log_handler import LogHandler
+from phildb.exceptions import DataError
+from phildb.reader import __read, read
 
 field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.

@@ -11,7 +11,7 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    api/tsdb
+    api/phildb
 
 
 Indices and tables

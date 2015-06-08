@@ -4,7 +4,7 @@ The script demonstrating the loading of data is load_hrs_data.py; View
 this script for an example on adding timeseries, measurand, and source
 to the database before loading timeseries data as timeseries instances.
 
-Ensure you are using the virtual environment and TSDB is on your PATH and PYTHONPATH.
+Ensure you are using the virtual environment and PhilDB is on your PATH and PYTHONPATH.
 If you haven't already loaded the virtual env:
  cd ../../ && . load_env && cd -
 
@@ -13,16 +13,16 @@ First download Hydrologic Reference Station data from http://www.bom.gov.au/wate
  sh ./download.sh
  cd ../
 
-Create a new TSDB:
- tsdb-create hrs_db
+Create a new PhilDB:
+ phil-create hrs_db
 
 Load HRS data into hrs_db with example script:
  python load_hrs_data.py hrs_db hrs_data/*.csv
 
-Open the newly created TSDB:
- tsdb hrs_db
+Open the newly created PhilDB:
+ phil hrs_db
 
-Another example script, autocorr.py, shows how access to a TSDB instance
+Another example script, autocorr.py, shows how access to a PhilDB instance
 can be automated to perform analysis on the data. This script for example
 iterates over all of the available streamflow timeseries instances for the
 BOM_HRS dataset and invokes the pandas autocorr function. Stations with
@@ -31,4 +31,4 @@ auto-correlation results greater than or equal to 0.95 are then printed.
 The script can be run like so:
   python autocorr.py hrs_db
 
-Such analysis could be performed from the interactive tsdb shell as well.
+Such analysis could be performed from the interactive phil shell as well.

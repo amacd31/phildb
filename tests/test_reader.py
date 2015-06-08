@@ -4,7 +4,7 @@ import pandas as pd
 import unittest
 from datetime import datetime
 
-from tsdb import reader
+from phildb import reader
 
 class ReaderTest(unittest.TestCase):
     def setUp(self):

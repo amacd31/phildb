@@ -3,9 +3,9 @@ import sys
 import datetime
 import json
 import pandas
-from tsdb.database import TSDB
+from phildb.database import PhilDB
 
-db = TSDB(sys.argv[1])
+db = PhilDB(sys.argv[1])
 
 def parse(station_json, measurand):
     dates = []

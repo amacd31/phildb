@@ -1,2 +1,2 @@
 include versioneer.py
-include tsdb/_version.py
+include phildb/_version.py

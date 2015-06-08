@@ -4,7 +4,7 @@ The script demonstrating the loading of data is load_bom_data.py; View
 this script for an example on adding timeseries, measurand, and source
 to the database before loading timeseries data as timeseries instances.
 
-Ensure you are using the virtual environment and TSDB is on your PATH and PYTHONPATH.
+Ensure you are using the virtual environment and PhilDB is on your PATH and PYTHONPATH.
 If you haven't already loaded the virtual env:
  cd ../../ && . load_env && cd -
 
@@ -14,12 +14,12 @@ Download a 72 hour observations file from www.bom.gov.au. e.g.:
 URL found at the bottom of a 'latest observations' page:
  http://www.bom.gov.au/products/IDN60901/IDN60901.94767.shtml
 
-Create a new TSDB:
- tsdb-create bom_tsdb
+Create a new PhilDB:
+ phil-create bom_tsdb
 
 Load the temperature observation data into bom_tsdb by running:
  python load_bom_data.py bom_tsdb IDN60901.94767.json
 
-Open the newly created TSDB:
- tsdb bom_tsdb
+Open the newly created PhilDB:
+ phil bom_tsdb
 
