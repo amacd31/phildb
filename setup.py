@@ -9,7 +9,6 @@ versioneer.tag_prefix = 'v'
 versioneer.parentdir_prefix = 'phildb-'
 
 from setuptools import setup
-from pip.req import parse_requirements
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -17,8 +16,13 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
             line for line in f.readlines() if 'travis-ci' not in line
         ])
 
-install_reqs = parse_requirements('python_requirements')
-requirements = [str(ir.req) for ir in install_reqs]
+requirements = [
+        "ipython>=2.0.0",
+        "numpy>=1.8.0",
+        "pandas>=0.14.0",
+        "SQLAlchemy>=0.9.2",
+        "tables>=3.1.0",
+    ]
 
 setup(
     name='PhilDB',
