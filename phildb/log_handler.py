@@ -11,12 +11,14 @@ class LogHandler:
     """
     """
 
+    FILTERS = tables.Filters(complib='zlib', complevel=9)
+
     def __init__(self, filename, mode):
-        self.hdf5 = tables.open_file(filename, mode, complib='blosc')
+        self.hdf5 = tables.open_file(filename, mode, filters=self.FILTERS)
 
     def create_skeleton(self):
         """
-            Create the skeleton of the data self.hdf5.
+            Create the skeleton of the log self.hdf5.
         """
         data_group = self.hdf5.create_group('/', 'data', 'data group')
 
@@ -30,16 +32,16 @@ class LogHandler:
 
         self.hdf5.flush()
 
-    def write(self, log_entries, replacement_datetime):
+    def write(self, log_entries, operation_datetime):
 
         ts_table = self.hdf5.get_node('/data/log')
 
         index_row = ts_table.row
-        for dt, val, meta in iter(log_entries['U']):
+        for dt, val, meta in iter(log_entries['C']):
             index_row["time"] = dt
             index_row["value"] = val
             index_row["meta"] = meta
-            index_row["replacement_time"] = replacement_datetime
+            index_row["replacement_time"] = operation_datetime
             index_row.append()
 
         self.hdf5.flush()

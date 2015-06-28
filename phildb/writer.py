@@ -6,7 +6,7 @@ import os
 import pandas as pd
 from struct import pack, unpack, calcsize
 
-from phildb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
+from phildb.constants import DEFAULT_META_ID, MISSING_VALUE, METADATA_MISSING_VALUE
 from phildb.log_handler import LogHandler
 from phildb.exceptions import DataError
 from phildb.reader import __read, read
@@ -15,7 +15,7 @@ field_names = ['date', 'value', 'metaID']
 entry_format = 'ldi' # long, double, int; See field names above.
 entry_size = calcsize(entry_format)
 
-def __pack(record_date, value, default_flag=0):
+def __pack(record_date, value, default_flag=DEFAULT_META_ID):
 
     if np.isnan(value):
         data = pack(entry_format,
@@ -74,16 +74,25 @@ def write(tsdb_file, ts, freq):
 
     series = __convert_and_validate(ts, freq)
 
+    log_entries = {'C': [], 'U': []}
+
     # If the file didn't exist it is a straight foward write and we can
     # just return at the end of this if block.
     if not os.path.isfile(tsdb_file):
         with open(tsdb_file, 'wb') as writer:
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
+                log_entries['C'].append(
+                    (
+                        datestamp,
+                        value,
+                        DEFAULT_META_ID
+                    )
+                )
                 data = __pack(datestamp, value)
                 writer.write(data)
 
-        return {'C': [], 'U': []} # No modified entries.
+        return log_entries
 
     # If we reached here it wasn't a straight write to a new file.
     if freq == 'IRR':
@@ -153,10 +162,25 @@ def write_regular_data(tsdb_file, series):
                     writer.seek(entry_size * (rec_count +1) + (entry_size * offset), os.SEEK_SET)
                 elif overlapping and existing_records[rec_count][1] != value:
                     log_entries['U'].append(existing_records[rec_count])
+
+                    log_entries['C'].append(
+                        (
+                            datestamp,
+                            value,
+                            DEFAULT_META_ID
+                        )
+                    )
                     data = __pack(datestamp, value)
                     writer.write(data)
                 else:
                     data = __pack(datestamp, value)
+                    log_entries['C'].append(
+                        (
+                            datestamp,
+                            value,
+                            DEFAULT_META_ID
+                        )
+                    )
                     writer.write(data)
                 rec_count += 1
 
@@ -166,15 +190,34 @@ def write_regular_data(tsdb_file, series):
             last_record_date = pd.Timestamp(last_record_date, offset=series.index.freq)
             the_date = last_record_date + 1
             while the_date < start_date:
-                data = pack('ldi',
-                            calendar.timegm(the_date.utctimetuple()),
-                                            MISSING_VALUE,
-                                            METADATA_MISSING_VALUE)
+                datestamp = calendar.timegm(the_date.utctimetuple())
+                log_entries['C'].append(
+                    (
+                        datestamp,
+                        MISSING_VALUE,
+                        METADATA_MISSING_VALUE
+                    )
+                )
+
+                data = pack(
+                    entry_format,
+                    datestamp,
+                    MISSING_VALUE,
+                    METADATA_MISSING_VALUE
+                )
+
                 writer.write(data)
                 the_date = the_date + 1
 
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
+                log_entries['C'].append(
+                    (
+                        datestamp,
+                        value,
+                        DEFAULT_META_ID
+                    )
+                )
                 data = __pack(datestamp, value)
                 writer.write(data)
 
@@ -203,8 +246,11 @@ def write_irregular_data(tsdb_file, series):
     records_to_modify = existing.loc[overlap_idx].ix[modified.values]
 
     log_entries = {'C': [], 'U': []}
+    skip_records = []
     for date, value, meta_id in zip(records_to_modify.index, records_to_modify.value, records_to_modify.metaID):
-        log_entries['U'].append((calendar.timegm(date.utctimetuple()), value, meta_id))
+        skip_datestamp = calendar.timegm(date.utctimetuple())
+        skip_records.append(skip_datestamp)
+        log_entries['U'].append((skip_datestamp, value, meta_id))
 
     # combine_first does not preserve null values in the original series.
     # So do an initial merge.
@@ -221,6 +267,14 @@ def write_irregular_data(tsdb_file, series):
         with open(tsdb_file, 'wb') as writer:
             for date, value in zip(merged.index, merged.values):
                 datestamp = calendar.timegm(date.utctimetuple())
+                if datestamp not in skip_records:
+                    log_entries['C'].append(
+                        (
+                            datestamp,
+                            value,
+                            DEFAULT_META_ID
+                        )
+                    )
                 data = __pack(datestamp, value)
                 writer.write(data)
     except:
