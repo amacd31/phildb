@@ -30,12 +30,12 @@ class LogHandler:
 
         self.hdf5.flush()
 
-    def write(self, modified, replacement_datetime):
+    def write(self, log_entries, replacement_datetime):
 
         ts_table = self.hdf5.get_node('/data/log')
 
         index_row = ts_table.row
-        for dt, val, meta in iter(modified):
+        for dt, val, meta in iter(log_entries['U']):
             index_row["time"] = dt
             index_row["value"] = val
             index_row["meta"] = meta

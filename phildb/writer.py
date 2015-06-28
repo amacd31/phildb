@@ -83,7 +83,7 @@ def write(tsdb_file, ts, freq):
                 data = __pack(datestamp, value)
                 writer.write(data)
 
-        return [] # No modified entries.
+        return {'C': [], 'U': []} # No modified entries.
 
     # If we reached here it wasn't a straight write to a new file.
     if freq == 'IRR':
@@ -106,7 +106,7 @@ def write_regular_data(tsdb_file, series):
     start_date = series.index[0]
     end_date = series.index[-1]
 
-    modified_entries = []
+    log_entries = {'C': [], 'U': []}
     with open(tsdb_file, 'rb') as reader:
         first_record = unpack(entry_format, reader.read(entry_size))
         reader.seek(entry_size * -1, os.SEEK_END)
@@ -152,7 +152,7 @@ def write_regular_data(tsdb_file, series):
                     # Skip writing the entry if it hasn't changed.
                     writer.seek(entry_size * (rec_count +1) + (entry_size * offset), os.SEEK_SET)
                 elif overlapping and existing_records[rec_count][1] != value:
-                    modified_entries.append(existing_records[rec_count])
+                    log_entries['U'].append(existing_records[rec_count])
                     data = __pack(datestamp, value)
                     writer.write(data)
                 else:
@@ -181,7 +181,7 @@ def write_regular_data(tsdb_file, series):
     else: # Not yet supported
         raise NotImplementedError
 
-    return modified_entries
+    return log_entries
 
 def write_irregular_data(tsdb_file, series):
     """
@@ -202,9 +202,9 @@ def write_irregular_data(tsdb_file, series):
     modified = series.ix[overlap_idx] != existing.value.ix[overlap_idx]
     records_to_modify = existing.loc[overlap_idx].ix[modified.values]
 
-    modified_entries = []
+    log_entries = {'C': [], 'U': []}
     for date, value, meta_id in zip(records_to_modify.index, records_to_modify.value, records_to_modify.metaID):
-        modified_entries.append((calendar.timegm(date.utctimetuple()), value, meta_id))
+        log_entries['U'].append((calendar.timegm(date.utctimetuple()), value, meta_id))
 
     # combine_first does not preserve null values in the original series.
     # So do an initial merge.
@@ -231,7 +231,7 @@ def write_irregular_data(tsdb_file, series):
         os.unlink(tsdb_file + 'backup')
 
 
-    return modified_entries
+    return log_entries
 
 def write_log(log_file, modified, replacement_datetime):
 
