@@ -3,8 +3,8 @@ import shutil
 import sys
 import datetime
 import pandas
-from tsdb.database import TSDB
-from tsdb.create import create
+from phildb.database import PhilDB
+from phildb.create import create
 
 test_tsdb_path = os.path.join(os.path.dirname(__file__), 'test_tsdb')
 
@@ -15,7 +15,7 @@ except OSError as e:
         raise
 
 create(test_tsdb_path)
-db = TSDB(test_tsdb_path)
+db = PhilDB(test_tsdb_path)
 
 db.add_measurand('Q', 'STREAMFLOW', 'Streamflow')
 db.add_source('DATA_SOURCE', '')
