@@ -33,7 +33,7 @@ setup(
     author='Andrew MacDonald',
     author_email='andrew@maccas.net',
     license='BSD',
-    url='https://github.com/amacd31/tsdb',
+    url='https://github.com/amacd31/phildb',
     install_requires=requirements,
     packages = ['phildb'],
     test_suite = 'tests',
