@@ -1,4 +1,5 @@
 from datetime import datetime
+import itertools
 import mock
 import os
 import shutil
@@ -16,7 +17,7 @@ from phildb.dbstructures import TimeseriesInstance
 from phildb.create import create
 from phildb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
 
-uuid_pool = iter(['47e4e0b4-0c04-4c1d-8dc4-272acfcd6bb3'])
+uuid_pool = itertools.cycle(['47e4e0b4-0c04-4c1d-8dc4-272acfcd6bb3'])
 
 def generate_uuid():
     return uuid.UUID(next(uuid_pool))
@@ -33,7 +34,7 @@ class DatabaseTest(unittest.TestCase):
             self.test_tsdb)
 
         db_name = os.path.join(self.test_data_dir, self.test_tsdb)
-        db = PhilDB(self.test_tsdb)
+        self.db = PhilDB(self.test_tsdb)
 
     def tearDown(self):
         try:
@@ -74,6 +75,27 @@ class DatabaseTest(unittest.TestCase):
         db_name = os.path.join(self.test_data_dir, 'test_tsdb')
         db = PhilDB(db_name)
         self.assertEqual(db._PhilDB__data_dir(), os.path.join(db_name, 'data'))
+
+    @mock.patch('uuid.uuid4', generate_uuid)
+    def test_tsdb_get_file_path(self):
+
+        self.db.add_timeseries('xyz')
+        self.db.add_timeseries_instance('xyz', 'D', 'xyz', measurand='Q', source='DATA_SOURCE')
+        self.assertEqual(self.db.get_file_path('xyz', 'D'),
+               os.path.join(
+                   self.test_tsdb,
+                   'data',
+                   '47e4e0b40c044c1d8dc4272acfcd6bb3.tsdb'
+                   )
+               )
+
+        self.assertEqual(self.db.get_file_path('xyz', 'D', ftype='hdf5'),
+               os.path.join(
+                   self.test_tsdb,
+                   'data',
+                   '47e4e0b40c044c1d8dc4272acfcd6bb3.hdf5'
+                   )
+               )
 
     def test_add_ts_entry(self):
         create(self.temp_dir)

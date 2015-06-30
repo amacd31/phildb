@@ -299,7 +299,7 @@ class PhilDB(object):
         return record
 
 
-    def __get_tsdb_file_by_id(self, identifier, freq, ftype='tsdb', **kwargs):
+    def get_file_path(self, identifier, freq, ftype='tsdb', **kwargs):
         """
             Get a path to a file for a given timeseries instance.
 
@@ -329,9 +329,9 @@ class PhilDB(object):
             :param ts: Timeseries data to write into the database.
             :type ts: np.array([np.array(datetime.date), np.array(float)])
         """
-        modified = writer.write(self.__get_tsdb_file_by_id(identifier, freq, **kwargs), ts, freq)
+        modified = writer.write(self.get_file_path(identifier, freq, **kwargs), ts, freq)
 
-        log_file = self.__get_tsdb_file_by_id(identifier, freq, ftype = 'hdf5', **kwargs)
+        log_file = self.get_file_path(identifier, freq, ftype = 'hdf5', **kwargs)
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
@@ -348,7 +348,7 @@ class PhilDB(object):
 
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read(self.__get_tsdb_file_by_id(identifier, freq, **kwargs))
+        return reader.read(self.get_file_path(identifier, freq, **kwargs))
 
     def read_all(self, freq, excludes = None, **kwargs):
         """
@@ -389,7 +389,7 @@ class PhilDB(object):
         """
         data = {}
         for ts_id in identifiers:
-            data[ts_id] = reader.read(self.__get_tsdb_file_by_id(ts_id, freq, **kwargs))
+            data[ts_id] = reader.read(self.get_file_path(ts_id, freq, **kwargs))
         return pd.DataFrame(data)
 
 
