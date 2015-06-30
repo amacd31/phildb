@@ -4,6 +4,7 @@ import mock
 import os
 import shutil
 import sqlite3
+import tables
 import tempfile
 import unittest
 import uuid
@@ -432,3 +433,41 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results.loc[0]['ts_id'], '410730')
         self.assertEqual(results.loc[0]['measurand'], 'Q')
+
+    @mock.patch('uuid.uuid4', generate_uuid)
+    def test_log_write(self):
+        db = PhilDB(self.test_tsdb)
+
+        db.add_timeseries('410731')
+        db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
+        dates = [datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)]
+        db.write('410731', 'D', [dates, [1.0, 2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
+
+        db.write('410731', 'D', [dates, [1.0, 2.5, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
+
+        db.write('410731', 'D', [[datetime(2014,1,4)], [4.0]], measurand = 'Q', source = 'DATA_SOURCE')
+
+        results = db.read('410731', 'D')
+        self.assertEqual(results.values[0], 1.0)
+        self.assertEqual(results.values[1], 2.5)
+        self.assertEqual(results.values[2], 3.0)
+        self.assertEqual(results.values[3], 4.0)
+
+        with tables.open_file(db.get_file_path('410731', 'D', ftype='hdf5'), 'r') as hdf5_file:
+            log_grp = hdf5_file.get_node('/data')
+
+            self.assertEqual(log_grp.log[0][0], 1388534400)
+            self.assertEqual(log_grp.log[0][1], 1.0)
+            self.assertEqual(log_grp.log[0][2], 0)
+
+            self.assertEqual(log_grp.log[1][0], 1388620800)
+            self.assertEqual(log_grp.log[1][1], 2.0)
+
+            self.assertEqual(log_grp.log[2][0], 1388707200)
+            self.assertEqual(log_grp.log[2][1], 3.0)
+
+            self.assertEqual(log_grp.log[3][0], 1388620800)
+            self.assertEqual(log_grp.log[3][1], 2.5)
+
+            self.assertEqual(log_grp.log[4][0], 1388793600)
+            self.assertEqual(log_grp.log[4][1], 4.0)
