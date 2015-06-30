@@ -120,4 +120,4 @@ The dataset used in this example is the Hydrologic Reference Stations
 This example also includes a script to calculate the auto-correlation
 for all the streamflow timeseries in the HRS dataset.
 
-.. |Build Status| image:: https://travis-ci.org/amacd31/tsdb.svg?branch=master
+.. |Build Status| image:: https://travis-ci.org/amacd31/phildb.svg?branch=master
