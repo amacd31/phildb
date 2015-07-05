@@ -1,3 +1,4 @@
 tsdb/_version.py export-subst
 tsdb/_version.py linguist-vendored
 versioneer.py linguist-vendored
+phildb/_version.py export-subst

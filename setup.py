@@ -2,11 +2,6 @@ import os
 from io import open
 
 import versioneer
-versioneer.VCS = 'git'
-versioneer.versionfile_source = 'phildb/_version.py'
-versioneer.versionfile_build = 'phildb/_version.py'
-versioneer.tag_prefix = 'v'
-versioneer.parentdir_prefix = 'phildb-'
 
 from setuptools import setup
 
