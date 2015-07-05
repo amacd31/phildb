@@ -10,6 +10,7 @@ coverage.xml
 cover
 nosetests.xml
 *.swp
+PhilDB.egg-info/
 doc/build/
 doc/source/api/
 hrs_data/
