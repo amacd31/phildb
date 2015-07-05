@@ -1,5 +1,6 @@
 import numpy as np
 import tables
+from phildb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 
 class TabDesc(tables.IsDescription):
     time = tables.Int32Col(dflt=0, pos=0)
@@ -38,6 +39,10 @@ class LogHandler:
 
         index_row = ts_table.row
         for dt, val, meta in iter(log_entries['C']):
+            if val is np.nan:
+                val = MISSING_VALUE
+                meta = METADATA_MISSING_VALUE
+
             index_row["time"] = dt
             index_row["value"] = val
             index_row["meta"] = meta
