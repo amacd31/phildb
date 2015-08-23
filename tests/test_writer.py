@@ -463,3 +463,12 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(2.0, data.values[1])
         self.assertEqual(3.5, data.values[2])
         self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
+
+    def test_log_entries_for_update_nan_multiple_times(self):
+        log_entries = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [np.nan, 3.5]], 'D')
+        new_entries = log_entries['C']
+        self.assertEqual(2, len(new_entries))
+
+        log_entries = writer.write(self.tsdb_existing_file, [[datetime(2014,1,2),datetime(2014,1,3)], [np.nan, 3.5]], 'D')
+        new_entries = log_entries['C']
+        self.assertEqual(0, len(new_entries))
