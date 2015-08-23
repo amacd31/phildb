@@ -7,7 +7,7 @@ import uuid
 import pandas as pd
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 Session = sessionmaker()
 
@@ -405,7 +405,9 @@ class PhilDB(object):
         session = Session()
         query_args = self.__parse_attribute_kwargs(**kwargs)
 
-        records = session.query(TimeseriesInstance).filter_by(**query_args)
+        records = session.query(TimeseriesInstance).options(
+                joinedload(TimeseriesInstance.timeseries)
+            ).filter_by(**query_args)
         return sorted(list(set([ record.timeseries.primary_id for record in records ])))
 
     def list_ids(self):
