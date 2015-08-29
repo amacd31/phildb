@@ -20,11 +20,26 @@ Ubuntu (using travis): |Build Status|
 All the python dependencies are recorded in the python\_requirements
 file.
 
-The virtualenv package can be used to create an isolated install of
-required Python packages.
-
 Installation
 ------------
+
+PhilDB is pip installable.
+
+The latest stable version can be installed from github with::
+
+    pip install git+https://github.com/amacd31/phildb.git
+
+The latest development version can be installed from github with::
+
+    pip install git+https://github.com/amacd31/phildb.git@dev
+
+Development environment
+^^^^^^^^^^^^^^^^^^^^^^^
+
+A number of processes for a development environment with tests and documentation generation have been automated in a Makefile.
+
+The virtualenv package can be used to create an isolated install of
+required Python packages.
 
 Create a virtual environment with dependencies installed:
 
