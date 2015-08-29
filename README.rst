@@ -2,13 +2,13 @@ PhilDB project
 ============
 
 Timeseries database project: For storing potentially changing timeseries
-data. For example hydrological data; like streamflow data where the
+data. For example hydrological data, like streamflow data, where the
 timeseries may be revised as quality control processes improve the
-recorded dataset.
+recorded dataset over time.
 
 PhilDB should be capable of storing data at any frequency supported by
 Pandas. At this time only daily data has been extensively tested with
-some limited sub- daily usage.
+some limited sub-daily usage.
 
 Dependencies
 ------------
