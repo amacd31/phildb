@@ -66,12 +66,6 @@ For additional details see the INSTALL file.
 Usage
 =====
 
-Load virtual environment along with adding PhilDB tools to your path:
-
-::
-
-    . load_env
-
 Create a new PhilDB
 
 ::
@@ -83,6 +77,12 @@ Open the newly created PhilDB
 ::
 
     phil new_tsdb
+
+If using the development environment built with make, Load it along with adding PhilDB tools to your path:
+
+::
+
+    . load_env
 
 Examples
 ========
