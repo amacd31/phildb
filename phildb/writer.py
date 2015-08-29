@@ -188,9 +188,10 @@ def write_regular_data(tsdb_file, series):
     # We are appending data
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
-            last_record_date = pd.Timestamp(last_record_date, offset=series.index.freq)
-            the_date = last_record_date + 1
-            while the_date < start_date:
+            last_record_date = pd.Timestamp(last_record_date, offset=series.index.freq) + 1
+
+            missing_dates = pd.date_range(last_record_date, start_date - 1, freq = series.index.freq)
+            for the_date in missing_dates:
                 datestamp = calendar.timegm(the_date.utctimetuple())
                 log_entries['C'].append(
                     (
@@ -208,7 +209,6 @@ def write_regular_data(tsdb_file, series):
                 )
 
                 writer.write(data)
-                the_date = the_date + 1
 
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
