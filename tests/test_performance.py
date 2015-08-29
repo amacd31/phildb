@@ -9,10 +9,12 @@ import tempfile
 import unittest
 from datetime import datetime
 import time
+from nose.plugins.attrib import attr
 
 from phildb import writer
 from phildb import reader
 
+@attr('performance')
 class SpeedTest(unittest.TestCase):
     def setUp(self):
         self.tsdb_path = tempfile.mkdtemp()

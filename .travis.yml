@@ -10,4 +10,4 @@ install: ./build_venv.sh
 cache:
     directories:
     - venv
-script: . load_env; nosetests
+script: . load_env; nosetests -a '!performance'
