@@ -4,8 +4,13 @@ python:
     - "3.2"
     - "3.3"
     - "3.4"
+addons:
+    apt:
+        packages:
+            - python-virtualenv
+            - libhdf5-serial-dev
+sudo: false
 before_install:
-    - sudo apt-get install python-virtualenv libhdf5-serial-dev
     - pip install codecov
 install: ./build_venv.sh
 cache:
