@@ -12,6 +12,7 @@ addons:
 sudo: false
 before_install:
     - pip install codecov
+    - pip install coveralls
 install: ./build_venv.sh
 cache:
     directories:
@@ -19,3 +20,4 @@ cache:
 script: . load_env; python setup.py nosetests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
 after_success:
     - codecov
+    - coveralls
