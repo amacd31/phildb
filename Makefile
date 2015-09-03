@@ -11,7 +11,7 @@ venv: build_venv.sh python_requirements
 	touch venv
 
 test:
-	. load_env; nosetests --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
+	. load_env; python setup.py nosetests --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
 
 sonar: test
 	sonar-runner -Dsonar.projectVersion=$(shell git describe)
