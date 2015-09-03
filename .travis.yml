@@ -6,8 +6,11 @@ python:
     - "3.4"
 before_install:
     - sudo apt-get install python-virtualenv libhdf5-serial-dev
+    - pip install codecov
 install: ./build_venv.sh
 cache:
     directories:
     - venv
 script: . load_env; python setup.py nosetests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
+after_success:
+    - codecov
