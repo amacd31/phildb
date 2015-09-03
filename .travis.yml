@@ -10,4 +10,4 @@ install: ./build_venv.sh
 cache:
     directories:
     - venv
-script: . load_env; nosetests -a '!performance'
+script: . load_env; python setup.py nosetests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
