@@ -7,9 +7,7 @@ from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = ''.join([
-            line for line in f.readlines() if 'travis-ci' not in line
-        ])
+    long_description = f.read()
 
 requirements = [
         "ipython>=2.0.0",

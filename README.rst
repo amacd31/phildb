@@ -1,5 +1,5 @@
 PhilDB project
-============
+==============
 
 Timeseries database project: For storing potentially changing timeseries
 data. For example hydrological data, like streamflow data, where the
@@ -109,7 +109,7 @@ and maximum daily temperature records for 112 stations around Australia.
 The dataset used in this example is the Australian Climate Observations
 Reference Network – Surface Air Temperature (ACORN-SAT) as found on the
 Australian Bureau of Meteorology website
-`ACORN-SAT <http://www.bom.gov.au/climate/change/acorn-sat/>`__.
+`ACORN-SAT website <http://www.bom.gov.au/climate/change/acorn-sat/>`_.
 
 BOM Observations
 ----------------
@@ -120,7 +120,7 @@ half hourly air temperature data from a 72 hour observations JSON file.
 The data used in this example is a 72 hour observations JSON file from
 the Australian Bureau of Meteorology website (e.g. JSON file as linked
 on this page: `Sydney Airport
-observations <http://www.bom.gov.au/products/IDN60901/IDN60901.94767.shtml#other_formats>`__
+observations <http://www.bom.gov.au/products/IDN60901/IDN60901.94767.shtml#other_formats>`_
 
 HRS
 ---
@@ -130,7 +130,7 @@ streamflow data for 221 streamflow stations around Australia.
 
 The dataset used in this example is the Hydrologic Reference Stations
 (HRS) dataset as found on the Australian Bureau of Meteorology website
-`HRS <http://www.bom.gov.au/water/hrs/>`__.
+`HRS website <http://www.bom.gov.au/water/hrs/>`_.
 
 This example also includes a script to calculate the auto-correlation
 for all the streamflow timeseries in the HRS dataset.
