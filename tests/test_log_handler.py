@@ -12,6 +12,28 @@ from phildb.log_handler import LogHandler
 class LogHandlerTest(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
+        self.log_file = os.path.join(self.tmp_dir, 'log_file.hdf5')
+        self.create_datetime = calendar.timegm(datetime(2015, 6, 28, 15, 25, 00).utctimetuple())
+
+        log_entries = {
+            'C': [(1388620800, np.nan, 0), (1388707200, 3.0, 0)],
+            'U': []
+        }
+
+        with LogHandler(self.log_file, 'w') as writer:
+            writer.create_skeleton()
+
+        with LogHandler(self.log_file, 'a') as writer:
+            writer.write(log_entries, self.create_datetime)
+
+        self.update_datetime = calendar.timegm(datetime(2015, 8, 1, 16, 25, 00).utctimetuple())
+        log_entries = {
+            'C': [(1388707200, 4.0, 0)],
+            'U': []
+        }
+
+        with LogHandler(self.log_file, 'a') as writer:
+            writer.write(log_entries, self.update_datetime)
 
     def tearDown(self):
         try:
@@ -67,43 +89,23 @@ class LogHandlerTest(unittest.TestCase):
             )
 
     def test_nan_logging(self):
-        log_file = os.path.join(self.tmp_dir, 'log_file.hdf5')
-        create_datetime = calendar.timegm(datetime(2015, 6, 28, 15, 25, 00).utctimetuple())
 
-        log_entries = {
-            'C': [(1388620800, np.nan, 0), (1388707200, 3.0, 0)],
-            'U': []
-        }
+        # Note: The write code under test is part of the setUp method.
 
-        with LogHandler(log_file, 'w') as writer:
-            writer.create_skeleton()
-
-        with LogHandler(log_file, 'a') as writer:
-            writer.write(log_entries, create_datetime)
-
-        update_datetime = calendar.timegm(datetime(2015, 6, 28, 16, 25, 00).utctimetuple())
-        log_entries = {
-            'C': [(1388707200, 4.0, 0)],
-            'U': []
-        }
-
-        with LogHandler(log_file, 'a') as writer:
-            writer.write(log_entries, update_datetime)
-
-        with tables.open_file(log_file, 'r') as hdf5_file:
+        with tables.open_file(self.log_file, 'r') as hdf5_file:
             log_grp = hdf5_file.get_node('/data')
 
             self.assertSequenceEqual(
                 log_grp.log[0],
-                (1388620800, -9999, 9999, create_datetime)
+                (1388620800, -9999, 9999, self.create_datetime)
             )
             self.assertSequenceEqual(
                 log_grp.log[1],
-                (1388707200, 3.0, 0, create_datetime)
+                (1388707200, 3.0, 0, self.create_datetime)
             )
             self.assertSequenceEqual(
                 log_grp.log[2],
-                (1388707200, 4.0, 0, update_datetime)
+                (1388707200, 4.0, 0, self.update_datetime)
             )
 
             self.assertEqual(len(log_grp.log), 3)
