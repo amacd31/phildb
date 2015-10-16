@@ -1,5 +1,6 @@
 import calendar
 import numpy as np
+import pandas as pd
 import os
 import shutil
 import tables
@@ -42,7 +43,7 @@ class LogHandlerTest(unittest.TestCase):
         }
 
         with LogHandler(self.log_file, 'a') as writer:
-            writer.write(log_entries, self.update_datetime)
+            writer.write(log_entries, self.second_update_datetime)
 
     def tearDown(self):
         try:
@@ -118,3 +119,32 @@ class LogHandlerTest(unittest.TestCase):
             )
 
             self.assertEqual(len(log_grp.log), 4)
+
+    def test_read_log(self):
+
+        data = {}
+        with LogHandler(self.log_file, 'r') as reader:
+            data['original_data'] = reader.read(self.create_datetime)
+            data['middle_data'] = reader.read(self.update_datetime)
+            data['last_data'] = reader.read(self.second_update_datetime)
+
+        for k in data.keys():
+            self.assertEqual(
+                data[k].index[0],
+                pd.Timestamp('2014-01-02 00:00:00'),
+                "Incorrect start date in {0}".format(k)
+            )
+
+            self.assertEqual(
+                data[k].index[1],
+                pd.Timestamp('2014-01-03 00:00:00'),
+                "Incorrect end date in {0}".format(k)
+            )
+
+            self.assertEqual(len(data[k]), 2, "Incorrect length of '{0}'.".format(k))
+
+            self.assertTrue(np.isnan(data[k].value[0]), "Incorrect first value for '{0}'.".format(k))
+
+        self.assertEqual(data['original_data'].value[1], 3.0)
+        self.assertEqual(data['middle_data'].value[1], 4.0)
+        self.assertEqual(data['last_data'].value[1], 5.0)

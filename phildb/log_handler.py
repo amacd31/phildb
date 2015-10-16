@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import tables
 from phildb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 
@@ -32,6 +33,32 @@ class LogHandler:
             pass
 
         self.hdf5.flush()
+
+    def read(self, as_at_datetime):
+        field_names = ['time', 'value', 'meta', 'replacement_time']
+        ts_table = self.hdf5.get_node('/data/log')
+
+        records = ts_table.read_where('replacement_time <= {0}'.format(as_at_datetime))
+
+        if records == []: return pd.DataFrame(None, columns = field_names)
+
+        df = pd.DataFrame(records, columns = field_names)
+        df['date'] = pd.to_datetime(df['time'], unit='s')
+        df['replacement_time'] = pd.to_datetime(df['replacement_time'], unit='s')
+        df = df.set_index('date')
+        df.drop('time', axis=1, inplace=True)
+
+        meta_ids = df.meta.copy()
+        replacement_times = df.replacement_time.copy()
+        df.loc[df.meta == METADATA_MISSING_VALUE] = np.nan
+        df.meta = meta_ids
+        df.replacement_time = replacement_times
+
+        idx = ~df.index.duplicated(take_last=True)
+
+        df = df.ix[idx]
+
+        return df
 
     def write(self, log_entries, operation_datetime):
 
