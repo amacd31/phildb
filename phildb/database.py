@@ -350,6 +350,23 @@ class PhilDB(object):
         """
         return reader.read(self.get_file_path(identifier, freq, **kwargs))
 
+    def read_log(self, identifier, freq, as_at_datetime, **kwargs):
+        """
+            Read timeseries record for the requested timeseries instance as it was at specified datetime in the log.
+
+            :param identifier: Identifier of the timeseries.
+            :type identifier: string
+            :param freq: Timeseries data frequency.
+            :type freq: string
+            :param as_at_datetime: Filter to a timeseries, as available at this specified datetime, from the log.
+            :type as_at_datetime: datetime
+            :param kwargs: Attributes to match against timeseries instances (e.g. source, measurand).
+            :type kwargs: kwargs
+
+            :returns: pandas.DataFrame -- Timeseries data.
+        """
+        return reader.read_log(self.get_file_path(identifier, freq, ftype='hdf5', **kwargs))
+
     def read_all(self, freq, excludes = None, **kwargs):
         """
             Read the entire timeseries record for all matching timeseries instances.

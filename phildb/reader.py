@@ -4,6 +4,7 @@ import pandas as pd
 import os
 
 from phildb.constants import METADATA_MISSING_VALUE
+from phildb.log_handler import LogHandler
 
 def __read(filename):
     field_names = ['date', 'value', 'metaID']
@@ -27,3 +28,9 @@ def __read(filename):
 def read(filename):
     return __read(filename).value
 
+def read_log(filename, as_at_datetime):
+
+    with LogHandler(log_file, 'r') as reader:
+        df = reader.read(calendar.timegm(replacement_datetime.utctimetuple()))
+
+    return df.value
