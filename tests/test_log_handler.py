@@ -35,6 +35,15 @@ class LogHandlerTest(unittest.TestCase):
         with LogHandler(self.log_file, 'a') as writer:
             writer.write(log_entries, self.update_datetime)
 
+        self.second_update_datetime = calendar.timegm(datetime(2015, 8, 10, 16, 25, 00).utctimetuple())
+        log_entries = {
+            'C': [(1388707200, 5.0, 0)],
+            'U': []
+        }
+
+        with LogHandler(self.log_file, 'a') as writer:
+            writer.write(log_entries, self.update_datetime)
+
     def tearDown(self):
         try:
             shutil.rmtree(self.tmp_dir)
@@ -108,4 +117,4 @@ class LogHandlerTest(unittest.TestCase):
                 (1388707200, 4.0, 0, self.update_datetime)
             )
 
-            self.assertEqual(len(log_grp.log), 3)
+            self.assertEqual(len(log_grp.log), 4)
