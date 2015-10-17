@@ -176,7 +176,7 @@ class PhilDB(object):
             Convert kwargs of attribute short IDs into database objects
 
             :param **kwargs: Any additional attributes to attach to the timeseries instance.
-            :type **kwargs: kwargs
+            :type \*\*kwargs: kwargs
 
             :return: Dictionary of attributes from the database.
         """
@@ -202,8 +202,8 @@ class PhilDB(object):
             :param initial_metadata: Store some metadata about this series.
                 Potentially freeform header from a source file about to be loaded.
             :type initial_metadata: string
-            :param **kwargs: Any additional attributes to attach to the timeseries instance.
-            :type **kwargs: kwargs
+            :param \*\*kwargs: Any additional attributes to attach to the timeseries instance.
+            :type \*\*kwargs: kwargs
         """
         session = Session()
 
