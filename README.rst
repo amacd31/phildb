@@ -25,9 +25,9 @@ Installation
 
 PhilDB is pip installable.
 
-The latest stable version can be installed from github with::
+The latest stable version can be installed from pypi with::
 
-    pip install git+https://github.com/amacd31/phildb.git
+    pip install phildb
 
 The latest development version can be installed from github with::
 
