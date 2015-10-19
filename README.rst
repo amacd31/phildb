@@ -143,7 +143,7 @@ for all the streamflow timeseries in the HRS dataset.
     :target: https://pypi.python.org/pypi/PhilDB
 
 .. |PYPI License| image:: https://img.shields.io/pypi/l/phildb.svg
-    :target: https://pypi.python.org/pypi/PhilDB
+    :target: https://github.com/amacd31/phildb/blob/master/LICENSE
 
 .. |Build Status| image:: https://img.shields.io/travis/amacd31/phildb/master.svg
     :target: https://travis-ci.org/amacd31/phildb
