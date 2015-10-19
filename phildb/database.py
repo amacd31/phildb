@@ -7,6 +7,7 @@ import uuid
 import pandas as pd
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 Session = sessionmaker()
@@ -89,7 +90,10 @@ class PhilDB(object):
         session = Session()
         ts = Timeseries(primary_id = identifier)
         session.add(ts)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            raise DuplicateError("Already exists: '{0}'".format(identifier))
 
     def add_measurand(self, measurand_short_id, measurand_long_id, description):
         """
@@ -109,7 +113,10 @@ class PhilDB(object):
         session = Session()
         measurand = Measurand(short_id = short_id, long_id = long_id,  description = description)
         session.add(measurand)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            raise DuplicateError("Already exists: '{0}'".format(measurand_short_id))
 
     def add_source(self, source, description):
         """
@@ -129,7 +136,10 @@ class PhilDB(object):
         session = Session()
         source = Source(short_id = short_id, description = description)
         session.add(source)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            raise DuplicateError("Already exists: '{0}'".format(source))
 
 
     def add_attribute(self, attribute_id, description):
@@ -231,7 +241,10 @@ class PhilDB(object):
             timeseries.ts_instances.append(tsi)
 
             session.add(tsi)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError:
+                raise DuplicateError("Timeseries instance already exists: '{0}', '{1}'".format(identifier, freq))
 
     def __get_record_by_id(self, identifier, session = None):
         """

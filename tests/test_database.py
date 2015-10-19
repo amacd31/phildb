@@ -471,3 +471,17 @@ class DatabaseTest(unittest.TestCase):
 
             self.assertEqual(log_grp.log[4][0], 1388793600)
             self.assertEqual(log_grp.log[4][1], 4.0)
+
+    def test_add_duplicates(self):
+        db = PhilDB(self.test_tsdb)
+        with self.assertRaises(DuplicateError) as context:
+            db.add_source('DATA_SOURCE', 'Duplicate source')
+
+        with self.assertRaises(DuplicateError) as context:
+            db.add_measurand('Q', 'STREAMFLOW', 'Duplicate measurand')
+
+        with self.assertRaises(DuplicateError) as context:
+            db.add_timeseries('410730')
+
+        with self.assertRaises(DuplicateError) as context:
+            db.add_timeseries_instance('410730', 'D', '', source='DATA_SOURCE', measurand='Q')
