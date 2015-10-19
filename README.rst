@@ -1,6 +1,8 @@
 PhilDB project
 ==============
 
+|Build Status|
+
 Timeseries database project: For storing potentially changing timeseries
 data. For example hydrological data, like streamflow data, where the
 timeseries may be revised as quality control processes improve the
@@ -13,9 +15,8 @@ some limited sub-daily usage.
 Dependencies
 ------------
 
-Requires Python 2.7 or greater (mostly tested with Python 2.7 on Mac OSX
-and Linux). Test suite status when run with Python 2.7, 3.2 and 3.3 on
-Ubuntu (using travis): |Build Status|
+Requires Python 2.7 or greater (mostly tested with Python 2.7 and Python 3.4 on Mac OSX and Linux).
+Test suite runs on Travis CI with Python 2.7, 3.2, 3.3 and 3.4.
 
 All the python dependencies are recorded in the python\_requirements
 file.
