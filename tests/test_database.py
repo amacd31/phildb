@@ -2,6 +2,7 @@ from datetime import datetime
 import itertools
 import mock
 import os
+import pandas as pd
 import shutil
 import sqlite3
 import tables
@@ -163,7 +164,7 @@ class DatabaseTest(unittest.TestCase):
 
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
-        db.write('410731', 'D', [[datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], [1.0, 2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
+        db.write('410731', 'D', pd.Series(index = [datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)], data = [1.0, 2.0, 3.0]), measurand = 'Q', source = 'DATA_SOURCE')
 
         results = db.read('410731', 'D', measurand = 'Q', source = 'DATA_SOURCE')
 
@@ -179,7 +180,7 @@ class DatabaseTest(unittest.TestCase):
 
     def test_update_and_append(self):
         db = PhilDB(self.test_tsdb)
-        db.write('410730', 'D', [[datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], [2.5, 3.0, 4.0, 5.0, 6.0]], measurand = 'Q', source = 'DATA_SOURCE')
+        db.write('410730', 'D', pd.Series(index = [datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], data = [2.5, 3.0, 4.0, 5.0, 6.0]), measurand = 'Q', source = 'DATA_SOURCE')
 
         data = db.read('410730', 'D', measurand = 'Q', source = 'DATA_SOURCE')
         self.assertEqual(1.0, data.values[0])
@@ -441,11 +442,11 @@ class DatabaseTest(unittest.TestCase):
         db.add_timeseries('410731')
         db.add_timeseries_instance('410731', 'D', 'Foo', measurand = 'Q', source = 'DATA_SOURCE')
         dates = [datetime(2014,1,1), datetime(2014,1,2), datetime(2014,1,3)]
-        db.write('410731', 'D', [dates, [1.0, 2.0, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
+        db.write('410731', 'D', pd.Series(index = dates, data = [1.0, 2.0, 3.0]), measurand = 'Q', source = 'DATA_SOURCE')
 
-        db.write('410731', 'D', [dates, [1.0, 2.5, 3.0]], measurand = 'Q', source = 'DATA_SOURCE')
+        db.write('410731', 'D', pd.Series(index = dates, data = [1.0, 2.5, 3.0]), measurand = 'Q', source = 'DATA_SOURCE')
 
-        db.write('410731', 'D', [[datetime(2014,1,4)], [4.0]], measurand = 'Q', source = 'DATA_SOURCE')
+        db.write('410731', 'D', pd.Series(index = [datetime(2014,1,4)], data = [4.0]), measurand = 'Q', source = 'DATA_SOURCE')
 
         results = db.read('410731', 'D')
         self.assertEqual(results.values[0], 1.0)

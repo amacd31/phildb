@@ -4,6 +4,7 @@
 
 import os
 import numpy as np
+import pandas as pd
 import shutil
 import tempfile
 import unittest
@@ -34,9 +35,9 @@ class SpeedTest(unittest.TestCase):
                 raise
 
     def test_append_with_large_gap(self):
-        writer.write(self.tsdb_file, [[datetime(2005,1,1)], [1.0]], 'H')
+        writer.write(self.tsdb_file, pd.Series(index = [datetime(2005,1,1)], data = [1.0]), 'H')
         start_time = time.time()
-        writer.write(self.tsdb_file, [[datetime(2014,12,31)], [2.0]], 'H')
+        writer.write(self.tsdb_file, pd.Series(index = [datetime(2014,12,31)], data = [2.0]), 'H')
         end_time = time.time()
 
         # Prior to the fix committed with this test, on my Macbook Air,

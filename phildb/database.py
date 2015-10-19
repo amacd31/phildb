@@ -340,7 +340,7 @@ class PhilDB(object):
             :param freq: Data frequency (e.g. 'D' for day, as supported by pandas.)
             :type freq: string
             :param ts: Timeseries data to write into the database.
-            :type ts: np.array([np.array(datetime.date), np.array(float)])
+            :type ts: pd.Series
         """
         modified = writer.write(self.get_file_path(identifier, freq, **kwargs), ts, freq)
 

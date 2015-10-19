@@ -29,29 +29,16 @@ def __pack(record_date, value, default_flag=DEFAULT_META_ID):
 
 def __convert_and_validate(ts, freq):
     """
-        Turn tuple of (dates, values) into a pandas TimeSeries.
+        Enforces frequency.
 
-        Validates the input is sensible (e.g. consecutive values).
-
-        :param ts: Tuple of (dates, values)
-        :type ts: (np.ndarray, np.ndarray)
+        :param ts: Pandas Series object
+        :type ts: pandas.Series
     """
-    # Convert all to datetime when utctimetuple is not available (i.e. date object).
-    for i in range(0, len(ts[0])):
-        if 'utctimetuple' not in dir(ts[0][i]):
-            ts[0][i] = dt.fromordinal(ts[0][i].toordinal())
-
-    cur_date = ts[0][0]
-    for the_date in ts[0][1:]:
-        if cur_date >= the_date:
-            raise DataError('Unordered dates were supplied. {0} >= {1}'. \
-                    format(cur_date, the_date))
-        cur_date = the_date
 
     if freq == 'IRR':
-        series = pd.TimeSeries(ts[1], index=ts[0])
+        series = ts
     else:
-        series = pd.TimeSeries(ts[1], index=ts[0]).asfreq(freq)
+        series = ts.asfreq(freq)
 
     return series
 
@@ -65,8 +52,8 @@ def write(tsdb_file, ts, freq):
 
         :param tsdb_file: File to write timeseries data into.
         :type tsdb_file: string
-        :param ts: Tuple of (dates, values).
-        :type ts: (np.ndarray, np.ndarray)
+        :param ts: Timeseries data to write.
+        :type ts: pd.Series
         :param freq: Frequency of the data. (e.g. 'D' for daily, '1Min' for minutely).
             Accepts any string that pandas.TimeSeries.asfreq does or 'IRR' for irregular data.
         :type freq: string
