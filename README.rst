@@ -1,7 +1,7 @@
 PhilDB project
 ==============
 
-|Build Status| |DOI|
+|DOI| |Build Status| |Code Coverage|
 
 Timeseries database project: For storing potentially changing timeseries
 data. For example hydrological data, like streamflow data, where the
@@ -136,8 +136,11 @@ The dataset used in this example is the Hydrologic Reference Stations
 This example also includes a script to calculate the auto-correlation
 for all the streamflow timeseries in the HRS dataset.
 
-.. |Build Status| image:: https://travis-ci.org/amacd31/phildb.svg?branch=master
+.. |Build Status| image:: https://img.shields.io/travis/amacd31/phildb/master.svg
     :target: https://travis-ci.org/amacd31/phildb
 
 .. |DOI| image:: https://zenodo.org/badge/14104/amacd31/phildb.svg
     :target: https://zenodo.org/badge/latestdoi/14104/amacd31/phildb
+
+.. |Code Coverage| image:: https://img.shields.io/coveralls/amacd31/phildb/master.svg
+    :target: https://coveralls.io/github/amacd31/phildb?branch=master
