@@ -2,7 +2,7 @@ import os
 import sys
 import datetime
 import json
-import pandas
+import pandas as pd
 from phildb.database import PhilDB
 
 db = PhilDB(sys.argv[1])
@@ -18,26 +18,22 @@ def parse(station_json, measurand):
     dates.reverse()
     data.reverse()
 
-    with open("input.txt", "a") as myfile:
-        for date, value in zip(dates, data):
-            myfile.write("{0}, {1}\n".format(date.isoformat(), value))
-
     station_id = station_json['observations']['header'][0]['ID']
 
-    return station_id, dates, data
+    return station_id, pd.Series(data, dates)
 
 measurand = 'air_temp'
 source = 'BOM_OBS'
 freq = '30min'
 
-station_id, dates, data = parse(json.load(open(sys.argv[2])), measurand)
+station_id, data = parse(json.load(open(sys.argv[2])), measurand)
 
 db.add_measurand(measurand, measurand, 'Air Temperature')
 db.add_source('BOM_OBS', 'Australian Bureau of Meteorology Observations')
 
 db.add_timeseries(station_id)
 db.add_timeseries_instance(station_id, freq, 'None', measurand = measurand, source = source)
-db.write(station_id, freq, (dates, data), measurand = measurand, source = source)
+db.write(station_id, freq, data, measurand = measurand, source = source)
 
 for i in range(3, len(sys.argv)):
     print("Processing file: ", sys.argv[i], '...')
