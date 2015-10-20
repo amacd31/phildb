@@ -378,7 +378,7 @@ class PhilDB(object):
 
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read_log(self.get_file_path(identifier, freq, ftype='hdf5', **kwargs))
+        return reader.read_log(self.get_file_path(identifier, freq, ftype='hdf5', **kwargs), as_at_datetime)
 
     def read_all(self, freq, excludes = None, **kwargs):
         """

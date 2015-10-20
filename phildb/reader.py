@@ -1,3 +1,4 @@
+import calendar
 from struct import unpack, calcsize
 import numpy as np
 import pandas as pd
@@ -28,9 +29,9 @@ def __read(filename):
 def read(filename):
     return __read(filename).value
 
-def read_log(filename, as_at_datetime):
+def read_log(log_file, as_at_datetime):
 
     with LogHandler(log_file, 'r') as reader:
-        df = reader.read(calendar.timegm(replacement_datetime.utctimetuple()))
+        df = reader.read(calendar.timegm(as_at_datetime.utctimetuple()))
 
     return df.value
