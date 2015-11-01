@@ -14,7 +14,7 @@ def __read(filename):
 
     records = np.fromfile(filename, dtype=np.dtype({'names':field_names, 'formats': entry_format}))
 
-    if records == []: return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
+    if len(records) == 0: return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
 
     df = pd.DataFrame(records, columns = field_names)
     df['date'] = pd.to_datetime(df['date'], unit='s')

@@ -40,7 +40,7 @@ class LogHandler:
 
         records = ts_table.read_where('replacement_time <= {0}'.format(as_at_datetime))
 
-        if records == []: return pd.DataFrame(None, columns = field_names)
+        if len(records) == 0: return pd.DataFrame(None, columns = field_names)
 
         df = pd.DataFrame(records, columns = field_names)
         df['date'] = pd.to_datetime(df['time'], unit='s')
