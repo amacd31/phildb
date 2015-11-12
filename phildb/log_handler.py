@@ -4,7 +4,7 @@ import tables
 from phildb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 
 class TabDesc(tables.IsDescription):
-    time = tables.Int32Col(dflt=0, pos=0)
+    time = tables.Int64Col(dflt=0, pos=0)
     value = tables.Float64Col(dflt=np.nan, pos=1)
     meta = tables.Int32Col(dflt=0, pos=2)
     replacement_time = tables.Int32Col(dflt=0, pos=3)
