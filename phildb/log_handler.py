@@ -54,7 +54,7 @@ class LogHandler:
         df.meta = meta_ids
         df.replacement_time = replacement_times
 
-        idx = ~df.index.duplicated(take_last=True)
+        idx = ~df.index.duplicated(keep = 'last')
 
         df = df.ix[idx]
 
