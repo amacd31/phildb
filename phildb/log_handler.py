@@ -7,7 +7,7 @@ class TabDesc(tables.IsDescription):
     time = tables.Int64Col(dflt=0, pos=0)
     value = tables.Float64Col(dflt=np.nan, pos=1)
     meta = tables.Int32Col(dflt=0, pos=2)
-    replacement_time = tables.Int32Col(dflt=0, pos=3)
+    replacement_time = tables.Int64Col(dflt=0, pos=3)
 
 class LogHandler:
     """
