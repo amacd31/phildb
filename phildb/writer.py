@@ -145,7 +145,7 @@ def write_regular_data(tsdb_file, series):
                 datestamp = calendar.timegm(date.utctimetuple())
                 overlapping = rec_count <= records_length - 1
 
-                if overlapping and (existing_records[rec_count][1] == value or existing_records[rec_count][1] == MISSING_VALUE):
+                if overlapping and (existing_records[rec_count][1] == value or existing_records[rec_count][2] == MISSING_VALUE):
                     # Skip writing the entry if it hasn't changed.
                     writer.seek(entry_size * (rec_count +1) + (entry_size * offset), os.SEEK_SET)
                 elif overlapping and existing_records[rec_count][1] != value:

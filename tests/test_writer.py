@@ -459,6 +459,23 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(3.5, data.values[2])
         self.assertEqual(datetime(2014,1,3), data.index[2].to_pydatetime())
 
+    def test_update_over_nan(self):
+        # Append a nan value
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [date(2014,1,4)], data = [np.nan]), 'D')
+
+        # Test the nan value was written
+        data = reader.read(self.tsdb_existing_file)
+        self.assertTrue(np.isnan(data.values[3]))
+
+        # Replace the nan value
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [date(2014,1,4)], data = [4.0]), 'D')
+
+        updated_data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(4.0, updated_data.values[3])
+
+        modified = log_entries['U']
+        self.assertEqual(1, len(modified))
+
     def test_log_entries_for_update_nan_multiple_times(self):
         log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2014,1,2),datetime(2014,1,3)], data = [np.nan, 3.5]), 'D')
         new_entries = log_entries['C']
@@ -466,4 +483,4 @@ class WriterTest(unittest.TestCase):
 
         log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2014,1,2),datetime(2014,1,3)], data = [np.nan, 3.5]), 'D')
         new_entries = log_entries['C']
-        self.assertEqual(0, len(new_entries))
+        self.assertEqual(1, len(new_entries))
