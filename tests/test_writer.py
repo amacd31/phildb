@@ -400,12 +400,47 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(3.0, data.values[2])
         self.assertEqual(4.0, data.values[3])
 
+    def test_irregular_append(self):
+        log_entries = writer.write(
+            self.tsdb_existing_file,
+            pd.Series(
+                index = [
+                    datetime(2014,1,3),
+                    datetime(2014,1,5),
+                    datetime(2014,1,7),
+                    datetime(2014,1,8)
+                ],
+                data = [
+                    3.0,
+                    5.0,
+                    7.0,
+                    8.0
+                ]
+            ),
+            'IRR'
+        )
+        created = log_entries['C']
+        modified = log_entries['U']
+
+        self.assertEqual(0, len(modified))
+        self.assertEqual(4, len(created))
+        self.assertEqual((1388707200, 3.0, 0), created[0])
+
+        data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(3.0, data.values[2])
+        self.assertEqual(5.0, data.values[3])
+        self.assertEqual(7.0, data.values[4])
+        self.assertEqual(8.0, data.values[5])
+
     def test_irregular_update_and_append(self):
         log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,5), datetime(2014,1,7), datetime(2014,1,8)], data = [2.5, 3.0, 5.0, 7.0, 8.0]), 'IRR')
+        created = log_entries['C']
         modified = log_entries['U']
 
         self.assertEqual(1, len(modified))
+        self.assertEqual(5, len(created))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
+        self.assertEqual((1388620800, 2.5, 0), created[0])
 
         data = reader.read(self.tsdb_existing_file)
         self.assertEqual(1.0, data.values[0])
