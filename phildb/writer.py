@@ -242,14 +242,13 @@ def write_irregular_data(tsdb_file, series):
         records_to_modify.metaID,
         series.loc[records_to_modify.index]
     ):
-        skip_datestamp = calendar.timegm(date.utctimetuple())
-        skip_records.append(skip_datestamp)
-        log_entries['C'].append((skip_datestamp, new_value, meta_id))
-        log_entries['U'].append((skip_datestamp, orig_value, meta_id))
+        datestamp = int(date.value / 1000000000)
+        skip_records.append(date)
+        log_entries['C'].append((datestamp, new_value, meta_id))
+        log_entries['U'].append((datestamp, orig_value, meta_id))
 
     for date in nonoverlap_idx:
-        skip_datestamp = calendar.timegm(date.utctimetuple())
-        skip_records.append(skip_datestamp)
+        skip_records.append(date)
 
     # combine_first does not preserve null values in the original series.
     # So do an initial merge.
@@ -265,8 +264,8 @@ def write_irregular_data(tsdb_file, series):
     try:
         with open(tsdb_file, 'wb') as writer:
             for date, value in zip(merged.index, merged.values):
-                datestamp = calendar.timegm(date.utctimetuple())
-                if datestamp not in skip_records:
+                datestamp = int(date.value / 1000000000)
+                if date not in skip_records:
                     log_entries['C'].append(
                         (
                             datestamp,
