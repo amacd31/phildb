@@ -233,12 +233,15 @@ def write_irregular_data(tsdb_file, series):
     existing = __read(tsdb_file)
 
     overlap_idx = existing.index.intersection(series.index)
-    nonoverlap_idx = existing.index.difference(series.index)
     modified = series.ix[overlap_idx] != existing.value.ix[overlap_idx]
     records_to_modify = existing.loc[overlap_idx].ix[modified.values]
+    new_records = series.index.difference(existing.index)
 
     log_entries = {'C': [], 'U': []}
-    skip_records = []
+
+    if len(records_to_modify) == 0 and len(new_records) == 0:
+        return log_entries
+
     for date, orig_value, meta_id, new_value in zip(
         records_to_modify.index,
         records_to_modify.value,
@@ -246,38 +249,42 @@ def write_irregular_data(tsdb_file, series):
         series.loc[records_to_modify.index]
     ):
         datestamp = int(date.value / 1000000000)
-        skip_records.append(date)
         log_entries['C'].append((datestamp, new_value, meta_id))
         log_entries['U'].append((datestamp, orig_value, meta_id))
 
-    for date in nonoverlap_idx:
-        skip_records.append(date)
-
-    # combine_first does not preserve null values in the original series.
-    # So do an initial merge.
-    merged = series.combine_first(existing.value)
+    append_only = len(overlap_idx) == 0
+    if append_only:
+        merged = series
+        fmode = 'ab'
+    else:
+        # combine_first does not preserve null values in the original series.
+        # So do an initial merge.
+        merged = series.combine_first(existing.value)
+        fmode = 'wb'
 
     # Then replace the null values from the update series.
     null_vals = series.isnull()
     null_idx = null_vals.loc[null_vals==True].index
     merged.loc[null_idx] = np.nan
 
+    merged = pd.DataFrame({'value': merged})
+
+    merged['datestamp'] = pd.Series(merged.index.map(
+                               lambda dateval: dateval.value // 1000000000,
+                           ), index=merged.index)
+
+    new_logs = [(row.datestamp, row.value, DEFAULT_META_ID)
+                for idx, row in merged.ix[new_records].iterrows()]
+    log_entries['C'] += new_logs
+
     os.rename(tsdb_file, tsdb_file + 'backup')
 
     try:
-        with open(tsdb_file, 'wb') as writer:
-            for date, value in zip(merged.index, merged.values):
-                datestamp = int(date.value / 1000000000)
-                if date not in skip_records:
-                    log_entries['C'].append(
-                        (
-                            datestamp,
-                            value,
-                            DEFAULT_META_ID
-                        )
-                    )
-                data = __pack(datestamp, value)
-                writer.write(data)
+        with open(tsdb_file, fmode) as writer:
+            def write_record(row):
+                writer.write(__pack(row[0], row[1]))
+                return row
+            np.apply_along_axis(write_record, 1, merged[['datestamp', 'value']].values)
     except:
         # On any failure writing restore the original file.
         os.rename(tsdb_file + 'backup', tsdb_file)
