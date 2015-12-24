@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 import datetime
-import pandas
+import pandas as pd
 from phildb.database import PhilDB
 from phildb.create import create
 
@@ -22,20 +22,20 @@ db.add_source('DATA_SOURCE', '')
 
 db.add_timeseries('410730')
 db.add_timeseries_instance('410730', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
-db.write('410730', 'D', [[datetime.date(2014, 1, 1),
+db.write('410730', 'D', pd.Series( index = [datetime.date(2014, 1, 1),
             datetime.date(2014, 1, 2),
             datetime.date(2014, 1, 3)],
-            [1,2,3]],
+            data = [1,2,3]),
             source = 'DATA_SOURCE',
             measurand = 'Q'
         )
 
 db.add_timeseries('123456')
 db.add_timeseries_instance('123456', 'D', '', measurand = 'Q', source = 'DATA_SOURCE')
-db.write('123456', 'D', [[datetime.date(2014, 1, 1),
+db.write('123456', 'D', pd.Series(index = [datetime.date(2014, 1, 1),
             datetime.date(2014, 1, 2),
             datetime.date(2014, 1, 3)],
-            [1,2,3]],
+            data = [1,2,3]),
             source = 'DATA_SOURCE',
             measurand = 'Q'
         )
