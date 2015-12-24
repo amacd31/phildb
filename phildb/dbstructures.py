@@ -9,7 +9,7 @@ class Timeseries(Base):
     __tablename__ = 'timeseries'
 
     id = Column(Integer, primary_key=True)
-    primary_id = Column(String, unique=True)
+    primary_id = Column(String, unique=True, index=True)
     ts_instances = relationship("TimeseriesInstance")
 
     def __repr__(self):
@@ -19,8 +19,8 @@ class Measurand(Base):
     __tablename__ = 'measurand'
 
     id = Column(Integer, primary_key=True)
-    short_id = Column(String, unique=True)
-    long_id = Column(String, unique=True)
+    short_id = Column(String, unique=True, index=True)
+    long_id = Column(String, unique=True, index=True)
     description = Column(String, unique=True)
 
     def __repr__(self):
@@ -31,7 +31,7 @@ class Source(Base):
     __tablename__ = 'source'
 
     id = Column(Integer, primary_key=True)
-    short_id = Column(String, unique=True)
+    short_id = Column(String, unique=True, index=True)
     description = Column(String, unique=True)
 
     def __repr__(self):
@@ -42,7 +42,7 @@ class Attribute(Base):
     __tablename__ = 'attribute'
 
     id = Column(Integer, primary_key=True)
-    short_id = Column(String, unique=True)
+    short_id = Column(String, unique=True, index=True)
     description = Column(String, unique=True)
 
     def __repr__(self):
@@ -54,7 +54,7 @@ class AttributeValue(Base):
 
     id = Column(Integer, primary_key=True)
     attribute_id = Column(Integer, ForeignKey('attribute.id'))
-    attribute_value = Column(String, unique=True)
+    attribute_value = Column(String, unique=True, index=True)
 
     def __repr__(self):
         return "<Attribute(attribute_id='{0}', attribute_value={1})>".format(
@@ -71,10 +71,10 @@ class SchemaVersion(Base):
 
 class TimeseriesInstance(Base):
     __tablename__ = 'timeseries_instance'
-    ts_id = Column(Integer, ForeignKey('timeseries.id'), primary_key=True)
-    freq = Column(String(10), primary_key=True)
-    measurand_id = Column(Integer, ForeignKey('measurand.id'), primary_key=True)
-    source_id = Column(Integer, ForeignKey('source.id'), primary_key=True)
+    ts_id = Column(Integer, ForeignKey('timeseries.id'), primary_key=True, index=True)
+    freq = Column(String(10), primary_key=True, index=True)
+    measurand_id = Column(Integer, ForeignKey('measurand.id'), primary_key=True, index=True)
+    source_id = Column(Integer, ForeignKey('source.id'), primary_key=True, index=True)
     initial_metadata = Column(String(255))
     measurand = relationship("Measurand", backref="measurands")
     timeseries = relationship("Timeseries", backref="timeseries")
