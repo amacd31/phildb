@@ -12,6 +12,12 @@ PhilDB should be capable of storing data at any frequency supported by
 Pandas. At this time only daily data has been extensively tested with
 some limited sub-daily usage.
 
+Further information about the design of PhilDB can be found in the paper:
+`PhilDB: the time series database with built-in change logging <https://peerj.com/articles/cs-52/>`_.
+That paper explores existing time series database solutions, discusses the
+motivation for PhilDB, describes the architecture and philosophy of the PhilDB
+software, and includes an evaluation between InfluxDB, PhilDB, and SciDB.
+
 Dependencies
 ------------
 
