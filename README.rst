@@ -1,7 +1,7 @@
 PhilDB project
 ==============
 
-|DOI| |PYPI Version| |PYPI Python versions| |PYPI License| |Build Status| |Code Coverage|
+|DOI| |PYPI Version| |PYPI Status| |PYPI Python versions| |PYPI License| |Build Status| |Code Coverage|
 
 Timeseries database project: For storing potentially changing timeseries
 data. For example hydrological data, like streamflow data, where the
@@ -137,6 +137,9 @@ This example also includes a script to calculate the auto-correlation
 for all the streamflow timeseries in the HRS dataset.
 
 .. |PYPI Version| image:: https://img.shields.io/pypi/v/phildb.svg
+    :target: https://pypi.python.org/pypi/PhilDB
+
+.. |PYPI Status| image:: https://img.shields.io/pypi/status/phildb.svg
     :target: https://pypi.python.org/pypi/PhilDB
 
 .. |PYPI Python versions| image:: https://img.shields.io/pypi/pyversions/phildb.svg
