@@ -110,7 +110,7 @@ bom\_observations, and hrs.
 ACORN-SAT
 ---------
 
-Located in examples/acorn-sat this example demonstrates loading minimum
+`ACORN-SAT Example.ipynb <https://github.com/amacd31/phildb/blob/dev/examples/acorn-sat/ACORN-SAT%20Example.ipynb>`_ located in examples/acorn-sat demonstrates loading minimum
 and maximum daily temperature records for 112 stations around Australia.
 
 The dataset used in this example is the Australian Climate Observations
@@ -121,7 +121,8 @@ Australian Bureau of Meteorology website
 BOM Observations
 ----------------
 
-Located in examples/bom\_observations this example demonstrates loading
+`Bureau of Meterology observations example.ipynb <https://github.com/amacd31/phildb/blob/dev/examples/bom_observations/Bureau%20of%20Meterology%20observations%20example.ipynb>`_
+located in examples/bom\_observations demonstrates loading
 half hourly air temperature data from a 72 hour observations JSON file.
 
 The data used in this example is a 72 hour observations JSON file from
@@ -132,7 +133,8 @@ observations <http://www.bom.gov.au/products/IDN60901/IDN60901.94767.shtml#other
 HRS
 ---
 
-Located in examples/hrs this example demonstrates loading daily
+`HRS Example.ipynb <https://github.com/amacd31/phildb/blob/dev/examples/hrs/HRS%20Example.ipynb>`_
+located in examples/hrs demonstrates loading daily
 streamflow data for 221 streamflow stations around Australia.
 
 The dataset used in this example is the Hydrologic Reference Stations
