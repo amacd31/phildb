@@ -34,8 +34,7 @@ def main():
     ipshell("Running timeseries database: {0}\n"
             "Access the 'db' object to operate on the database.\n"
             "\n"
-            "Run db.help() for a list of available commands.".format(db)
-        )
+            "Run db.help() for a list of available commands.".format(db))
 
 if __name__ == "__main__":
     main()
