@@ -31,9 +31,12 @@ setup(
     packages = ['phildb'],
     test_suite = 'nose.collector',
     tests_require = ['nose'],
-    scripts=['bin/phil-create',
-            'bin/phil',
+    entry_points = {
+        'console_scripts': [
+            'phil-create = phildb.create:main',
+            'phil = phildb.console:main',
         ],
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
