@@ -21,8 +21,8 @@ script:
   - conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe
   - conda install -y --use-local phildb
   - nosetests tests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
-  - echo `python ci/get_labels.py` `python ci/get_latest_conda_build_path.py conda.recipe`
-  - anaconda --token $CONDA_TOKEN upload `python ci/get_labels.py` `python ci/get_latest_conda_build_path.py conda.recipe`
+  - echo `python ci/get_labels.py` `conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe --output`
+  - anaconda --token $CONDA_TOKEN upload `python ci/get_labels.py` `conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe --output`
 after_success:
     - codecov
     - coveralls
