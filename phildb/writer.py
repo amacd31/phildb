@@ -114,7 +114,10 @@ def write_regular_data(tsdb_file, series):
     freqstr = series.index.freqstr
 
     if freqstr[-1] == 'T':
-        freq_mult = int(freqstr[:-1])
+        if len(freqstr) == 1:
+            freq_mult = 1
+        else:
+            freq_mult = int(freqstr[:-1])
         freqstr = 'T'
     else:
         freq_mult = 1
