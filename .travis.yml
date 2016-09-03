@@ -14,7 +14,6 @@ install:
   - source ci/travis/install.sh
   - conda install -y python=$TRAVIS_PYTHON_VERSION
   - conda install -y coverage nose mock
-  - conda install -y conda-build anaconda-client anaconda-build
   - pip install codecov
   - pip install coveralls
   - conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe
