@@ -7,14 +7,14 @@ source:
   git_url: ../
 requirements:
     build:
-        - python
+        - python x.x
         - ipython >=2.0.0
         - numpy >=1.8.0
         - pandas >=0.14.0
         - sqlalchemy >=0.9.2
         - pytables >=3.1.0
     run:
-        - python
+        - python x.x
         - ipython >=2.0.0
         - numpy >=1.8.0
         - pandas >=0.14.0
