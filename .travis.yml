@@ -17,9 +17,6 @@ install:
   - conda install -y coverage nose
   - pip install codecov
   - pip install coveralls
-cache:
-    directories:
-    - venv
 script:
   - conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe
   - conda install -y --use-local phildb
