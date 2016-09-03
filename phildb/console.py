@@ -9,12 +9,13 @@ import pandas as pd # pylint:disable=unused-import
 from matplotlib import pyplot as plt # pylint:disable=unused-import
 
 from IPython.terminal.embed import InteractiveShellEmbed
-ipshell = InteractiveShellEmbed()
 
 from phildb import __version__
 from phildb.database import PhilDB
 
 def main():
+    ipshell = InteractiveShellEmbed()
+
     parser = argparse.ArgumentParser(description='Open PhilDB database.')
     parser.add_argument('dbname', help="PhilDB database to open", nargs='?')
     parser.add_argument('--version', action='store_true', help="Print version and exit.")
