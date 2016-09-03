@@ -88,12 +88,12 @@ class PhilDB(object):
         """
         the_id = identifier.strip()
         session = Session()
-        ts = Timeseries(primary_id = identifier)
+        ts = Timeseries(primary_id = the_id)
         session.add(ts)
         try:
             session.commit()
         except IntegrityError:
-            raise DuplicateError("Already exists: '{0}'".format(identifier))
+            raise DuplicateError("Already exists: '{0}'".format(the_id))
 
     def add_measurand(self, measurand_short_id, measurand_long_id, description):
         """
