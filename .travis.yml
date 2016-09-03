@@ -5,6 +5,9 @@ python:
     - "3.3"
     - "3.4"
     - "3.5"
+# Work around travis ci shallow clone not working with conda build
+git:
+  depth: 99999
 addons:
     apt:
         packages:
