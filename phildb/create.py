@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 
@@ -29,6 +30,14 @@ def create(tsdb_path):
     session.add(version)
     session.commit()
 
+def main():
+    parser = argparse.ArgumentParser(description='Create PhilDB database.')
+    parser.add_argument('dbname', help="PhilDB database to create")
+
+    args = parser.parse_args()
+
+    create(args.dbname)
+
 if __name__ == "__main__":
-    create(sys.argv[1])
+    main()
 
