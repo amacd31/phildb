@@ -1,9 +1,12 @@
 import argparse
-from datetime import datetime, date
 
-import numpy as np
-import pandas as pd
-from matplotlib import pyplot as plt
+# Disable unused import warnings, because we want these imported
+# not for immediate use but for interactive use once the console
+# is loaded.
+from datetime import datetime, date # pylint:disable=unused-import
+import numpy as np # pylint:disable=unused-import
+import pandas as pd # pylint:disable=unused-import
+from matplotlib import pyplot as plt # pylint:disable=unused-import
 
 from IPython.terminal.embed import InteractiveShellEmbed
 ipshell = InteractiveShellEmbed()
