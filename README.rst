@@ -22,7 +22,7 @@ Dependencies
 ------------
 
 Requires Python 2.7 or greater (mostly tested with Python 2.7 and Python 3.4 on Mac OSX and Linux).
-Test suite runs on Travis CI with Python 2.7, 3.2, 3.3 and 3.4.
+Test suite runs on Travis CI with Python 2.7, 3.4 and 3.5.
 
 All the python dependencies are recorded in the python\_requirements
 file.

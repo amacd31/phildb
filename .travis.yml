@@ -1,24 +1,27 @@
 language: python
 python:
     - "2.7"
-    - "3.2"
-    - "3.3"
     - "3.4"
     - "3.5"
-addons:
-    apt:
-        packages:
-            - python-virtualenv
-            - libhdf5-serial-dev
+# Work around travis ci shallow clone not working with conda build
+git:
+  depth: 99999
 sudo: false
-before_install:
-    - pip install codecov
-    - pip install coveralls
-install: ./build_venv.sh
-cache:
-    directories:
-    - venv
-script: . load_env; python setup.py nosetests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
+env:
+  global:
+    - secure: "eSVWOzBZMGYAqgUNSdP3nSOHNjCNxgJ7TaUIhVuBlqckv06LzyqEQ1TqivDh5OeLBVDwJdOqQzGBt138l0KClViRzFauM+LftHfrLrwYNXerlTjmghx73btPEQT0pYcYiHnGMUo8rLV01bvyqnxcFvVTqvB2d6MXvE6bvY5WLQc="
+install:
+  - source ci/travis/install.sh
+  - conda install -y python=$TRAVIS_PYTHON_VERSION
+  - conda install -y coverage nose mock
+  - pip install codecov
+  - pip install coveralls
+  - conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe
+  - conda install -y --use-local phildb
+script:
+  - nosetests tests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
 after_success:
-    - codecov
-    - coveralls
+  - echo anaconda --token XXXX upload `python ci/get_labels.py` `conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe --output`
+  - anaconda --token $CONDA_TOKEN upload `python ci/get_labels.py` `conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe --output`
+  - codecov
+  - coveralls

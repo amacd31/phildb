@@ -1,0 +1,26 @@
+package:
+    name: "phildb"
+    version: {{ environ['GIT_DESCRIBE_TAG'][1:] }}
+build:
+    noarch_python: True
+    number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+source:
+  git_url: ../
+requirements:
+    build:
+        - python
+        - ipython >=2.0.0
+        - numpy >=1.8.0
+        - pandas >=0.14.0
+        - sqlalchemy >=0.9.2
+        - pytables >=3.1.0
+    run:
+        - python
+        - ipython >=2.0.0
+        - numpy >=1.8.0
+        - pandas >=0.14.0
+        - sqlalchemy >=0.9.2
+        - pytables >=3.1.0
+test:
+    imports:
+        - phildb

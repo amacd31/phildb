@@ -471,7 +471,9 @@ class PhilDB(object):
         query_args = self.__parse_attribute_kwargs(**kwargs)
         query_args.update(initial_args)
 
-        records = session.query(TimeseriesInstance).filter_by(**query_args)
+        records = session.query(TimeseriesInstance).options(
+                joinedload(TimeseriesInstance.timeseries)
+            ).filter_by(**query_args)
         instance_list = []
         for record in records:
             instance = {
