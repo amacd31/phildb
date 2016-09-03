@@ -18,14 +18,14 @@ before_install:
     - pip install codecov
     - pip install coveralls
 install:
-  - ./build_venv.sh
   - source ci/travis/install.sh
 cache:
     directories:
     - venv
 script:
-  - . load_env; python setup.py nosetests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
   - conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe
+  - conda install --use-local phildb
+  - nosetests tests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
   - anaconda --token $CONDA_TOKEN upload `python ci/get_labels.py` `python ci/get_latest_conda_build_path.py conda.recipe`
 after_success:
     - codecov
