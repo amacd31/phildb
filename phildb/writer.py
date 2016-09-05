@@ -6,6 +6,9 @@ import os
 import pandas as pd
 from struct import pack, unpack, calcsize
 
+import logging
+logger = logging.getLogger(__name__)
+
 from phildb.constants import DEFAULT_META_ID, MISSING_VALUE, METADATA_MISSING_VALUE
 from phildb.log_handler import LogHandler
 from phildb.exceptions import DataError
@@ -282,12 +285,14 @@ def write_irregular_data(tsdb_file, series):
     try:
         with open(tsdb_file, fmode) as writer:
             def write_record(row):
-                writer.write(__pack(row[0], row[1]))
+                writer.write(__pack(int(row[0]), row[1]))
                 return row
             np.apply_along_axis(write_record, 1, merged[['datestamp', 'value']].values)
-    except:
+    except Exception:
         # On any failure writing restore the original file.
         os.rename(tsdb_file + 'backup', tsdb_file)
+        logger.exception("Error writing irregular data to %s. No data change made.", tsdb_file)
+        raise
     else:
         # On successfull write remove the original file.
         os.unlink(tsdb_file + 'backup')
