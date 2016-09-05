@@ -423,8 +423,8 @@ class WriterTest(unittest.TestCase):
         modified = log_entries['U']
 
         self.assertEqual(0, len(modified))
-        self.assertEqual(4, len(created))
-        self.assertEqual((1388707200, 3.0, 0), created[0])
+        self.assertEqual(3, len(created))
+        self.assertEqual((1388880000, 5.0, 0), created[0])
 
         data = reader.read(self.tsdb_existing_file)
         self.assertEqual(3.0, data.values[2])
@@ -438,7 +438,7 @@ class WriterTest(unittest.TestCase):
         modified = log_entries['U']
 
         self.assertEqual(1, len(modified))
-        self.assertEqual(5, len(created))
+        self.assertEqual(4, len(created))
         self.assertEqual((1388620800, 2.0, 0), modified[0])
         self.assertEqual((1388620800, 2.5, 0), created[0])
 
