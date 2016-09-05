@@ -63,6 +63,30 @@ class WriterTest(unittest.TestCase):
         self.assertTrue(np.isnan(data.values[1]))
         self.assertEqual(3.0, data.values[2])
 
+    def test_new_write_and_update_minute_data(self):
+        writer.write(self.tsdb_file, pd.Series(index = [datetime(2014,1,1,18,1,0), datetime(2014,1,1,18,2,0), datetime(2014,1,1,18,3,0)], data = [1.0, np.nan, 3.0]), '1T')
+
+        data = reader.read(self.tsdb_file)
+        self.assertEqual(1.0, data.values[0])
+        self.assertTrue(np.isnan(data.values[1]))
+        self.assertEqual(3.0, data.values[2])
+
+        self.assertEqual(datetime(2014,1,1,18,1,0), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2014,1,1,18,2,0), data.index[1].to_pydatetime())
+        self.assertEqual(datetime(2014,1,1,18,3,0), data.index[2].to_pydatetime())
+
+        writer.write(self.tsdb_file, pd.Series(index = [datetime(2014,1,1,18,3,0), datetime(2014,1,1,18,4,0), datetime(2014,1,1,18,5,0)], data = [3.5, 4.0, 5.0]), '1T')
+
+        data = reader.read(self.tsdb_file)
+        self.assertEqual(1.0, data.values[0])
+        self.assertTrue(np.isnan(data.values[1]))
+        self.assertEqual(3.5, data.values[2])
+        self.assertEqual(4.0, data.values[3])
+        self.assertEqual(5.0, data.values[4])
+
+        self.assertEqual(datetime(2014,1,1,18,1,0), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2014,1,1,18,5,0), data.index[-1].to_pydatetime())
+
     def test_update_single(self):
         log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2014,1,2)], data = [2.5]), 'D')
         modified = log_entries['U']
