@@ -66,6 +66,9 @@ def write(tsdb_file, ts, freq):
 
     log_entries = {'C': [], 'U': []}
 
+    if len(series) == 0:
+        return log_entries
+
     # If the file didn't exist it is a straight foward write and we can
     # just return at the end of this if block.
     if not os.path.isfile(tsdb_file):

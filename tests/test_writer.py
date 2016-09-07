@@ -519,3 +519,8 @@ class WriterTest(unittest.TestCase):
         log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2014,1,2),datetime(2014,1,3)], data = [np.nan, 3.5]), 'D')
         new_entries = log_entries['C']
         self.assertEqual(1, len(new_entries))
+
+    def test_empty_series_write(self):
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series([]), 'D')
+        self.assertEqual(0, len(log_entries['C']))
+        self.assertEqual(0, len(log_entries['U']))
