@@ -12,4 +12,4 @@ ac = np.array(
 
 
 for station in ac[ac['val'] >= 0.95]:
-    print station['name'], station['val']
+    print(station['name'], station['val'])

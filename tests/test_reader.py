@@ -43,3 +43,8 @@ class ReaderTest(unittest.TestCase):
     def test_read_empty(self):
         data = reader.read(self.empty_tsdb_file)
         self.assertEqual(0, len(data))
+
+    def test_read(self):
+        data = reader.read('/tmp/not_an_actual_existing_file')
+
+        self.assertEqual(0, len(data))

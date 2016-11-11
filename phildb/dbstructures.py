@@ -82,4 +82,4 @@ class TimeseriesInstance(Base):
     uuid = Column(String(32))
 
     def __repr__(self):
-        return "<TimeseriesInstance(timeseries='{0}, measurand='{0}')>".format(self.timeseries, self.measurand)
+        return "<TimeseriesInstance(timeseries='{0}, measurand='{1}', source='{2}')>".format(self.timeseries, self.measurand, self.source)

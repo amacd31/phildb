@@ -12,6 +12,9 @@ def __read(filename):
     entry_format = 'ldi' # long, double, int; See field names above.
     entry_size = calcsize(entry_format)
 
+    if not os.path.exists(filename):
+        return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
+
     records = np.fromfile(filename, dtype=np.dtype({'names':field_names, 'formats': entry_format}))
 
     if len(records) == 0: return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])

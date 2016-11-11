@@ -1,7 +1,7 @@
 PhilDB project
 ==============
 
-|DOI| |PYPI Version| |PYPI Python versions| |PYPI License| |Build Status| |Code Coverage|
+|DOI| |PYPI Version| |PYPI Status| |PYPI Python versions| |PYPI License| |Build Status| |Code Coverage|
 
 Timeseries database project: For storing potentially changing timeseries
 data. For example hydrological data, like streamflow data, where the
@@ -11,6 +11,12 @@ recorded dataset over time.
 PhilDB should be capable of storing data at any frequency supported by
 Pandas. At this time only daily data has been extensively tested with
 some limited sub-daily usage.
+
+Further information about the design of PhilDB can be found in the paper:
+`PhilDB: the time series database with built-in change logging <https://peerj.com/articles/cs-52/>`_.
+That paper explores existing time series database solutions, discusses the
+motivation for PhilDB, describes the architecture and philosophy of the PhilDB
+software, and includes an evaluation between InfluxDB, PhilDB, and SciDB.
 
 Dependencies
 ------------
@@ -104,7 +110,7 @@ bom\_observations, and hrs.
 ACORN-SAT
 ---------
 
-Located in examples/acorn-sat this example demonstrates loading minimum
+`ACORN-SAT Example.ipynb <https://github.com/amacd31/phildb/blob/dev/examples/acorn-sat/ACORN-SAT%20Example.ipynb>`_ located in examples/acorn-sat demonstrates loading minimum
 and maximum daily temperature records for 112 stations around Australia.
 
 The dataset used in this example is the Australian Climate Observations
@@ -115,7 +121,8 @@ Australian Bureau of Meteorology website
 BOM Observations
 ----------------
 
-Located in examples/bom\_observations this example demonstrates loading
+`Bureau of Meterology observations example.ipynb <https://github.com/amacd31/phildb/blob/dev/examples/bom_observations/Bureau%20of%20Meterology%20observations%20example.ipynb>`_
+located in examples/bom\_observations demonstrates loading
 half hourly air temperature data from a 72 hour observations JSON file.
 
 The data used in this example is a 72 hour observations JSON file from
@@ -126,7 +133,8 @@ observations <http://www.bom.gov.au/products/IDN60901/IDN60901.94767.shtml#other
 HRS
 ---
 
-Located in examples/hrs this example demonstrates loading daily
+`HRS Example.ipynb <https://github.com/amacd31/phildb/blob/dev/examples/hrs/HRS%20Example.ipynb>`_
+located in examples/hrs demonstrates loading daily
 streamflow data for 221 streamflow stations around Australia.
 
 The dataset used in this example is the Hydrologic Reference Stations
@@ -137,6 +145,9 @@ This example also includes a script to calculate the auto-correlation
 for all the streamflow timeseries in the HRS dataset.
 
 .. |PYPI Version| image:: https://img.shields.io/pypi/v/phildb.svg
+    :target: https://pypi.python.org/pypi/PhilDB
+
+.. |PYPI Status| image:: https://img.shields.io/pypi/status/phildb.svg
     :target: https://pypi.python.org/pypi/PhilDB
 
 .. |PYPI Python versions| image:: https://img.shields.io/pypi/pyversions/phildb.svg
