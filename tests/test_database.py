@@ -35,6 +35,12 @@ class DatabaseTest(unittest.TestCase):
             'test_tsdb'),
             self.test_tsdb)
 
+        self.second_test_db = os.path.join(tempfile.mkdtemp(), 'second_db')
+        shutil.copytree(os.path.join(os.path.dirname(__file__),
+            'test_data',
+            'second_test_tsdb'),
+            self.second_test_db)
+
         db_name = os.path.join(self.test_data_dir, self.test_tsdb)
         self.db = PhilDB(self.test_tsdb)
 
@@ -47,6 +53,12 @@ class DatabaseTest(unittest.TestCase):
 
         try:
             shutil.rmtree(self.test_tsdb)
+        except OSError as e:
+            if e.errno != 2: # Code 2: No such file or directory.
+                raise
+
+        try:
+            shutil.rmtree(self.second_test_db)
         except OSError as e:
             if e.errno != 2: # Code 2: No such file or directory.
                 raise
@@ -486,3 +498,11 @@ class DatabaseTest(unittest.TestCase):
 
         with self.assertRaises(DuplicateError) as context:
             db.add_timeseries_instance('410730', 'D', '', source='DATA_SOURCE', measurand='Q')
+
+    def test_multiple_db_instances(self):
+        db1 = PhilDB(self.test_tsdb)
+        db2 = PhilDB(self.second_test_db)
+
+        self.assertEqual(db1.list_measurands()[0], 'Q')
+        self.assertEqual(db2.list_measurands()[0], '2')
+        self.assertEqual(db2.list_measurands()[1], 'Q')

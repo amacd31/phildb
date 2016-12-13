@@ -10,7 +10,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy.orm.exc import NoResultFound
-Session = sessionmaker()
 
 import logging
 logger = logging.getLogger('PhilDB_database')
@@ -36,7 +35,8 @@ class PhilDB(object):
             raise IOError("PhilDB database doesn't contain meta-database ({0})".format(self.__meta_data_db()))
 
         self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()))
-        Session.configure(bind=self.__engine)
+        self.Session = sessionmaker()
+        self.Session.configure(bind=self.__engine)
 
         assert self.version() == constants.DB_VERSION;
 
@@ -72,7 +72,7 @@ class PhilDB(object):
 
             :returns: string -- Schema version.
         """
-        session = Session()
+        session = self.Session()
         query = session.query(SchemaVersion.version)
 
         version = query.scalar()
@@ -87,7 +87,7 @@ class PhilDB(object):
             :type identifier: string
         """
         the_id = identifier.strip()
-        session = Session()
+        session = self.Session()
         ts = Timeseries(primary_id = the_id)
         session.add(ts)
         try:
@@ -110,7 +110,7 @@ class PhilDB(object):
         """
         short_id = measurand_short_id.strip()
         long_id = measurand_long_id.strip()
-        session = Session()
+        session = self.Session()
         measurand = Measurand(short_id = short_id, long_id = long_id,  description = description)
         session.add(measurand)
         try:
@@ -133,7 +133,7 @@ class PhilDB(object):
             :type description: string
         """
         short_id = source.strip()
-        session = Session()
+        session = self.Session()
         source = Source(short_id = short_id, description = description)
         session.add(source)
         try:
@@ -152,7 +152,7 @@ class PhilDB(object):
             :type description: string
         """
         short_id = attribute_id.strip().upper()
-        session = Session()
+        session = self.Session()
         attribute = Attribute(short_id = short_id, description = description)
         session.add(attribute)
         session.commit()
@@ -168,7 +168,7 @@ class PhilDB(object):
             :type value: string
         """
         short_id = attribute_id.strip().upper()
-        session = Session()
+        session = self.Session()
 
         query = session.query(Attribute).filter(Attribute.short_id == short_id)
         try:
@@ -215,7 +215,7 @@ class PhilDB(object):
             :param \*\*kwargs: Any additional attributes to attach to the timeseries instance.
             :type \*\*kwargs: kwargs
         """
-        session = Session()
+        session = self.Session()
 
         timeseries = self.__get_record_by_id(identifier, session)
 
@@ -260,7 +260,7 @@ class PhilDB(object):
             :raises: MissingDataError
         """
         if session is None:
-            session = Session()
+            session = self.Session()
 
         query = session.query(Timeseries).filter(Timeseries.primary_id == identifier)
         try:
@@ -285,7 +285,7 @@ class PhilDB(object):
             :raises: MissingAttributeError
         """
         if session is None:
-            session = Session()
+            session = self.Session()
 
         if attribute == 'measurand':
             query = session.query(Measurand).filter(Measurand.short_id == value)
@@ -432,7 +432,7 @@ class PhilDB(object):
             :type kwargs: kwargs
             :returns: list(string) -- Sorted list of timeseries identifiers.
         """
-        session = Session()
+        session = self.Session()
         query_args = self.__parse_attribute_kwargs(**kwargs)
 
         records = session.query(TimeseriesInstance).options(
@@ -446,7 +446,7 @@ class PhilDB(object):
 
             :returns: list(string) -- Sorted list of timeseries identifiers.
         """
-        session = Session()
+        session = self.Session()
 
         records = session.query(Timeseries)
         return sorted(list(set([ record.primary_id for record in records ])))
@@ -459,7 +459,7 @@ class PhilDB(object):
 
             :returns: list(string) -- Sorted list of timeseries instances.
         """
-        session = Session()
+        session = self.Session()
 
         initial_args = {}
         for attr in ['freq']:
@@ -492,7 +492,7 @@ class PhilDB(object):
 
             :returns: list(string) -- Sorted list of timeseries identifiers.
         """
-        session = Session()
+        session = self.Session()
 
         records = session.query(Measurand)
         return sorted(list(set([ record.short_id for record in records ])))
@@ -503,7 +503,7 @@ class PhilDB(object):
 
             :returns: list(string) -- Sorted list of source identifiers.
         """
-        session = Session()
+        session = self.Session()
 
         records = session.query(Source)
         return sorted(list(set([ record.short_id for record in records ])))
@@ -535,7 +535,7 @@ class PhilDB(object):
 
         query_args = self.__parse_attribute_kwargs(**kwargs)
 
-        session = Session()
+        session = self.Session()
         query = session.query(TimeseriesInstance). \
                 filter_by(timeseries=timeseries, freq=freq, **query_args)
 
