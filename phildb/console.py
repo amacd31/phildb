@@ -13,7 +13,7 @@ from IPython.terminal.embed import InteractiveShellEmbed
 from phildb import __version__
 from phildb.database import PhilDB
 
-def main():
+def main(deprecated=False):
     ipshell = InteractiveShellEmbed()
 
     parser = argparse.ArgumentParser(description='Open PhilDB database.')
@@ -30,11 +30,20 @@ def main():
         print(parser.print_help())
         exit()
 
+    if deprecated:
+        deprecation_warning = "DEPRECATION WARNING: The `phil` command has been deprecated, use `phildb` instead.\n\n"
+    else:
+        deprecation_warning = ""
+
     db = PhilDB(args.dbname)
-    ipshell("Running timeseries database: {0}\n"
+    ipshell("{1}"
+            "Running timeseries database: {0}\n"
             "Access the 'db' object to operate on the database.\n"
             "\n"
-            "Run db.help() for a list of available commands.".format(db))
+            "Run db.help() for a list of available commands.".format(db, deprecation_warning))
+
+def deprecated_main():
+    main(True)
 
 if __name__ == "__main__":
     main()

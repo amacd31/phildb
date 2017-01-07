@@ -34,7 +34,8 @@ setup(
     entry_points = {
         'console_scripts': [
             'phil-create = phildb.create:main',
-            'phil = phildb.console:main',
+            'phildb = phildb.console:main',
+            'phil = phildb.console:deprecated_main',
         ],
     },
     classifiers=[
