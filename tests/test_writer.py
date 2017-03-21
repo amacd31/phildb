@@ -425,17 +425,16 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(4.0, data.values[3])
 
     def test_irregular_append(self):
+        initial_data = reader.read(self.tsdb_existing_file)
         log_entries = writer.write(
             self.tsdb_existing_file,
             pd.Series(
                 index = [
-                    datetime(2014,1,3),
                     datetime(2014,1,5),
                     datetime(2014,1,7),
                     datetime(2014,1,8)
                 ],
                 data = [
-                    3.0,
                     5.0,
                     7.0,
                     8.0
@@ -451,6 +450,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual((1388880000, 5.0, 0), created[0])
 
         data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(len(initial_data) + 3, len(data))
         self.assertEqual(3.0, data.values[2])
         self.assertEqual(5.0, data.values[3])
         self.assertEqual(7.0, data.values[4])
