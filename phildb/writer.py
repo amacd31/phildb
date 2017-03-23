@@ -283,7 +283,12 @@ def write_irregular_data(tsdb_file, series):
                 for idx, row in merged.ix[new_records].iterrows()]
     log_entries['C'] += new_logs
 
-    os.rename(tsdb_file, tsdb_file + 'backup')
+    # Only attempt to do backups of file if we're doing a destructive
+    # write. This means if we are opening the file in "w" mode. If in
+    # append_only then we are using "a" mode which is non-destructive
+    # and we really actually want to keep the existing file's data.
+    if not append_only:
+        os.rename(tsdb_file, tsdb_file + 'backup')
 
     try:
         with open(tsdb_file, fmode) as writer:
@@ -293,12 +298,14 @@ def write_irregular_data(tsdb_file, series):
             np.apply_along_axis(write_record, 1, merged[['datestamp', 'value']].values)
     except Exception:
         # On any failure writing restore the original file.
-        os.rename(tsdb_file + 'backup', tsdb_file)
+        if not append_only:
+            os.rename(tsdb_file + 'backup', tsdb_file)
         logger.exception("Error writing irregular data to %s. No data change made.", tsdb_file)
         raise
     else:
         # On successfull write remove the original file.
-        os.unlink(tsdb_file + 'backup')
+        if not append_only:
+            os.unlink(tsdb_file + 'backup')
 
 
     return log_entries
