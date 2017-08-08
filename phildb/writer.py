@@ -238,6 +238,9 @@ def write_irregular_data(tsdb_file, series):
     """
     existing = __read(tsdb_file)
 
+    if series.dtype == np.float32:
+        series = series.astype(np.float64)
+
     overlap_idx = existing.index.intersection(series.index)
     modified = series.ix[overlap_idx] != existing.value.ix[overlap_idx]
     records_to_modify = existing.loc[overlap_idx].ix[modified.values]

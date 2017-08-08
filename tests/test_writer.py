@@ -548,3 +548,28 @@ class WriterTest(unittest.TestCase):
         log_entries = writer.write(self.tsdb_existing_file, pd.Series([]), 'D')
         self.assertEqual(0, len(log_entries['C']))
         self.assertEqual(0, len(log_entries['U']))
+
+    def test_float32_irregular_write(self):
+        """
+            Test irregular write of float32 data.
+
+            See: https://github.com/amacd31/phildb/issues/16
+        """
+
+        sample = pd.Series(
+            pd.np.array(
+                [x + 0.1 for x in range(10)],
+                dtype=pd.np.float32
+            ),
+            index=pd.date_range(
+                '2017-08-06 06:50:00+00:00',
+                periods=10,
+                freq='1T'
+            )
+        )
+
+        log_entries = writer.write(self.tsdb_existing_file, sample, 'IRR')
+        data = reader.read(self.tsdb_existing_file)
+
+        self.assertEqual(datetime(2017,8,6,6,50,0,0), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2017,8,6,6,51,0,0), data.index[1].to_pydatetime())
