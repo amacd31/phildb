@@ -26,6 +26,7 @@ environment:
       CONDA_NPY: "18"
 
 install:
+  - git submodule update --init --recursive
   # this installs the appropriate Miniconda (Py2/Py3, 32/64 bit),
   # as well as pip, conda-build, and the binstar CLI
   - powershell .\\ci\\appveyor\\install.ps1
