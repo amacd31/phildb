@@ -14,6 +14,7 @@ install:
   - powershell .\\ci\\appveyor\\install.ps1
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - conda install -y coverage nose mock
+  - conda install -y ipython numpy pandas SQLAlchemy pytables
 
 build: false
 
