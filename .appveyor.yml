@@ -20,4 +20,4 @@ install:
 build: false
 
 test_script:
-  - nosetests .\\tests\\*.py -a '!performance' --cover-package=phildb
+  - python setup.py test
