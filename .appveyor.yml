@@ -15,8 +15,9 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - conda install -y coverage nose mock
   - conda install -y ipython numpy pandas SQLAlchemy pytables
+  - python setup.py install
 
 build: false
 
 test_script:
-  - nosetests tests -a '!performance'
+  - nosetests .\\tests -a '!performance'
