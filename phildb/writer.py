@@ -15,7 +15,7 @@ from phildb.exceptions import DataError
 from phildb.reader import __read, read
 
 field_names = ['date', 'value', 'metaID']
-entry_format = 'ldi' # long, double, int; See field names above.
+entry_format = '<qdi' # long, double, int; See field names above.
 entry_size = calcsize(entry_format)
 
 def __pack(record_date, value, default_flag=DEFAULT_META_ID):

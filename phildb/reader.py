@@ -9,13 +9,13 @@ from phildb.log_handler import LogHandler
 
 def __read(filename):
     field_names = ['date', 'value', 'metaID']
-    entry_format = 'ldi' # long, double, int; See field names above.
+    entry_format = '<qdi' # long, double, int; See field names above.
     entry_size = calcsize(entry_format)
 
     if not os.path.exists(filename):
         return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
 
-    records = np.fromfile(filename, dtype=np.dtype({'names':field_names, 'formats': entry_format}))
+    records = np.fromfile(filename, dtype=np.dtype({'names':field_names, 'formats': entry_format[1:]}))
 
     if len(records) == 0: return pd.DataFrame(None, columns = ['date', 'value', 'metaID'])
 
