@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import os
@@ -114,8 +114,8 @@ def write_regular_data(tsdb_file, series):
         reader.seek(entry_size * -1, os.SEEK_END)
         last_record = unpack(entry_format, reader.read(entry_size))
 
-    first_record_date = dt.utcfromtimestamp(first_record[0])
-    last_record_date = dt.utcfromtimestamp(last_record[0])
+    first_record_date = dt(1970, 1, 1) + timedelta(seconds=first_record[0])
+    last_record_date = dt(1970, 1, 1) + timedelta(seconds=last_record[0])
 
     freqstr = series.index.freqstr
 
