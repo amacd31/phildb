@@ -1,3 +1,4 @@
+import gc
 import os
 import hashlib
 import numpy as np
@@ -42,6 +43,16 @@ class WriterTest(unittest.TestCase):
         self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.tsdb')
 
     def tearDown(self):
+        # On Windows files can't be removed while still open.
+        # The time between the db object going out of scope and tear down
+        # occurring is too short for garbage collection to have run.
+        # As a result SQLAlchemy has not released the sqlite file by the
+        # time tear down occurs.
+        # This results in an error on Windows:
+        #     PermissionError: [WinError 32] The process cannot access the file
+        #     because it is being used by another process:
+        # Therefore garbage collect before trying to remove temporary files.
+        gc.collect()
         try:
             shutil.rmtree(self.tsdb_path)
         except OSError as e:
