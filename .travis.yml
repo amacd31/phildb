@@ -19,7 +19,7 @@ install:
   - conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe
   - conda install -y --use-local phildb
 script:
-  - nosetests tests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit; coverage xml --rcfile=.coveragerc
+  - nosetests tests -a '!performance' --cover-erase --with-coverage --cover-package=phildb --cover-html --with-xunit && coverage xml --rcfile=.coveragerc
 after_success:
   - echo anaconda --token XXXX upload `python ci/get_labels.py` `conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe --output`
   - anaconda --token $CONDA_TOKEN upload `python ci/get_labels.py` `conda build --python=$TRAVIS_PYTHON_VERSION conda.recipe --output`
