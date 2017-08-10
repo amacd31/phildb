@@ -582,5 +582,5 @@ class WriterTest(unittest.TestCase):
         log_entries = writer.write(self.tsdb_existing_file, sample, 'IRR')
         data = reader.read(self.tsdb_existing_file)
 
-        self.assertEqual(datetime(2017,8,6,6,50,0,0), data.index[0].to_pydatetime())
-        self.assertEqual(datetime(2017,8,6,6,51,0,0), data.index[1].to_pydatetime())
+        self.assertEqual(datetime(2017,8,6,6,50,0,0), data.index[3].to_pydatetime())
+        self.assertEqual(datetime(2017,8,6,6,51,0,0), data.index[4].to_pydatetime())
