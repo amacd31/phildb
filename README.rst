@@ -1,7 +1,7 @@
 PhilDB project
 ==============
 
-|DOI| |PYPI Version| |PYPI Status| |PYPI Python versions| |PYPI License| |Build Status| |Code Coverage|
+|DOI| |PYPI Version| |PYPI Status| |PYPI Python versions| |PYPI License| |Build Status| |Appveyor Status| |Code Coverage|
 
 Timeseries database project: For storing potentially changing timeseries
 data. For example hydrological data, like streamflow data, where the
@@ -21,8 +21,9 @@ software, and includes an evaluation between InfluxDB, PhilDB, and SciDB.
 Dependencies
 ------------
 
-Requires Python 2.7 or greater (mostly tested with Python 2.7 and Python 3.4 on Mac OSX and Linux).
-Test suite runs on Travis CI with Python 2.7, 3.4 and 3.5.
+Requires Python 2.7 or greater (mostly tested with Python 2.7 and Python 3.5 on Mac OSX and Linux).
+Test suite runs on Linux using Travis CI with Python 2.7, 3.4, 3.5, and 3.6.
+Test suite runs on Windows using Appveyor with Python 3.4.
 
 All the python dependencies are recorded in the python\_requirements
 file.
@@ -158,6 +159,9 @@ for all the streamflow timeseries in the HRS dataset.
 
 .. |Build Status| image:: https://img.shields.io/travis/amacd31/phildb/master.svg
     :target: https://travis-ci.org/amacd31/phildb
+
+.. |Appveyor Status| image:: https://img.shields.io/appveyor/ci/amacd31/phildb/master.svg
+    :target: https://ci.appveyor.com/project/amacd31/phildb
 
 .. |DOI| image:: https://zenodo.org/badge/14104/amacd31/phildb.svg
     :target: https://zenodo.org/badge/latestdoi/14104/amacd31/phildb
