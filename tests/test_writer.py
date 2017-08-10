@@ -573,7 +573,7 @@ class WriterTest(unittest.TestCase):
                 dtype=pd.np.float32
             ),
             index=pd.date_range(
-                '2017-08-06 06:50:00+00:00',
+                '2017-08-06 06:50:00',
                 periods=10,
                 freq='1T'
             )
