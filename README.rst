@@ -37,9 +37,17 @@ The latest stable version can be installed from pypi with::
 
     pip install phildb
 
+The latest stable version can also be installed from conda with::
+
+    conda install -c amacd31 phildb
+
 The latest development version can be installed from github with::
 
     pip install git+https://github.com/amacd31/phildb.git@dev
+
+The latest development version can be installed from conda with::
+
+    conda install -c amacd31/label/dev phildb
 
 Development environment
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +92,7 @@ Open the newly created PhilDB
 
 ::
 
-    phil new_tsdb
+    phildb new_tsdb
 
 If using the development environment built with make, Load it along with adding PhilDB tools to your path:
 
