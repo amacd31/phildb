@@ -139,6 +139,72 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(5.0, data.values[4])
         self.assertEqual(6.0, data.values[5])
 
+    def test_prepend_single(self):
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2013,12,31)], data = [-1.0]), 'D')
+        created = log_entries['C']
+        self.assertEqual([(1388448000, -1.0, 0)], created)
+        modified = log_entries['U']
+        self.assertEqual([], modified)
+
+        data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(-1.0, data.values[0])
+
+    def test_prepend_with_gap(self):
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2013,12,30)], data = [-2.0]), 'D')
+        created = log_entries['C']
+        self.assertEqual([(1388361600, -2.0, 0), (1388448000, -9999, 9999)], created)
+        modified = log_entries['U']
+        self.assertEqual([], modified)
+
+        data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(-2.0, data.values[0])
+        self.assertTrue(np.isnan(data.values[1]))
+
+    def test_prepend_with_overlap(self):
+        log_entries = writer.write(
+            self.tsdb_existing_file,
+            pd.Series(
+                index = [
+                    datetime(2013,12,30),
+                    datetime(2013,12,31),
+                    datetime(2014,1,1)
+                ],
+                data = [
+                    -2.0,
+                    -1.0,
+                    0.0
+                ]
+            ),
+            'D'
+        )
+        created = log_entries['C']
+        self.assertEqual(
+            [
+                (1388361600, -2.0, 0),
+                (1388448000, -1.0, 0),
+                (1388534400, 0.0, 0)
+            ],
+            created
+        )
+        modified = log_entries['U']
+        self.assertEqual([(1388534400, 1.0, 0)], modified)
+
+        data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(-2.0, data.values[0])
+        self.assertEqual(-1.0, data.values[1])
+        self.assertEqual(0.0, data.values[2])
+
+    def test_prepend_irregular(self):
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2013,12,30)], data = [-1.0]), 'IRR')
+        created = log_entries['C']
+        self.assertEqual([(1388361600, -1.0, 0)], created)
+        modified = log_entries['U']
+        self.assertEqual([], modified)
+
+        data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(-1.0, data.values[0])
+        self.assertEqual(1.0, data.values[1])
+
     def test_update_and_append(self):
         log_entries = writer.write(self.tsdb_existing_file, pd.Series(index = [datetime(2014,1,2), datetime(2014,1,3), datetime(2014,1,4), datetime(2014,1,5), datetime(2014,1,6)], data = [2.5, 3.0, 4.0, 5.0, 6.0]), 'D')
         modified = log_entries['U']
