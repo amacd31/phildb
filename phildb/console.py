@@ -6,7 +6,11 @@ import argparse
 from datetime import datetime, date # pylint:disable=unused-import
 import numpy as np # pylint:disable=unused-import
 import pandas as pd # pylint:disable=unused-import
-from matplotlib import pyplot as plt # pylint:disable=unused-import
+try:
+    from matplotlib import pyplot as plt # pylint:disable=unused-import
+except ImportError:
+    # Having matplotlib isn't a hard dependency, so don't worry if it wasn't imported.
+    pass
 
 from IPython.terminal.embed import InteractiveShellEmbed
 
