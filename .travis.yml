@@ -13,6 +13,8 @@ env:
     - secure: "eSVWOzBZMGYAqgUNSdP3nSOHNjCNxgJ7TaUIhVuBlqckv06LzyqEQ1TqivDh5OeLBVDwJdOqQzGBt138l0KClViRzFauM+LftHfrLrwYNXerlTjmghx73btPEQT0pYcYiHnGMUo8rLV01bvyqnxcFvVTqvB2d6MXvE6bvY5WLQc="
 install:
   - source ci/travis/install.sh
+  - conda update -c conda-forge -y -n root conda
+  - conda update -c conda-forge -y -n root conda-build
   - conda install -c conda-forge -y python=$TRAVIS_PYTHON_VERSION
   - conda install -c conda-forge -y coverage nose mock
   - pip install codecov
