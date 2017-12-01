@@ -13,6 +13,7 @@ env:
     - secure: "gQ24XPFgPKmykrFxtyTwbKDV8GRoLkKn/PPUUJVbXuoep73XmDywY4fUs0yuwRx2quBZG18JlyCFgxzNKNSQNRCzF4rGnFfhNiOB/PlBB8+p3HhsPeeUnuHJvAh98mI2WRu93kNUnY7OByWNzyo3Qnpp63OgNmkT8Kp8Xu7CB0c="
 install:
   - source ci/travis/install.sh
+  - conda remove -y pysocks
   - conda update -y -n root conda
   - conda update -y -n root conda-build
   - conda install -y python=$TRAVIS_PYTHON_VERSION
