@@ -38,6 +38,8 @@ def __convert_and_validate(ts, freq):
         :type ts: pandas.Series
     """
 
+    ts.sort_index(inplace=True)
+
     if freq == 'IRR':
         series = ts
     else:

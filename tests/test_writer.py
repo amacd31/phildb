@@ -650,3 +650,35 @@ class WriterTest(unittest.TestCase):
 
         self.assertEqual(datetime(2017,8,6,6,50,0,0), data.index[3].to_pydatetime())
         self.assertEqual(datetime(2017,8,6,6,51,0,0), data.index[4].to_pydatetime())
+
+    def test_unordered_write(self):
+        log_entries = writer.write(
+            self.tsdb_existing_file,
+            pd.Series(
+                index = [
+                    datetime(2014,1,2), datetime(2014,1,1)
+                ],
+                data = [2.5, 1.5]
+            ),
+        'D')
+        new_entries = log_entries['C']
+
+        updated_data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(1.5, updated_data.values[0])
+        self.assertEqual(2.5, updated_data.values[1])
+
+    def test_unordered_irr_write(self):
+        log_entries = writer.write(
+            self.tsdb_existing_file,
+            pd.Series(
+                index = [
+                    datetime(2014,1,2), datetime(2014,1,1)
+                ],
+                data = [2.5, 1.5]
+            ),
+        'IRR')
+        new_entries = log_entries['C']
+
+        updated_data = reader.read(self.tsdb_existing_file)
+        self.assertEqual(1.5, updated_data.values[0])
+        self.assertEqual(2.5, updated_data.values[1])
