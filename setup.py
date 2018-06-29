@@ -12,7 +12,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 requirements = [
         "ipython>=2.0.0",
         "numpy>=1.8.0",
-        "pandas>=0.14.0",
+        "pandas>=0.19.2",
         "SQLAlchemy>=0.9.2",
         "tables>=3.1.0",
     ]
@@ -30,7 +30,7 @@ setup(
     install_requires=requirements,
     packages = ['phildb'],
     test_suite = 'nose.collector',
-    tests_require = ['nose'],
+    tests_require = ['nose', 'mock'],
     entry_points = {
         'console_scripts': [
             'phil-create = phildb.create:main',
