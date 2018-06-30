@@ -271,7 +271,7 @@ def write_regular_data(tsdb_file, series):
     # We are appending data
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
-            last_record_date = pd.Timestamp(last_record_date, offset=series.index.freq) + 1
+            last_record_date = pd.Timestamp(last_record_date, freq=series.index.freq) + 1
 
             log_entries = __write_missing(writer, series.index.freq, last_record_date, start_date - 1, log_entries)
 
