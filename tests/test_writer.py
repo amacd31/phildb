@@ -622,7 +622,7 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(1, len(new_entries))
 
     def test_empty_series_write(self):
-        log_entries = writer.write(self.tsdb_existing_file, pd.Series([]), 'D')
+        log_entries = writer.write(self.tsdb_existing_file, pd.Series([], dtype="float64"), 'D')
         self.assertEqual(0, len(log_entries['C']))
         self.assertEqual(0, len(log_entries['U']))
 
