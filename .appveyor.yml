@@ -1,7 +1,7 @@
 environment:
 
   matrix:
-    - PYTHON: "C:\\Python37-x64"
+    - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "37"
@@ -9,9 +9,6 @@ environment:
 
 install:
   - git submodule update --init --recursive
-  # this installs the appropriate Miniconda (Py2/Py3, 32/64 bit),
-  # as well as pip, conda-build, and the binstar CLI
-  - powershell .\\ci\\appveyor\\install.ps1
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - conda install -y coverage nose mock
   - conda install -y ipython numpy pandas SQLAlchemy pytables
