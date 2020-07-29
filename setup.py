@@ -12,7 +12,7 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
 requirements = [
     "ipython>=2.0.0",
     "numpy>=1.8.0",
-    "pandas>=0.19.2",
+    "pandas>=0.24.2",
     "SQLAlchemy>=0.9.2",
     "tables>=3.1.0",
 ]
