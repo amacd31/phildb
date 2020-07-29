@@ -312,8 +312,8 @@ def write_irregular_data(tsdb_file, series):
         series = series.astype(np.float64)
 
     overlap_idx = existing.index.intersection(series.index)
-    modified = series.ix[overlap_idx] != existing.value.ix[overlap_idx]
-    records_to_modify = existing.loc[overlap_idx].ix[modified.values]
+    modified = series.loc[overlap_idx] != existing.value.loc[overlap_idx]
+    records_to_modify = existing.loc[overlap_idx].loc[modified.values]
     new_records = series.index.difference(existing.index)
 
     log_entries = {'C': [], 'U': []}
@@ -353,7 +353,7 @@ def write_irregular_data(tsdb_file, series):
                            ), index=merged.index)
 
     new_logs = [(row.datestamp, row.value, DEFAULT_META_ID)
-                for idx, row in merged.ix[new_records].iterrows()]
+                for idx, row in merged.loc[new_records].iterrows()]
     log_entries['C'] += new_logs
 
     # Only attempt to do backups of file if we're doing a destructive

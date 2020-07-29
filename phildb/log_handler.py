@@ -56,7 +56,7 @@ class LogHandler:
 
         idx = ~df.index.duplicated(keep = 'last')
 
-        df = df.ix[idx]
+        df = df.loc[idx]
 
         return df
 
