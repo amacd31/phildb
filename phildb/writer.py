@@ -60,7 +60,7 @@ def __calculate_offset(freqstr, start_date, first_record_date):
     if freqstr[-1] == 'S' and len(freqstr) > 1:
         freqstr = freqstr[:-1]
 
-    return start_date.to_period(freqstr) - pd.to_datetime(first_record_date).to_period(freqstr)
+    return (start_date.to_period(freqstr) - pd.to_datetime(first_record_date).to_period(freqstr)).n
 
 def __write_missing(writer, freq, first_date, last_date, log_entries):
     log_entries = log_entries.copy()
@@ -228,8 +228,8 @@ def write_regular_data(tsdb_file, series):
         # Write all the data up to the original first_record_date
         with open(tsdb_file, 'wb') as writer:
             for date, value in zip(
-                    series.loc[:first_record_date-1].index,
-                    series.loc[:first_record_date-1].values
+                    series.loc[:first_record_date-series.index.freq].index,
+                    series.loc[:first_record_date-series.index.freq].values
                 ):
                 datestamp = calendar.timegm(date.utctimetuple())
                 log_entries['C'].append(
@@ -247,8 +247,8 @@ def write_regular_data(tsdb_file, series):
             log_entries = __write_missing(
                 writer,
                 series.index.freq,
-                end_date + 1,
-                pd.Timestamp(first_record_date, freq = series.index.freq) - 1,
+                end_date + series.index.freq,
+                pd.Timestamp(first_record_date, freq = series.index.freq) - series.index.freq,
                 log_entries
             )
 
@@ -271,9 +271,9 @@ def write_regular_data(tsdb_file, series):
     # We are appending data
     elif start_date > last_record_date:
         with open(tsdb_file, 'a+b') as writer:
-            last_record_date = pd.Timestamp(last_record_date, freq=series.index.freq) + 1
+            last_record_date = pd.Timestamp(last_record_date, unit=series.index.freq.name) + series.index.freq
 
-            log_entries = __write_missing(writer, series.index.freq, last_record_date, start_date - 1, log_entries)
+            log_entries = __write_missing(writer, series.index.freq, last_record_date, start_date - series.index.freq, log_entries)
 
             for date, value in zip(series.index, series.values):
                 datestamp = calendar.timegm(date.utctimetuple())
