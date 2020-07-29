@@ -23,7 +23,7 @@ Dependencies
 
 Requires Python 3.7 or greater (mostly tested on Mac OSX and Linux).
 Test suite runs on Linux using Travis CI with Python 3.6, 3.7, and 3.8.
-Test suite runs on Windows using Appveyor with Python 3.4.
+Test suite runs on Windows using Appveyor with Python 3.7.
 
 All the python dependencies are recorded in the python\_requirements
 file.
