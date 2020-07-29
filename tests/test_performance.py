@@ -15,29 +15,34 @@ from nose.plugins.attrib import attr
 from phildb import writer
 from phildb import reader
 
-@attr('performance')
+
+@attr("performance")
 class SpeedTest(unittest.TestCase):
     def setUp(self):
         self.tsdb_path = tempfile.mkdtemp()
-        self.tsdb_existing_file = os.path.join(self.tsdb_path, 'existing_test.tsdb')
-        shutil.copy(os.path.join(os.path.dirname(__file__),
-            'test_data',
-            'sample.tsdb'),
-            self.tsdb_existing_file)
+        self.tsdb_existing_file = os.path.join(self.tsdb_path, "existing_test.tsdb")
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), "test_data", "sample.tsdb"),
+            self.tsdb_existing_file,
+        )
 
-        self.tsdb_file = os.path.join(self.tsdb_path, 'write_test.tsdb')
+        self.tsdb_file = os.path.join(self.tsdb_path, "write_test.tsdb")
 
     def tearDown(self):
         try:
             shutil.rmtree(self.tsdb_path)
         except OSError as e:
-            if e.errno != 2: # Code 2: No such file or directory.
+            if e.errno != 2:  # Code 2: No such file or directory.
                 raise
 
     def test_append_with_large_gap(self):
-        writer.write(self.tsdb_file, pd.Series(index = [datetime(2005,1,1)], data = [1.0]), 'H')
+        writer.write(
+            self.tsdb_file, pd.Series(index=[datetime(2005, 1, 1)], data=[1.0]), "H"
+        )
         start_time = time.time()
-        writer.write(self.tsdb_file, pd.Series(index = [datetime(2014,12,31)], data = [2.0]), 'H')
+        writer.write(
+            self.tsdb_file, pd.Series(index=[datetime(2014, 12, 31)], data=[2.0]), "H"
+        )
         end_time = time.time()
 
         # Prior to the fix committed with this test, on my Macbook Air,
@@ -52,5 +57,5 @@ class SpeedTest(unittest.TestCase):
         self.assertEqual(1.0, data.values[0])
         self.assertTrue(np.isnan(data.values[1]))
         self.assertEqual(2.0, data.values[-1])
-        self.assertEqual(datetime(2005,1,1,0,0), data.index[0].to_pydatetime())
-        self.assertEqual(datetime(2014,12,31), data.index[-1].to_pydatetime())
+        self.assertEqual(datetime(2005, 1, 1, 0, 0), data.index[0].to_pydatetime())
+        self.assertEqual(datetime(2014, 12, 31), data.index[-1].to_pydatetime())

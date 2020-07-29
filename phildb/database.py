@@ -12,7 +12,8 @@ from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import logging
-logger = logging.getLogger('PhilDB_database')
+
+logger = logging.getLogger("PhilDB_database")
 
 from phildb import constants
 from phildb import reader
@@ -21,6 +22,7 @@ from phildb.dbstructures import SchemaVersion, Timeseries, Measurand, Timeseries
 from phildb.dbstructures import Source
 from phildb.dbstructures import Attribute, AttributeValue
 from phildb.exceptions import DuplicateError, MissingAttributeError, MissingDataError
+
 
 class PhilDB(object):
     def __init__(self, tsdb_path):
@@ -32,19 +34,23 @@ class PhilDB(object):
             raise IOError("PhilDB database doesn't exist ({0})".format(self.tsdb_path))
 
         if not os.path.exists(self.__meta_data_db()):
-            raise IOError("PhilDB database doesn't contain meta-database ({0})".format(self.__meta_data_db()))
+            raise IOError(
+                "PhilDB database doesn't contain meta-database ({0})".format(
+                    self.__meta_data_db()
+                )
+            )
 
-        self.__engine = create_engine('sqlite:///{0}'.format(self.__meta_data_db()))
+        self.__engine = create_engine("sqlite:///{0}".format(self.__meta_data_db()))
         self.Session = sessionmaker()
         self.Session.configure(bind=self.__engine)
 
-        assert self.version() == constants.DB_VERSION;
+        assert self.version() == constants.DB_VERSION
 
     def __meta_data_db(self):
         return os.path.join(self.tsdb_path, constants.METADATA_DB)
 
     def __data_dir(self):
-        return os.path.join(self.tsdb_path, 'data')
+        return os.path.join(self.tsdb_path, "data")
 
     def help(self):
         """
@@ -58,11 +64,11 @@ class PhilDB(object):
 
             docstring = getattr(self, method).__doc__
             if docstring is None:
-                short_string = ''
+                short_string = ""
             else:
-                docstring = docstring.split('\n')
+                docstring = docstring.split("\n")
                 short_string = docstring[0].strip()
-                if short_string == '':
+                if short_string == "":
                     short_string = docstring[1].strip()
             print("{0}: {1}".format(method, short_string))
 
@@ -88,7 +94,7 @@ class PhilDB(object):
         """
         the_id = identifier.strip()
         session = self.Session()
-        ts = Timeseries(primary_id = the_id)
+        ts = Timeseries(primary_id=the_id)
         session.add(ts)
         try:
             session.commit()
@@ -111,7 +117,9 @@ class PhilDB(object):
         short_id = measurand_short_id.strip()
         long_id = measurand_long_id.strip()
         session = self.Session()
-        measurand = Measurand(short_id = short_id, long_id = long_id,  description = description)
+        measurand = Measurand(
+            short_id=short_id, long_id=long_id, description=description
+        )
         session.add(measurand)
         try:
             session.commit()
@@ -134,13 +142,12 @@ class PhilDB(object):
         """
         short_id = source.strip()
         session = self.Session()
-        source = Source(short_id = short_id, description = description)
+        source = Source(short_id=short_id, description=description)
         session.add(source)
         try:
             session.commit()
         except IntegrityError:
             raise DuplicateError("Already exists: '{0}'".format(source))
-
 
     def add_attribute(self, attribute_id, description):
         """
@@ -153,10 +160,9 @@ class PhilDB(object):
         """
         short_id = attribute_id.strip().upper()
         session = self.Session()
-        attribute = Attribute(short_id = short_id, description = description)
+        attribute = Attribute(short_id=short_id, description=description)
         session.add(attribute)
         session.commit()
-
 
     def add_attribute_value(self, attribute_id, value):
         """
@@ -174,12 +180,13 @@ class PhilDB(object):
         try:
             attribute = query.one()
         except NoResultFound as e:
-            raise MissingAttributeError('Could not find {0} ({1}) in the database.'.format(attribute_id, value))
+            raise MissingAttributeError(
+                "Could not find {0} ({1}) in the database.".format(attribute_id, value)
+            )
 
-        attribute = AttributeValue(attribute_id = attribute.id, attribute_value = value)
+        attribute = AttributeValue(attribute_id=attribute.id, attribute_value=value)
         session.add(attribute)
         session.commit()
-
 
     def __parse_attribute_kwargs(self, **kwargs):
         """
@@ -190,7 +197,7 @@ class PhilDB(object):
 
             :return: Dictionary of attributes from the database.
         """
-        session = kwargs.pop('session', None)
+        session = kwargs.pop("session", None)
         attributes = {}
         for attribute, value in kwargs.items():
             if value is None:
@@ -219,23 +226,27 @@ class PhilDB(object):
 
         timeseries = self.__get_record_by_id(identifier, session)
 
-        attributes = self.__parse_attribute_kwargs(session = session, **kwargs)
+        attributes = self.__parse_attribute_kwargs(session=session, **kwargs)
 
-        query = session.query(TimeseriesInstance). \
-                filter_by(timeseries=timeseries, freq=freq, **attributes)
+        query = session.query(TimeseriesInstance).filter_by(
+            timeseries=timeseries, freq=freq, **attributes
+        )
         try:
             record = query.one()
             session.rollback()
-            raise DuplicateError('TimeseriesInstance for ({:}) already exists.'. \
-                    format(identifier, **kwargs))
+            raise DuplicateError(
+                "TimeseriesInstance for ({:}) already exists.".format(
+                    identifier, **kwargs
+                )
+            )
         except NoResultFound as e:
             # No result is good, we can now create a ts instance.
             pass
 
         with session.no_autoflush:
-            tsi = TimeseriesInstance(initial_metadata = initial_metadata)
-            tsi.measurand = attributes['measurand']
-            tsi.source = attributes['source']
+            tsi = TimeseriesInstance(initial_metadata=initial_metadata)
+            tsi.measurand = attributes["measurand"]
+            tsi.source = attributes["source"]
             tsi.freq = freq
             tsi.uuid = uuid.uuid4().hex
             timeseries.ts_instances.append(tsi)
@@ -244,9 +255,13 @@ class PhilDB(object):
             try:
                 session.commit()
             except IntegrityError:
-                raise DuplicateError("Timeseries instance already exists: '{0}', '{1}'".format(identifier, freq))
+                raise DuplicateError(
+                    "Timeseries instance already exists: '{0}', '{1}'".format(
+                        identifier, freq
+                    )
+                )
 
-    def __get_record_by_id(self, identifier, session = None):
+    def __get_record_by_id(self, identifier, session=None):
         """
             Get a database record for the given timeseries ID.
 
@@ -266,12 +281,13 @@ class PhilDB(object):
         try:
             record = query.one()
         except NoResultFound as e:
-            raise MissingDataError('Could not find metadata record for: {0}'.format(identifier))
+            raise MissingDataError(
+                "Could not find metadata record for: {0}".format(identifier)
+            )
 
         return record
 
-
-    def __get_attribute(self, attribute, value, session = None):
+    def __get_attribute(self, attribute, value, session=None):
         """
             Get a database record for the given attribute.
 
@@ -287,32 +303,38 @@ class PhilDB(object):
         if session is None:
             session = self.Session()
 
-        if attribute == 'measurand':
+        if attribute == "measurand":
             query = session.query(Measurand).filter(Measurand.short_id == value)
-        elif attribute == 'source':
+        elif attribute == "source":
             query = session.query(Source).filter(Source.short_id == value)
-        elif attribute == 'timeseries':
+        elif attribute == "timeseries":
             query = session.query(Timeseries).filter(Timeseries.primary_id == value)
-        elif attribute == 'provider':
+        elif attribute == "provider":
             short_id = attribute.strip().upper()
             query = session.query(Attribute).filter(Attribute.short_id == short_id)
             try:
                 record = query.one()
             except NoResultFound as e:
-                raise MissingAttributeError('Could not find {0} ({1}) in the database.'.format(attribute, value))
-            query = session.query(AttributeValue).filter(AttributeValue.attribute_id == record.id, AttributeValue.attribute_value == value)
+                raise MissingAttributeError(
+                    "Could not find {0} ({1}) in the database.".format(attribute, value)
+                )
+            query = session.query(AttributeValue).filter(
+                AttributeValue.attribute_id == record.id,
+                AttributeValue.attribute_value == value,
+            )
         else:
-            raise MissingAttributeError('Attribute {0} unknown'.format(attribute))
+            raise MissingAttributeError("Attribute {0} unknown".format(attribute))
 
         try:
             record = query.one()
         except NoResultFound as e:
-            raise MissingAttributeError('Could not find {0} ({1}) in the database.'.format(attribute, value))
+            raise MissingAttributeError(
+                "Could not find {0} ({1}) in the database.".format(attribute, value)
+            )
 
         return record
 
-
-    def get_file_path(self, identifier, freq, ftype='tsdb', **kwargs):
+    def get_file_path(self, identifier, freq, ftype="tsdb", **kwargs):
         """
             Get a path to a file for a given timeseries instance.
 
@@ -326,10 +348,7 @@ class PhilDB(object):
         """
         record = self.__get_ts_instance(identifier, freq, **kwargs)
 
-        return os.path.join(self.__data_dir(), record.uuid +
-                '.' + ftype
-                )
-
+        return os.path.join(self.__data_dir(), record.uuid + "." + ftype)
 
     def write(self, identifier, freq, ts, **kwargs):
         """
@@ -342,9 +361,11 @@ class PhilDB(object):
             :param ts: Timeseries data to write into the database.
             :type ts: pd.Series
         """
-        modified = writer.write(self.get_file_path(identifier, freq, **kwargs), ts, freq)
+        modified = writer.write(
+            self.get_file_path(identifier, freq, **kwargs), ts, freq
+        )
 
-        log_file = self.get_file_path(identifier, freq, ftype = 'hdf5', **kwargs)
+        log_file = self.get_file_path(identifier, freq, ftype="hdf5", **kwargs)
 
         writer.write_log(log_file, modified, datetime.utcnow())
 
@@ -378,9 +399,11 @@ class PhilDB(object):
 
             :returns: pandas.DataFrame -- Timeseries data.
         """
-        return reader.read_log(self.get_file_path(identifier, freq, ftype='hdf5', **kwargs), as_at_datetime)
+        return reader.read_log(
+            self.get_file_path(identifier, freq, ftype="hdf5", **kwargs), as_at_datetime
+        )
 
-    def read_all(self, freq, excludes = None, **kwargs):
+    def read_all(self, freq, excludes=None, **kwargs):
         """
             Read the entire timeseries record for all matching timeseries instances.
             Optionally exclude timeseries from the final DataFrame by specifying IDs in the exclude argument.
@@ -422,7 +445,6 @@ class PhilDB(object):
             data[ts_id] = reader.read(self.get_file_path(ts_id, freq, **kwargs))
         return pd.DataFrame(data)
 
-
     def ts_list(self, **kwargs):
         """
             Returns list of primary ID for all timeseries records.
@@ -435,10 +457,12 @@ class PhilDB(object):
         session = self.Session()
         query_args = self.__parse_attribute_kwargs(**kwargs)
 
-        records = session.query(TimeseriesInstance).options(
-                joinedload(TimeseriesInstance.timeseries)
-            ).filter_by(**query_args)
-        return sorted(list(set([ record.timeseries.primary_id for record in records ])))
+        records = (
+            session.query(TimeseriesInstance)
+            .options(joinedload(TimeseriesInstance.timeseries))
+            .filter_by(**query_args)
+        )
+        return sorted(list(set([record.timeseries.primary_id for record in records])))
 
     def list_ids(self):
         """
@@ -449,7 +473,7 @@ class PhilDB(object):
         session = self.Session()
 
         records = session.query(Timeseries)
-        return sorted(list(set([ record.primary_id for record in records ])))
+        return sorted(list(set([record.primary_id for record in records])))
 
     def list_timeseries_instances(self, **kwargs):
         """
@@ -462,7 +486,7 @@ class PhilDB(object):
         session = self.Session()
 
         initial_args = {}
-        for attr in ['freq']:
+        for attr in ["freq"]:
             attr_val = kwargs.pop(attr, None)
 
             if attr_val:
@@ -471,16 +495,18 @@ class PhilDB(object):
         query_args = self.__parse_attribute_kwargs(**kwargs)
         query_args.update(initial_args)
 
-        records = session.query(TimeseriesInstance).options(
-                joinedload(TimeseriesInstance.timeseries)
-            ).filter_by(**query_args)
+        records = (
+            session.query(TimeseriesInstance)
+            .options(joinedload(TimeseriesInstance.timeseries))
+            .filter_by(**query_args)
+        )
         instance_list = []
         for record in records:
             instance = {
-                'ts_id': record.timeseries.primary_id,
-                'freq': record.freq,
-                'measurand': record.measurand.short_id,
-                'source': record.source.short_id,
+                "ts_id": record.timeseries.primary_id,
+                "freq": record.freq,
+                "measurand": record.measurand.short_id,
+                "source": record.source.short_id,
             }
             instance_list.append(instance)
 
@@ -495,7 +521,7 @@ class PhilDB(object):
         session = self.Session()
 
         records = session.query(Measurand)
-        return sorted(list(set([ record.short_id for record in records ])))
+        return sorted(list(set([record.short_id for record in records])))
 
     def list_sources(self):
         """
@@ -506,7 +532,7 @@ class PhilDB(object):
         session = self.Session()
 
         records = session.query(Source)
-        return sorted(list(set([ record.short_id for record in records ])))
+        return sorted(list(set([record.short_id for record in records])))
 
     def read_metadata(self, ts_id, freq, **kwargs):
         """
@@ -536,14 +562,18 @@ class PhilDB(object):
         query_args = self.__parse_attribute_kwargs(**kwargs)
 
         session = self.Session()
-        query = session.query(TimeseriesInstance). \
-                filter_by(timeseries=timeseries, freq=freq, **query_args)
+        query = session.query(TimeseriesInstance).filter_by(
+            timeseries=timeseries, freq=freq, **query_args
+        )
 
         try:
             record = query.one()
         except NoResultFound as e:
-            raise MissingDataError('Could not find TimeseriesInstance for ({:}).'. \
-                    format(ts_id, freq, **kwargs))
+            raise MissingDataError(
+                "Could not find TimeseriesInstance for ({:}).".format(
+                    ts_id, freq, **kwargs
+                )
+            )
 
         return record
 

@@ -29,11 +29,11 @@ from pandas import Timestamp
 from phildb.constants import MISSING_VALUE, METADATA_MISSING_VALUE
 from phildb.log_handler import LogHandler
 
-class FixLogHandler(LogHandler):
 
+class FixLogHandler(LogHandler):
     def write_data(self, data):
 
-        ts_table = self.hdf5.get_node('/data/log')
+        ts_table = self.hdf5.get_node("/data/log")
 
         index_row = ts_table.row
         for dt, data in data.iterrows():
@@ -44,13 +44,16 @@ class FixLogHandler(LogHandler):
             index_row["time"] = calendar.timegm(dt.to_pydatetime().utctimetuple())
             index_row["value"] = data[0]
             index_row["meta"] = data[1]
-            index_row["replacement_time"] = calendar.timegm(data[2].to_pydatetime().utctimetuple())
+            index_row["replacement_time"] = calendar.timegm(
+                data[2].to_pydatetime().utctimetuple()
+            )
             index_row.append()
 
         self.hdf5.flush()
 
+
 def fix_index(dt):
-    if dt < Timestamp('2030-03-01'):
+    if dt < Timestamp("2030-03-01"):
         return dt
 
     orig_int = calendar.timegm(dt.to_pydatetime().utctimetuple())
@@ -62,17 +65,17 @@ def fix_index(dt):
 
     return datetime.utcfromtimestamp(new_int)
 
+
 for hashname in sys.argv[1:]:
 
-    os.rename(hashname + '.hdf5', hashname + '.original_hdf5')
+    os.rename(hashname + ".hdf5", hashname + ".original_hdf5")
 
-
-    with LogHandler(hashname + '.original_hdf5', 'r') as orig:
-        original_log = orig.read(calendar.timegm(datetime(9999,1,1).utctimetuple()))
+    with LogHandler(hashname + ".original_hdf5", "r") as orig:
+        original_log = orig.read(calendar.timegm(datetime(9999, 1, 1).utctimetuple()))
 
     df = original_log.reset_index()
-    original_log.index = df['date'].apply(fix_index)
+    original_log.index = df["date"].apply(fix_index)
 
-    with FixLogHandler(hashname + '.hdf5', 'w') as n:
+    with FixLogHandler(hashname + ".hdf5", "w") as n:
         n.create_skeleton()
         n.write_data(original_log)
