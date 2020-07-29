@@ -10,6 +10,8 @@ environment:
 install:
   - git submodule update --init --recursive
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - conda create -y -n phildb python=3.7
+  - CALL activate.bat phildb
   - conda install -y coverage nose mock
   - conda install -y ipython numpy pandas SQLAlchemy pytables
   - python setup.py install
