@@ -634,9 +634,9 @@ class WriterTest(unittest.TestCase):
         """
 
         sample = pd.Series(
-            pd.np.array(
+            np.array(
                 [x + 0.1 for x in range(10)],
-                dtype=pd.np.float32
+                dtype=np.float32
             ),
             index=pd.date_range(
                 '2017-08-06 06:50:00',
